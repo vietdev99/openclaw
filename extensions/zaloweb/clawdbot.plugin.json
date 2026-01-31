@@ -1,0 +1,40 @@
+{
+  "id": "zaloweb",
+  "name": "Zalo Web",
+  "version": "0.1.0",
+  "description": "Zalo Web integration via Electron BrowserView",
+  "channel": true,
+  "configSchema": {
+    "type": "object",
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+        "description": "Enable Zalo Web channel",
+        "default": false
+      },
+      "dmPolicy": {
+        "type": "string",
+        "enum": ["pairing", "allowlist", "open", "disabled"],
+        "description": "Direct message policy",
+        "default": "pairing"
+      },
+      "allowFrom": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "Allowed user IDs (for allowlist policy)",
+        "default": []
+      },
+      "groupPolicy": {
+        "type": "string",
+        "enum": ["allowlist", "open", "disabled"],
+        "description": "Group chat policy",
+        "default": "allowlist"
+      },
+      "autoReply": {
+        "type": "boolean",
+        "description": "Auto reply to messages",
+        "default": true
+      }
+    }
+  }
+}

@@ -56,6 +56,11 @@ import { listNodes, resolveNodeIdFromList } from "./tools/nodes-utils.js";
 import { getShellConfig, sanitizeBinaryOutput } from "./shell-utils.js";
 import { buildCursorPositionResponse, stripDsrRequests } from "./pty-dsr.js";
 import { parseAgentSessionKey, resolveAgentIdFromSessionKey } from "../routing/session-key.js";
+import type { TerminalConfig } from "../config/types.terminal.js";
+import {
+  type TerminalHostClient,
+  getTerminalHostClient,
+} from "../terminal-host/ipc-client.js";
 
 const DEFAULT_MAX_OUTPUT = clampNumber(
   readEnvInt("PI_BASH_MAX_OUTPUT_CHARS"),
@@ -134,6 +139,8 @@ export type ExecToolDefaults = {
   messageProvider?: string;
   notifyOnExit?: boolean;
   cwd?: string;
+  /** Terminal configuration for isolated execution mode. */
+  terminal?: TerminalConfig;
 };
 
 export type { BashSandboxConfig } from "./bash-tools.shared.js";
@@ -368,6 +375,96 @@ function emitExecSystemEvent(text: string, opts: { sessionKey?: string; contextK
   }
   enqueueSystemEvent(text, { sessionKey, contextKey: opts.contextKey });
   requestHeartbeatNow({ reason: "exec-event" });
+}
+
+// Terminal host client instance (lazy initialized)
+let terminalHostClientInstance: TerminalHostClient | null = null;
+
+/**
+ * Run command via isolated terminal host process.
+ * This provides crash isolation - terminal host crashes don't affect the main gateway.
+ */
+async function runExecViaTerminalHost(opts: {
+  command: string;
+  workdir: string;
+  env: Record<string, string>;
+  timeoutMs: number;
+  terminalConfig: TerminalConfig;
+  warnings: string[];
+}): Promise<ExecProcessOutcome> {
+  const startedAt = Date.now();
+
+  // Initialize terminal host client if not already done
+  if (!terminalHostClientInstance) {
+    terminalHostClientInstance = getTerminalHostClient(opts.terminalConfig);
+    try {
+      await terminalHostClientInstance.start();
+    } catch (err) {
+      const errMsg = String(err);
+      opts.warnings.push(`Warning: Terminal host start failed (${errMsg}); falling back to legacy mode.`);
+      logWarn(`exec: Terminal host start failed (${errMsg}); falling back to legacy mode.`);
+      terminalHostClientInstance = null;
+      throw new Error(`Terminal host unavailable: ${errMsg}`);
+    }
+  }
+
+  // Ensure connected
+  if (!terminalHostClientInstance.isConnected()) {
+    try {
+      await terminalHostClientInstance.start();
+    } catch (err) {
+      const errMsg = String(err);
+      throw new Error(`Terminal host connection failed: ${errMsg}`);
+    }
+  }
+
+  // Determine shell from config
+  const shellName = opts.terminalConfig.shell === "auto" ? undefined : opts.terminalConfig.shell;
+
+  try {
+    const result = await terminalHostClientInstance.exec({
+      command: opts.command,
+      workdir: opts.workdir,
+      env: opts.env,
+      timeout: opts.timeoutMs,
+      shell: shellName as "bash" | "powershell" | "cmd" | undefined,
+    });
+
+    const durationMs = Date.now() - startedAt;
+    const aggregated = [result.stdout, result.stderr].filter(Boolean).join("\n").trim();
+
+    if (!result.success) {
+      return {
+        status: "failed",
+        exitCode: result.exitCode,
+        exitSignal: result.signal as NodeJS.Signals | null,
+        durationMs,
+        aggregated,
+        timedOut: result.timedOut,
+        reason: result.error ?? (result.timedOut ? `Command timed out after ${opts.timeoutMs}ms` : "Command failed"),
+      };
+    }
+
+    return {
+      status: "completed",
+      exitCode: result.exitCode ?? 0,
+      exitSignal: null,
+      durationMs,
+      aggregated,
+      timedOut: false,
+    };
+  } catch (err) {
+    const durationMs = Date.now() - startedAt;
+    return {
+      status: "failed",
+      exitCode: null,
+      exitSignal: null,
+      durationMs,
+      aggregated: "",
+      timedOut: false,
+      reason: String(err),
+    };
+  }
 }
 
 async function runExecProcess(opts: {
@@ -1442,6 +1539,46 @@ export function createExecTool(
         typeof params.timeout === "number" ? params.timeout : defaultTimeoutSec;
       const getWarningText = () => (warnings.length ? `${warnings.join("\n")}\n\n` : "");
       const usePty = params.pty === true && !sandbox;
+
+      // Check if we should use isolated terminal host mode
+      const terminalMode = defaults?.terminal?.mode ?? "legacy";
+      const useTerminalHost = terminalMode === "isolated" && !sandbox && !usePty;
+
+      if (useTerminalHost) {
+        // Run via isolated terminal host (crash-resistant mode)
+        logInfo(`exec: Using terminal host for command: ${truncateMiddle(params.command, 80)}`);
+        const terminalConfig = defaults?.terminal ?? { mode: "isolated", shell: "auto" };
+        const outcome = await runExecViaTerminalHost({
+          command: params.command,
+          workdir,
+          env,
+          timeoutMs: effectiveTimeout * 1000,
+          terminalConfig,
+          warnings,
+        });
+
+        if (outcome.status === "failed") {
+          throw new Error(outcome.reason ?? "Command failed in terminal host.");
+        }
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: `${getWarningText()}${outcome.aggregated || "(no output)"}`,
+            },
+          ],
+          details: {
+            status: "completed",
+            exitCode: outcome.exitCode ?? 0,
+            durationMs: outcome.durationMs,
+            aggregated: outcome.aggregated,
+            cwd: workdir,
+          },
+        };
+      }
+
+      // Legacy mode: run directly in main process
       const run = await runExecProcess({
         command: params.command,
         workdir,

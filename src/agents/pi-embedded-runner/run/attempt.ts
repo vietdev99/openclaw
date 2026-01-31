@@ -90,6 +90,9 @@ import { getGlobalHookRunner } from "../../../plugins/hook-runner-global.js";
 import { MAX_IMAGE_BYTES } from "../../../media/constants.js";
 import type { EmbeddedRunAttemptParams, EmbeddedRunAttemptResult } from "./types.js";
 import { detectAndLoadPromptImages } from "./images.js";
+import { shouldUseXmlToolParsing } from "../provider-capabilities.js";
+import { runXmlToolLoop, needsXmlToolProcessing } from "../xml-tool-loop.js";
+import type { ParsedToolCall } from "../xml-tool-parser.js";
 
 export function injectHistoryImagesIntoMessages(
   messages: AgentMessage[],
@@ -805,6 +808,70 @@ export async function runEmbeddedAttempt(
             await abortable(activeSession.prompt(effectivePrompt, { images: imageResult.images }));
           } else {
             await abortable(activeSession.prompt(effectivePrompt));
+          }
+
+          // Handle XML tool parsing for providers that don't support native tool_calls
+          // (e.g., Antigravity proxy, Ollama, LM Studio)
+          const useXmlTools = shouldUseXmlToolParsing(params.modelId, params.provider);
+          if (useXmlTools) {
+            // Get the last assistant message to check for XML tool calls
+            const getLastAssistantText = (): string => {
+              const messages = activeSession.messages.slice().reverse();
+              for (const msg of messages) {
+                if (msg.role === "assistant") {
+                  if (typeof msg.content === "string") return msg.content;
+                  if (Array.isArray(msg.content)) {
+                    return msg.content
+                      .filter((c): c is { type: "text"; text: string } => c?.type === "text")
+                      .map((c) => c.text)
+                      .join("\n");
+                  }
+                }
+              }
+              return "";
+            };
+
+            const initialResponse = getLastAssistantText();
+            if (needsXmlToolProcessing(initialResponse)) {
+              log.debug(
+                `embedded run xml-tool-loop start: runId=${params.runId} sessionId=${params.sessionId} provider=${params.provider}`
+              );
+
+              // Define sendToLlm function for XML tool loop
+              const sendToLlm = async (message: string): Promise<string> => {
+                await abortable(activeSession.prompt(message));
+                return getLastAssistantText();
+              };
+
+              // Run XML tool loop with all available tools
+              const xmlLoopResult = await runXmlToolLoop(initialResponse, {
+                tools: toolsRaw,
+                sendToLlm,
+                maxIterations: 15,
+                signal: runAbortController.signal,
+                onIterationStart: (iteration, toolCalls) => {
+                  log.debug(
+                    `xml-tool-loop iteration ${iteration}: ${toolCalls.length} tool(s) - ${toolCalls.map((t) => t.name).join(", ")}`
+                  );
+                },
+                onToolResult: (result) => {
+                  if (!result.success) {
+                    log.warn(`xml-tool-loop tool error: ${result.toolCall.name} - ${result.error}`);
+                  }
+                },
+                onIterationEnd: (iteration, _response) => {
+                  log.debug(`xml-tool-loop iteration ${iteration} complete`);
+                },
+              });
+
+              log.debug(
+                `embedded run xml-tool-loop end: runId=${params.runId} iterations=${xmlLoopResult.totalIterations} stopReason=${xmlLoopResult.stopReason}`
+              );
+
+              if (xmlLoopResult.error) {
+                log.warn(`xml-tool-loop error: ${xmlLoopResult.error}`);
+              }
+            }
           }
         } catch (err) {
           promptError = err;

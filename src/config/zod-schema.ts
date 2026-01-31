@@ -528,6 +528,23 @@ export const OpenClawSchema = z
       })
       .strict()
       .optional(),
+    terminal: z
+      .object({
+        mode: z.union([z.literal("legacy"), z.literal("isolated")]).optional(),
+        shell: z
+          .union([z.literal("auto"), z.literal("bash"), z.literal("powershell"), z.literal("cmd")])
+          .optional(),
+        host: z
+          .object({
+            port: z.number().int().positive().optional(),
+            maxRestarts: z.number().int().nonnegative().optional(),
+            timeout: z.number().int().positive().optional(),
+          })
+          .strict()
+          .optional(),
+      })
+      .strict()
+      .optional(),
   })
   .strict()
   .superRefine((cfg, ctx) => {

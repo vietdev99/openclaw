@@ -1,0 +1,31 @@
+{
+  "name": "@clawdbot/zaloweb",
+  "version": "0.1.0",
+  "description": "Zalo Web channel plugin for Moltbot (Electron embedded)",
+  "type": "module",
+  "main": "index.ts",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "scripts": {
+    "build": "echo 'No build step required'",
+    "test": "echo 'No tests yet'"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "moltbot": "workspace:*"
+  },
+  "peerDependencies": {
+    "moltbot": "*"
+  },
+  "keywords": [
+    "moltbot",
+    "clawdbot",
+    "zalo",
+    "zaloweb",
+    "channel",
+    "plugin"
+  ],
+  "author": "",
+  "license": "MIT"
+}

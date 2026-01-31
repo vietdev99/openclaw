@@ -1,0 +1,7 @@
+Test started at 2026-01-29T22:34:56.925Z
+process.type: browser
+app defined: true
+Waiting for app ready...
+SUCCESS: App is ready!
+Window created!
+Closing app...
