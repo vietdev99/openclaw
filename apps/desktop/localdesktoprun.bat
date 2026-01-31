@@ -42,7 +42,7 @@ echo.
 
 REM Rebuild main process
 echo [3/5] Rebuilding main process...
-call npm run build:main
+call pnpm run build:main
 if %errorlevel% neq 0 (
     echo ERROR: Main build failed!
     pause
@@ -53,7 +53,7 @@ echo.
 
 REM Rebuild preload
 echo [4/5] Rebuilding preload...
-call npm run build:preload
+call pnpm run build:preload
 if %errorlevel% neq 0 (
     echo ERROR: Preload build failed!
     pause
@@ -70,4 +70,4 @@ echo   App should open in a few seconds
 echo   Press Ctrl+C to stop
 echo ====================================
 echo.
-call npm run dev
+call pnpm run dev
