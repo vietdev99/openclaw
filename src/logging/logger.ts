@@ -1,5 +1,6 @@
 import { createRequire } from "node:module";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
 import { Logger as TsLogger } from "tslog";
@@ -10,9 +11,11 @@ import { type LogLevel, levelToMinLevel, normalizeLogLevel } from "./levels.js";
 import { readLoggingConfig } from "./config.js";
 import { loggingState } from "./state.js";
 
-// Pin to /tmp so mac Debug UI and docs match; os.tmpdir() can be a per-user
-// randomized path on macOS which made the “Open log” button a no-op.
-export const DEFAULT_LOG_DIR = "/tmp/moltbot";
+// Use predictable paths: /tmp/moltbot on Unix, %TEMP%\moltbot on Windows
+// On macOS, os.tmpdir() can be a per-user randomized path which broke the "Open log" button.
+// We pin to /tmp on Unix for predictability, but use os.tmpdir() on Windows since /tmp doesn't exist.
+export const DEFAULT_LOG_DIR =
+  process.platform === "win32" ? path.join(os.tmpdir(), "moltbot") : "/tmp/moltbot";
 export const DEFAULT_LOG_FILE = path.join(DEFAULT_LOG_DIR, "moltbot.log"); // legacy single-file path
 
 const LOG_PREFIX = "moltbot";

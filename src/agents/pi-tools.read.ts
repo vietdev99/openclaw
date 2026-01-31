@@ -5,6 +5,7 @@ import { detectMime } from "../media/mime.js";
 import type { AnyAgentTool } from "./pi-tools.types.js";
 import { assertSandboxPath } from "./sandbox-paths.js";
 import { sanitizeToolResultImages } from "./tool-images.js";
+import { isPdfFile, validatePdfFile, createPdfBlockedError } from "./pdf-guard.js";
 
 // NOTE(steipete): Upstream read now does file-magic MIME detection; we keep the wrapper
 // to normalize payloads and sanitize oversized images before they hit providers.
@@ -272,12 +273,25 @@ export function createMoltbotReadTool(base: AnyAgentTool): AnyAgentTool {
         normalized ??
         (params && typeof params === "object" ? (params as Record<string, unknown>) : undefined);
       assertRequiredParams(record, CLAUDE_PARAM_GROUPS.read, base.name);
+      const filePath = typeof record?.path === "string" ? String(record.path) : "<unknown>";
+
+      // PDF Guard: Validate PDF files before reading to prevent infinite loop bug
+      // Large PDFs (>100 pages) cause API errors and corrupt session context
+      if (isPdfFile(filePath)) {
+        const validation = await validatePdfFile(filePath);
+        if (!validation.valid && validation.error) {
+          // Return error result instead of throwing - this prevents context corruption
+          return {
+            content: [{ type: "text", text: createPdfBlockedError(filePath, validation.error) }],
+          } as AgentToolResult<unknown>;
+        }
+      }
+
       const result = (await base.execute(
         toolCallId,
         normalized ?? params,
         signal,
       )) as AgentToolResult<unknown>;
-      const filePath = typeof record?.path === "string" ? String(record.path) : "<unknown>";
       const normalizedResult = await normalizeReadImageResult(result, filePath);
       return sanitizeToolResultImages(normalizedResult, `read:${filePath}`);
     },

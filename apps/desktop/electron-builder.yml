@@ -1,0 +1,46 @@
+appId: com.clawdbot.desktop
+productName: Clawdbot
+copyright: Copyright © 2024 Clawdbot
+
+directories:
+  output: release
+  buildResources: resources
+
+files:
+  - dist/**/*
+  - resources/**/*
+  - "!node_modules/**/*"
+
+extraResources:
+  - from: "../../"
+    to: "clawdbot"
+    filter:
+      - "dist/**/*"
+      - "package.json"
+      - "!node_modules/**/*"
+      - "!apps/**/*"
+      - "!.git/**/*"
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+    - target: msi
+      arch: [x64]
+  icon: resources/icon.ico
+  artifactName: "${productName}-Setup-${version}.${ext}"
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Clawdbot
+  installerIcon: resources/icon.ico
+  uninstallerIcon: resources/icon.ico
+  license: LICENSE
+
+msi:
+  oneClick: false
+  perMachine: false
+  runAfterFinish: true
