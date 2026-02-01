@@ -23,6 +23,8 @@ apps/shared/MoltbotKit/.build/
 **/ModuleCache/
 bin/
 bin/clawdbot-mac
+# Exception for whisper binaries
+!extended/packages/whisper/bin/
 bin/docs-list
 apps/macos/.build-local/
 apps/macos/.swiftpm/

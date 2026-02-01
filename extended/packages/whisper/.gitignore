@@ -1,0 +1,6 @@
+# Whisper models (large files, download separately)
+models/*.bin
+
+# Keep the directory structure
+!models/.gitkeep
+!models/download-model.ps1

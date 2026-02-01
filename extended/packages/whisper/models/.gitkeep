@@ -1,0 +1,3 @@
+# This directory contains Whisper models
+# Models are downloaded via download-model.ps1
+# They are gitignored due to large size

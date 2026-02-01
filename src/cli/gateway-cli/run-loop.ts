@@ -39,7 +39,7 @@ export async function runGatewayLoop(params: {
       gatewayLog.error("shutdown timed out; exiting without full cleanup");
       cleanupSignals();
       params.runtime.exit(0);
-    }, 5000);
+    }, 15000);
 
     void (async () => {
       try {

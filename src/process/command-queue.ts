@@ -158,3 +158,24 @@ export function clearCommandLane(lane: string = CommandLane.Main) {
   state.queue.length = 0;
   return removed;
 }
+
+/**
+ * Clear all pending tasks from all command lanes.
+ * Active tasks will continue running but no new tasks will be started from queues.
+ * Used during graceful shutdown to speed up cleanup.
+ */
+export function clearAllCommandLanes() {
+  let totalRemoved = 0;
+  for (const [lane, state] of lanes) {
+    const removed = state.queue.length;
+    if (removed > 0) {
+      // Reject all pending tasks with AbortError
+      for (const entry of state.queue) {
+        entry.reject(new DOMException("Shutdown in progress", "AbortError"));
+      }
+      state.queue.length = 0;
+      totalRemoved += removed;
+    }
+  }
+  return totalRemoved;
+}
