@@ -13,7 +13,7 @@ import type {
   TerminalHostMessage,
 } from "./types.js";
 
-const DEFAULT_PORT = 18792;
+const DEFAULT_PORT = 0; // Use 0 for dynamic port allocation
 const DEFAULT_TIMEOUT = 120000;
 
 interface ActiveCommand {
@@ -75,7 +75,11 @@ export class TerminalHostServer {
         });
 
         this.wss.on("listening", () => {
-          console.log(`[terminal-host] Server listening on port ${port}`);
+          const address = this.wss!.address();
+          const actualPort = typeof address === 'object' && address ? address.port : port;
+          // Output port in parseable format for client to read
+          console.log(`[terminal-host] PORT=${actualPort}`);
+          console.log(`[terminal-host] Server listening on port ${actualPort}`);
           resolve();
         });
 
@@ -309,9 +313,11 @@ export class TerminalHostServer {
    * Get server status
    */
   getStatus(): { running: boolean; port: number; activeCommands: number; clients: number } {
+    const address = this.wss?.address();
+    const actualPort = typeof address === 'object' && address ? address.port : (this.config.host?.port ?? 0);
     return {
       running: this.wss !== null,
-      port: this.config.host?.port ?? DEFAULT_PORT,
+      port: actualPort,
       activeCommands: this.activeCommands.size,
       clients: this.clients.size,
     };
@@ -320,11 +326,12 @@ export class TerminalHostServer {
 
 // Entry point when run as standalone process
 if (process.argv[1]?.endsWith("ipc-server.js") || process.argv[1]?.endsWith("ipc-server.ts")) {
-  const port = parseInt(process.env.TERMINAL_HOST_PORT ?? String(DEFAULT_PORT), 10);
+  // Port 0 = dynamic allocation by OS
+  const port = parseInt(process.env.TERMINAL_HOST_PORT ?? "0", 10);
   const server = new TerminalHostServer({ host: { port } });
 
   server.start().then(() => {
-    console.log(`[terminal-host] Started on port ${port}`);
+    // Port is already logged in listening handler with PORT= prefix
   }).catch((err) => {
     console.error(`[terminal-host] Failed to start:`, err);
     process.exit(1);

@@ -68,20 +68,23 @@ export class ConfigManager {
   private configPath: string;
 
   constructor() {
-    // Find config path: ~/.moltbot/moltbot.json or ~/.clawdbot/moltbot.json
+    // Find config path: ~/.openclaw/openclaw.json (new) or ~/.moltbot/moltbot.json (legacy)
+    const openclawDir = path.join(os.homedir(), '.openclaw');
     const moltbotDir = path.join(os.homedir(), '.moltbot');
     const clawdbotDir = path.join(os.homedir(), '.clawdbot');
 
-    if (fs.existsSync(path.join(moltbotDir, 'moltbot.json'))) {
+    if (fs.existsSync(path.join(openclawDir, 'openclaw.json'))) {
+      this.configPath = path.join(openclawDir, 'openclaw.json');
+    } else if (fs.existsSync(path.join(moltbotDir, 'moltbot.json'))) {
       this.configPath = path.join(moltbotDir, 'moltbot.json');
     } else if (fs.existsSync(path.join(clawdbotDir, 'moltbot.json'))) {
       this.configPath = path.join(clawdbotDir, 'moltbot.json');
     } else {
-      // Default to clawdbot dir, create if needed
-      if (!fs.existsSync(clawdbotDir)) {
-        fs.mkdirSync(clawdbotDir, { recursive: true });
+      // Default to openclaw dir, create if needed
+      if (!fs.existsSync(openclawDir)) {
+        fs.mkdirSync(openclawDir, { recursive: true });
       }
-      this.configPath = path.join(clawdbotDir, 'moltbot.json');
+      this.configPath = path.join(openclawDir, 'openclaw.json');
     }
 
     log.info(`ConfigManager using config path: ${this.configPath}`);
@@ -236,9 +239,17 @@ export class ConfigManager {
     currentModel: { provider?: string; model?: string };
   }> {
     const config = await this.loadConfig();
+
+    const providers = config?.models?.providers || {};
+    const authProfiles = config?.auth?.profiles || {};
+
+    log.info(`getModelSummary: Found ${Object.keys(providers).length} providers: ${Object.keys(providers).join(', ')}`);
+    log.info(`getModelSummary: Found ${Object.keys(authProfiles).length} auth profiles`);
+    log.info(`getModelSummary: Current model = ${config?.models?.provider}/${config?.models?.model}`);
+
     return {
-      providers: config?.models?.providers || {},
-      authProfiles: config?.auth?.profiles || {},
+      providers,
+      authProfiles,
       agentsDefaults: config?.agents?.defaults,
       currentModel: {
         provider: config?.models?.provider,
@@ -385,11 +396,12 @@ export class ConfigManager {
         .toISOString()
         .replace(/[:.]/g, '-')
         .slice(0, -5); // Remove milliseconds
-      const backupFileName = `moltbot_backup_${timestamp}.tar.gz`;
+      const backupFileName = `openclaw_backup_${timestamp}.tar.gz`;
       const backupPath = path.join(os.homedir(), backupFileName);
 
-      // Backup ~/.moltbot and ~/.clawdbot
+      // Backup ~/.openclaw, ~/.moltbot and ~/.clawdbot
       const dirs = [
+        path.join(os.homedir(), '.openclaw'),
         path.join(os.homedir(), '.moltbot'),
         path.join(os.homedir(), '.clawdbot'),
       ];
@@ -424,6 +436,7 @@ export class ConfigManager {
   async resetConfig(): Promise<void> {
     try {
       const dirs = [
+        path.join(os.homedir(), '.openclaw'),
         path.join(os.homedir(), '.moltbot'),
         path.join(os.homedir(), '.clawdbot'),
       ];
@@ -436,7 +449,7 @@ export class ConfigManager {
       }
 
       // Recreate workspace with fresh config
-      const workspaceDir = path.join(os.homedir(), '.moltbot');
+      const workspaceDir = path.join(os.homedir(), '.openclaw');
       await this.initializeWorkspace(workspaceDir);
 
       // Update config path
@@ -451,7 +464,11 @@ export class ConfigManager {
   // Validate if a path is a valid workspace directory
   async isValidWorkspace(dirPath: string): Promise<boolean> {
     try {
-      const configPath = path.join(dirPath, 'moltbot.json');
+      // Check for openclaw.json (new) or moltbot.json (legacy)
+      const openclawPath = path.join(dirPath, 'openclaw.json');
+      const moltbotPath = path.join(dirPath, 'moltbot.json');
+
+      const configPath = fs.existsSync(openclawPath) ? openclawPath : moltbotPath;
       if (!fs.existsSync(configPath)) {
         return false;
       }
@@ -476,28 +493,48 @@ export class ConfigManager {
         fs.mkdirSync(workspaceDir, { recursive: true });
       }
 
-      // Create fresh moltbot.json with minimal config
+      // Create fresh openclaw.json with config matching OpenClaw format
       const freshConfig: MoltbotConfig = {
-        models: {
-          providers: {},
+        meta: {
+          lastTouchedVersion: '2026.1.30',
+          lastTouchedAt: new Date().toISOString(),
         },
         agents: {
-          defaults: {},
+          defaults: {
+            workspace: path.join(workspaceDir, 'workspace'),
+            maxConcurrent: 4,
+            subagents: {
+              maxConcurrent: 8,
+            },
+            model: {
+              primary: 'anthropic/claude-opus-4-5',
+            },
+          },
         },
-        channels: {},
+        commands: {
+          native: 'auto',
+          nativeSkills: 'auto',
+        },
         gateway: {
-          port: 18789,
           mode: 'local',
-          bind: 'loopback', // Schema-compliant value
           auth: {
             mode: 'token',
             token: '',
           },
+          port: 18789,
+          bind: 'loopback',
         },
+        channels: {},
       };
 
-      const configPath = path.join(workspaceDir, 'moltbot.json');
+      const configPath = path.join(workspaceDir, 'openclaw.json');
       fs.writeFileSync(configPath, JSON.stringify(freshConfig, null, 2), 'utf-8');
+
+      // Create workspace subdirectory
+      const workspaceSubdir = path.join(workspaceDir, 'workspace');
+      if (!fs.existsSync(workspaceSubdir)) {
+        fs.mkdirSync(workspaceSubdir, { recursive: true });
+      }
 
       log.info(`Fresh workspace initialized at: ${workspaceDir}`);
     } catch (error: any) {

@@ -500,14 +500,32 @@ export const Setup: React.FC<SetupProps> = ({ onComplete }) => {
           >
             ← Back
           </button>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={nextStep}
-            disabled={state.loading || (state.currentStep === 2 && !state.data.securityConsent)}
-          >
-            Continue →
-          </button>
+          <div className="wizard-actions-right">
+            {state.currentStep === 4 && (
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => {
+                  setState((prev) => ({
+                    ...prev,
+                    data: { ...prev.data, authProvider: 'skip' },
+                  }));
+                  nextStep();
+                }}
+                disabled={state.loading}
+              >
+                ⏭️ Skip for Now
+              </button>
+            )}
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={nextStep}
+              disabled={state.loading || (state.currentStep === 2 && !state.data.securityConsent)}
+            >
+              Continue →
+            </button>
+          </div>
         </div>
       )}
     </div>

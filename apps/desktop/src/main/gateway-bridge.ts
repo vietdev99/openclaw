@@ -2,6 +2,7 @@ import { EventEmitter } from 'events';
 import { spawn, ChildProcess } from 'child_process';
 import * as path from 'path';
 import * as os from 'os';
+import * as fs from 'fs';
 import log from 'electron-log';
 
 export interface GatewayStatus {
@@ -46,12 +47,19 @@ export class GatewayBridge extends EventEmitter {
       const clawdbotPath = this.findClawdbotPath();
       log.info(`Clawdbot path: ${clawdbotPath}`);
 
-      // Spawn gateway process
+      // Find config path - check multiple locations
+      const configPath = this.findConfigPath();
+      log.info(`Config path: ${configPath}`);
+
+      // Spawn gateway process with config path
       this.gatewayProcess = spawn('node', [clawdbotPath, 'gateway'], {
         cwd: path.dirname(clawdbotPath),
         env: {
           ...process.env,
           NODE_ENV: 'production',
+          // OpenClaw env vars (new standard)
+          OPENCLAW_CONFIG_PATH: configPath,
+          OPENCLAW_STATE_DIR: path.dirname(configPath),
         },
         stdio: ['ignore', 'pipe', 'pipe'],
       });
@@ -214,27 +222,48 @@ export class GatewayBridge extends EventEmitter {
   private findClawdbotPath(): string {
     // Try multiple paths for development and production
     const possiblePaths = [
+      // Production: bundled in resources/cli/
+      path.join(process.resourcesPath || '', 'cli', 'openclaw.mjs'),
       // Development: relative to apps/desktop (dist/main -> apps/desktop -> clawdbot root)
-      path.resolve(__dirname, '..', '..', '..', '..', 'moltbot.mjs'),
+      path.resolve(__dirname, '..', '..', '..', '..', 'openclaw.mjs'),
       // Alternative: 3 levels up from dist
-      path.resolve(__dirname, '..', '..', '..', 'moltbot.mjs'),
-      // Production: bundled in resources
-      path.join(process.resourcesPath || '', 'clawdbot', 'moltbot.mjs'),
+      path.resolve(__dirname, '..', '..', '..', 'openclaw.mjs'),
       // Alternative: dist folder
-      path.resolve(__dirname, '..', '..', '..', '..', 'dist', 'moltbot.mjs'),
+      path.resolve(__dirname, '..', '..', '..', '..', 'dist', 'openclaw.mjs'),
     ];
 
     for (const p of possiblePaths) {
-      try {
-        require.resolve(p);
+      if (fs.existsSync(p)) {
+        log.info(`Found CLI at: ${p}`);
         return p;
-      } catch {
-        // Path doesn't exist, try next
       }
     }
 
     // Default to first path and let it fail with clear error
-    log.warn('Could not find clawdbot entry point, using default path');
+    log.warn('Could not find openclaw entry point, trying paths:', possiblePaths);
+    return possiblePaths[0];
+  }
+
+  private findConfigPath(): string {
+    // Try multiple config locations in priority order
+    const possiblePaths = [
+      // New OpenClaw path
+      path.join(os.homedir(), '.openclaw', 'openclaw.json'),
+      // Legacy moltbot path
+      path.join(os.homedir(), '.moltbot', 'moltbot.json'),
+      // Legacy clawdbot path
+      path.join(os.homedir(), '.clawdbot', 'moltbot.json'),
+    ];
+
+    for (const p of possiblePaths) {
+      if (fs.existsSync(p)) {
+        log.info(`Found config at: ${p}`);
+        return p;
+      }
+    }
+
+    // Default to openclaw path
+    log.warn('No config file found, using default openclaw path');
     return possiblePaths[0];
   }
 

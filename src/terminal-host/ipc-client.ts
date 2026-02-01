@@ -37,6 +37,7 @@ export class TerminalHostClient {
   private hostProcess: ChildProcess | null = null;
   private pendingRequests: Map<string, PendingRequest> = new Map();
   private reconnectAttempts = 0;
+  private actualPort: number | null = null;  // Dynamic port from server
   private status: TerminalHostStatus = {
     running: false,
     pid: null,
@@ -68,7 +69,8 @@ export class TerminalHostClient {
    * Start the terminal host process
    */
   private async startHostProcess(): Promise<void> {
-    const port = this.config.host?.port ?? 18792;
+    // Use port 0 for dynamic allocation
+    const port = 0;
 
     // Determine runtime and script path based on environment
     const currentDir = import.meta.dirname ?? __dirname;
@@ -91,47 +93,73 @@ export class TerminalHostClient {
       runtimeArgs = [];
     }
 
-    console.log(`[terminal-client] Starting terminal host on port ${port} (${runtime} ${serverPath})`);
+    console.log(`[terminal-client] Starting terminal host with dynamic port allocation (${runtime} ${serverPath})`);
 
-    this.hostProcess = spawn(runtime, [...runtimeArgs, serverPath], {
-      env: {
-        ...process.env,
-        TERMINAL_HOST_PORT: String(port),
-      },
-      stdio: ["pipe", "pipe", "pipe"],
-      detached: false,
+    return new Promise((resolve, reject) => {
+      this.hostProcess = spawn(runtime, [...runtimeArgs, serverPath], {
+        env: {
+          ...process.env,
+          TERMINAL_HOST_PORT: "0", // Dynamic allocation
+        },
+        stdio: ["pipe", "pipe", "pipe"],
+        detached: false,
+      });
+
+      this.status.pid = this.hostProcess.pid ?? null;
+      this.status.running = true;
+
+      let portResolved = false;
+
+      this.hostProcess.stdout?.on("data", (data: Buffer) => {
+        const output = data.toString().trim();
+        console.log(`[terminal-host] ${output}`);
+
+        // Parse PORT= line to get dynamic port
+        const portMatch = output.match(/\[terminal-host\] PORT=(\d+)/);
+        if (portMatch && !portResolved) {
+          this.actualPort = parseInt(portMatch[1], 10);
+          console.log(`[terminal-client] Got dynamic port: ${this.actualPort}`);
+          portResolved = true;
+          resolve();
+        }
+      });
+
+      this.hostProcess.stderr?.on("data", (data: Buffer) => {
+        console.error(`[terminal-host] ${data.toString().trim()}`);
+      });
+
+      this.hostProcess.on("exit", (code, signal) => {
+        console.log(`[terminal-host] Process exited: code=${code} signal=${signal}`);
+        this.status.running = false;
+        this.status.pid = null;
+        this.actualPort = null;
+
+        // Auto-restart if configured
+        const maxRestarts = this.config.host?.maxRestarts ?? 10;
+        if (this.status.restarts < maxRestarts) {
+          this.status.restarts++;
+          this.status.lastRestartAt = Date.now();
+          console.log(`[terminal-client] Restarting terminal host (${this.status.restarts}/${maxRestarts})`);
+          setTimeout(() => this.startHostProcess(), RECONNECT_DELAY);
+        } else {
+          console.error(`[terminal-client] Max restarts reached (${maxRestarts})`);
+        }
+      });
+
+      this.hostProcess.on("error", (err) => {
+        console.error(`[terminal-client] Failed to start host process:`, err);
+        if (!portResolved) {
+          reject(err);
+        }
+      });
+
+      // Timeout if port not received
+      setTimeout(() => {
+        if (!portResolved) {
+          reject(new Error("Timeout waiting for terminal host port"));
+        }
+      }, 10000);
     });
-
-    this.status.pid = this.hostProcess.pid ?? null;
-    this.status.running = true;
-
-    this.hostProcess.stdout?.on("data", (data: Buffer) => {
-      console.log(`[terminal-host] ${data.toString().trim()}`);
-    });
-
-    this.hostProcess.stderr?.on("data", (data: Buffer) => {
-      console.error(`[terminal-host] ${data.toString().trim()}`);
-    });
-
-    this.hostProcess.on("exit", (code, signal) => {
-      console.log(`[terminal-host] Process exited: code=${code} signal=${signal}`);
-      this.status.running = false;
-      this.status.pid = null;
-
-      // Auto-restart if configured
-      const maxRestarts = this.config.host?.maxRestarts ?? 10;
-      if (this.status.restarts < maxRestarts) {
-        this.status.restarts++;
-        this.status.lastRestartAt = Date.now();
-        console.log(`[terminal-client] Restarting terminal host (${this.status.restarts}/${maxRestarts})`);
-        setTimeout(() => this.startHostProcess(), RECONNECT_DELAY);
-      } else {
-        console.error(`[terminal-client] Max restarts reached (${maxRestarts})`);
-      }
-    });
-
-    // Wait for process to be ready
-    await new Promise<void>((resolve) => setTimeout(resolve, 500));
   }
 
   /**
@@ -141,15 +169,19 @@ export class TerminalHostClient {
     if (this.connecting) return;
     this.connecting = true;
 
-    const port = this.config.host?.port ?? 18792;
-    const url = `ws://127.0.0.1:${port}`;
+    if (!this.actualPort) {
+      this.connecting = false;
+      throw new Error("Terminal host port not available");
+    }
+
+    const url = `ws://127.0.0.1:${this.actualPort}`;
 
     return new Promise((resolve, reject) => {
       try {
         this.ws = new WebSocket(url);
 
         this.ws.on("open", () => {
-          console.log(`[terminal-client] Connected to terminal host on port ${port}`);
+          console.log(`[terminal-client] Connected to terminal host on port ${this.actualPort}`);
           this.connecting = false;
           this.reconnectAttempts = 0;
           this.startPingInterval();
@@ -410,25 +442,39 @@ export class TerminalHostClient {
   }
 }
 
-// Singleton instance
-let clientInstance: TerminalHostClient | null = null;
+// Factory function to create new terminal host client instances
+// Each conversation/context should create its own instance
 
 /**
- * Get or create terminal host client
+ * Create a new terminal host client instance
+ * Note: This creates a NEW instance each time - no singleton
+ * Caller is responsible for calling stop() when done
+ */
+export function createTerminalHostClient(config?: Partial<TerminalConfig>): TerminalHostClient {
+  return new TerminalHostClient(config);
+}
+
+// Legacy singleton support for backward compatibility
+let legacyClientInstance: TerminalHostClient | null = null;
+
+/**
+ * Get or create terminal host client (LEGACY - singleton)
+ * @deprecated Use createTerminalHostClient() for per-conversation isolation
  */
 export function getTerminalHostClient(config?: Partial<TerminalConfig>): TerminalHostClient {
-  if (!clientInstance) {
-    clientInstance = new TerminalHostClient(config);
+  if (!legacyClientInstance) {
+    legacyClientInstance = new TerminalHostClient(config);
   }
-  return clientInstance;
+  return legacyClientInstance;
 }
 
 /**
- * Reset client instance (for testing)
+ * Reset legacy client instance (for testing)
+ * @deprecated Use createTerminalHostClient() for per-conversation isolation
  */
 export function resetTerminalHostClient(): void {
-  if (clientInstance) {
-    clientInstance.stop().catch(() => {});
-    clientInstance = null;
+  if (legacyClientInstance) {
+    legacyClientInstance.stop().catch(() => {});
+    legacyClientInstance = null;
   }
 }

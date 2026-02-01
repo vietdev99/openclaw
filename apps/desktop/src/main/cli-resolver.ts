@@ -12,11 +12,11 @@ export function getCLIRoot(): string {
     // DEV MODE: CLI ở source root (clawdbot/)
     return path.resolve(__dirname, '..', '..', '..', '..');
   } else {
-    // PROD MODE: CLI ở ~/.moltbot/cli/
-    return path.join(os.homedir(), '.moltbot', 'cli');
+    // PROD MODE: CLI ở ~/.openclaw/cli/
+    return path.join(os.homedir(), '.openclaw', 'cli');
   }
 }
 
 export function getCLIEntryPoint(): string {
-  return path.join(getCLIRoot(), 'moltbot.mjs');
+  return path.join(getCLIRoot(), 'openclaw.mjs');
 }

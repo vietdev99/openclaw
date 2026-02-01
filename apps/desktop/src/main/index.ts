@@ -192,6 +192,12 @@ function setupIpcHandlers() {
     return configManager?.getAuthProfiles();
   });
 
+  ipcMain.handle('config:add-auth-profile', async (_, id: string, profile: any) => {
+    log.info(`IPC: config:add-auth-profile - ${id}`);
+    await configManager?.addAuthProfile(id, profile);
+    return configManager?.getAuthProfiles();
+  });
+
   // Channels config
   ipcMain.handle('config:get-channels', async () => {
     log.info('IPC: config:get-channels');
@@ -278,7 +284,7 @@ function setupIpcHandlers() {
     log.info('IPC: workspace:get-default-path');
     try {
       const homeDir = os.homedir();
-      const defaultPath = path.join(homeDir, '.moltbot');
+      const defaultPath = path.join(homeDir, '.openclaw');
       return { success: true, path: defaultPath };
     } catch (error: any) {
       log.error('Failed to get default workspace path:', error);
@@ -369,7 +375,7 @@ function setupIpcHandlers() {
       const { spawn } = await import('child_process');
       const pathModule = await import('path');
       const clawdbotRoot = pathModule.resolve(__dirname, '..', '..', '..', '..');
-      const entryPoint = pathModule.join(clawdbotRoot, 'moltbot.mjs');
+      const entryPoint = pathModule.join(clawdbotRoot, 'openclaw.mjs');
 
       return new Promise((resolve) => {
         const child = spawn('node', [entryPoint, 'plugins', 'install', pluginSpec], {
@@ -423,7 +429,7 @@ function setupIpcHandlers() {
       try {
         // Find clawdbot entry point - go up from dist/main to project root
         const clawdbotRoot = pathModule.resolve(__dirname, '..', '..', '..', '..');
-        const entryPoint = pathModule.join(clawdbotRoot, 'moltbot.mjs');
+        const entryPoint = pathModule.join(clawdbotRoot, 'openclaw.mjs');
 
         log.info(`Running auth login with entry point: ${entryPoint}`);
         log.info(`Clawdbot root: ${clawdbotRoot}`);
@@ -528,6 +534,81 @@ pause
         resolve({ success: false, error: error.message });
       }
     });
+  });
+
+  // Import Claude CLI token from ~/.claude
+  ipcMain.handle('auth:import-claude-cli', async () => {
+    log.info('IPC: auth:import-claude-cli');
+    const fsPromises = await import('fs/promises');
+    const pathModule = await import('path');
+    const os = await import('os');
+
+    try {
+      const homeDir = os.homedir();
+      const claudeDir = pathModule.join(homeDir, '.claude');
+
+      // Try different possible credential file locations
+      const possibleFiles = [
+        pathModule.join(claudeDir, '.credentials.json'),
+        pathModule.join(claudeDir, 'credentials.json'),
+        pathModule.join(claudeDir, 'settings.json'),
+      ];
+
+      for (const filePath of possibleFiles) {
+        try {
+          const content = await fsPromises.readFile(filePath, 'utf-8');
+          const data = JSON.parse(content);
+
+          // Look for API key or token in common locations
+          const token =
+            data.apiKey ||
+            data.api_key ||
+            data.claudeAiOauth?.accessToken ||
+            data.oauth?.accessToken ||
+            data.primaryApiKey ||
+            data.anthropicApiKey;
+
+          if (token) {
+            log.info(`Token found in ${pathModule.basename(filePath)}`);
+
+            // Auto-save to auth profiles in moltbot config
+            if (configManager) {
+              const authProfile = {
+                mode: 'oauth' as const,
+                provider: 'anthropic',
+                accessToken: token,
+                refreshToken: data.claudeAiOauth?.refreshToken || data.oauth?.refreshToken,
+                expiresAt: data.claudeAiOauth?.expiresAt || data.oauth?.expiresAt,
+              };
+              await configManager.addAuthProfile('anthropic:claude-cli', authProfile);
+              log.info('Auth profile saved to moltbot config');
+            }
+
+            return {
+              success: true,
+              token,
+              source: pathModule.basename(filePath),
+            };
+          }
+        } catch {
+          // File doesn't exist or can't be parsed, try next
+          continue;
+        }
+      }
+
+      // No token found in any file
+      log.warn('No Claude CLI token found in ~/.claude');
+      return {
+        success: false,
+        error: 'No token found in ~/.claude. Make sure you have Claude CLI installed and logged in.',
+      };
+    } catch (error: any) {
+      log.error('Failed to import Claude CLI token:', error);
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
   });
 
   // Zalo Web handlers

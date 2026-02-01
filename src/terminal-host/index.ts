@@ -56,7 +56,8 @@ export {
 // IPC Client (for main process)
 export {
   TerminalHostClient,
-  getTerminalHostClient,
+  createTerminalHostClient,  // NEW: Per-conversation isolation
+  getTerminalHostClient,     // LEGACY: Singleton pattern
   resetTerminalHostClient,
 } from "./ipc-client.js";
 

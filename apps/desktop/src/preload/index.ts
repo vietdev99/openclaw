@@ -187,6 +187,9 @@ export interface ElectronAPI {
     runAuthLogin: (provider: string) => Promise<{ success: boolean; error?: string }>;
     getClawdbotRoot: () => Promise<string>;
   };
+  auth: {
+    importClaudeCLI: () => Promise<{ success: boolean; token?: string; source?: string; error?: string }>;
+  };
   dialog?: {
     showOpenDialog?: (options: {
       properties?: string[];
@@ -324,6 +327,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     quit: () => ipcRenderer.send('app:quit'),
     runAuthLogin: (provider: string) => ipcRenderer.invoke('app:run-auth-login', provider),
     getClawdbotRoot: () => ipcRenderer.invoke('app:get-clawdbot-root'),
+  },
+  auth: {
+    importClaudeCLI: () => ipcRenderer.invoke('auth:import-claude-cli'),
   },
   dialog: {
     showOpenDialog: (options: { properties?: string[]; defaultPath?: string }) =>

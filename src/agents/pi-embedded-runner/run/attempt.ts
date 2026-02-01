@@ -6,7 +6,7 @@ import type { ImageContent } from "@mariozechner/pi-ai";
 import { streamSimple } from "@mariozechner/pi-ai";
 import {
   createAgentSession,
-  DefaultResourceLoader,
+  // DefaultResourceLoader, // Removed in newer version
   SessionManager,
   SettingsManager,
 } from "@mariozechner/pi-coding-agent";
@@ -461,17 +461,7 @@ export async function runEmbeddedAttempt(
 
       const allCustomTools = [...customTools, ...clientToolDefs];
 
-      const resourceLoader = new DefaultResourceLoader({
-        cwd: resolvedWorkspace,
-        agentDir,
-        settingsManager,
-        additionalExtensionPaths,
-        noSkills: true,
-        systemPromptOverride: systemPrompt,
-        agentsFilesOverride: () => ({ agentsFiles: [] }),
-      });
-      await resourceLoader.reload();
-
+      // API v0.49+ no longer requires resourceLoader
       ({ session } = await createAgentSession({
         cwd: resolvedWorkspace,
         agentDir,
@@ -483,7 +473,8 @@ export async function runEmbeddedAttempt(
         customTools: allCustomTools,
         sessionManager,
         settingsManager,
-        resourceLoader,
+        systemPrompt,
+        additionalExtensionPaths,
       }));
       if (!session) {
         throw new Error("Embedded agent session missing");
