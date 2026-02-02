@@ -1,10 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { type MediaKind, maxBytesForKind, mediaKindFromMime } from "../media/constants.js";
-import { resolveUserPath } from "../utils.js";
 import { fetchRemoteMedia } from "../media/fetch.js";
 import {
   convertHeicToJpeg,
@@ -13,6 +11,7 @@ import {
   resizeToJpeg,
 } from "../media/image-ops.js";
 import { detectMime, extensionForMime } from "../media/mime.js";
+import { resolveUserPath } from "../utils.js";
 
 export type WebMediaResult = {
   buffer: Buffer;
@@ -201,7 +200,16 @@ async function loadWebMediaInternal(
   };
 
   if (/^https?:\/\//i.test(mediaUrl)) {
-    const fetched = await fetchRemoteMedia({ url: mediaUrl });
+    // Enforce a download cap during fetch to avoid unbounded memory usage.
+    // For optimized images, allow fetching larger payloads before compression.
+    const defaultFetchCap = maxBytesForKind("unknown");
+    const fetchCap =
+      maxBytes === undefined
+        ? defaultFetchCap
+        : optimizeImages
+          ? Math.max(maxBytes, defaultFetchCap)
+          : maxBytes;
+    const fetched = await fetchRemoteMedia({ url: mediaUrl, maxBytes: fetchCap });
     const { buffer, contentType, fileName } = fetched;
     const kind = mediaKindFromMime(contentType);
     return await clampAndFinalize({ buffer, contentType, kind, fileName });
