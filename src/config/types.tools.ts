@@ -72,6 +72,8 @@ export type MediaUnderstandingModelConfig = {
 export type MediaUnderstandingConfig = {
   /** Enable media understanding when models are configured. */
   enabled?: boolean;
+  /** Enable async/deferred processing mode (placeholder message + background processing). */
+  asyncMode?: boolean;
   /** Optional scope gating for understanding. */
   scope?: MediaUnderstandingScopeConfig;
   /** Default max bytes to send. */

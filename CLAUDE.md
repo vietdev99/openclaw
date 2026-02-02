@@ -697,3 +697,113 @@ From user's original 9-issue feedback, still pending:
 5. **Fix channel icons (Zalo and Claude)** - Details unclear
 
 ---
+
+## FFmpeg Bundling (2026-02-01)
+
+### Overview
+
+FFmpeg is now bundled with the whisper package, no need to install separately.
+
+### Files
+
+| File | Description |
+|------|-------------|
+| `extended/packages/whisper/bin/ffmpeg.exe` | Bundled FFmpeg binary (~187MB) |
+| `extended/packages/whisper/transcribe_audio.ps1` | Uses bundled ffmpeg |
+
+### Usage
+
+```powershell
+# transcribe_audio.ps1 uses bundled ffmpeg automatically
+$ffmpegPath = Join-Path $scriptDir "bin\ffmpeg.exe"
+```
+
+### Install Script
+
+`docs/install.ps1` no longer requires FFmpeg installation - it's bundled.
+
+---
+
+## Stream Resume with Idempotency Cache (2026-02-01)
+
+### Overview
+
+Implemented stream resume using idempotency key pattern. When a connection drops mid-stream, client can retry with the same `idempotencyKey` to get cached partial response.
+
+### How It Works
+
+```
+Client: POST /chat { message: "...", idempotencyKey: "uuid-123" }
+        ↓
+Server: Start cache → Stream chunks → cache.appendChunk()
+        ↓
+Connection drops mid-stream
+        ↓
+Client retry: POST /chat { message: "...", idempotencyKey: "uuid-123" }
+        ↓
+Server: Check cache("uuid-123")
+  - status: "streaming" → Return { status: "in_flight", partialResponse: "..." }
+  - status: "complete" → Return cached full response
+  - status: "aborted" → Return partial + allow retry
+```
+
+### Files Created/Modified
+
+| File | Description |
+|------|-------------|
+| `src/gateway/response-cache.ts` | **NEW** - Response cache module |
+| `src/gateway/server-runtime-state.ts` | Added `responseCache` to gateway state |
+| `src/gateway/server-methods/types.ts` | Added `responseCache` to context type |
+| `src/gateway/server-chat.ts` | Cache chunks on emit, mark complete/error |
+| `src/gateway/server-methods/chat.ts` | Check cache on request, start cache on new run |
+| `src/gateway/chat-abort.ts` | Mark cache as aborted on abort |
+| `src/gateway/server.impl.ts` | Wire up responseCache |
+
+### Response Cache API
+
+```typescript
+type ResponseCache = {
+  get: (idempotencyKey: string) => CachedResponse | undefined;
+  start: (params: { idempotencyKey: string; sessionKey: string; runId: string }) => CachedResponse;
+  appendChunk: (idempotencyKey: string, chunk: { seq: number; text: string }) => void;
+  complete: (idempotencyKey: string) => void;
+  abort: (idempotencyKey: string, reason?: string) => void;
+  error: (idempotencyKey: string, message?: string) => void;
+  remove: (idempotencyKey: string) => void;
+  clear: () => void;
+  stop: () => void;
+};
+```
+
+### Cache Entry Schema
+
+```typescript
+type CachedResponse = {
+  idempotencyKey: string;
+  sessionKey: string;
+  runId: string;
+  chunks: CachedChunk[];
+  fullText: string;           // Accumulated text
+  status: 'streaming' | 'complete' | 'aborted' | 'error';
+  startedAt: number;
+  expiresAt: number;          // TTL 5 minutes
+  lastChunkAt: number;
+  errorMessage?: string;
+};
+```
+
+### Configuration
+
+- **TTL:** 5 minutes (extends on activity)
+- **Max entries:** 1000
+- **Cleanup interval:** 60 seconds
+
+### Response Status Values
+
+| Status | Description |
+|--------|-------------|
+| `in_flight` | Request is still streaming, includes `partialResponse` |
+| `complete` | Response finished, returns cached message |
+| `aborted` | Was interrupted, returns partial + allows retry |
+
+---

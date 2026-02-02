@@ -2,6 +2,7 @@ import { normalizeVerboseLevel } from "../auto-reply/thinking.js";
 import { loadConfig } from "../config/config.js";
 import { type AgentEventPayload, getAgentRunContext } from "../infra/agent-events.js";
 import { resolveHeartbeatVisibility } from "../infra/heartbeat-visibility.js";
+import type { ResponseCache } from "./response-cache.js";
 import { loadSessionEntry } from "./session-utils.js";
 import { formatForLog } from "./ws-log.js";
 
@@ -133,6 +134,7 @@ export type AgentEventHandlerOptions = {
   nodeSendToSession: NodeSendToSession;
   agentRunSeq: Map<string, number>;
   chatRunState: ChatRunState;
+  responseCache?: ResponseCache;
   resolveSessionKeyForRun: (runId: string) => string | undefined;
   clearAgentRunContext: (runId: string) => void;
 };
@@ -142,11 +144,14 @@ export function createAgentEventHandler({
   nodeSendToSession,
   agentRunSeq,
   chatRunState,
+  responseCache,
   resolveSessionKeyForRun,
   clearAgentRunContext,
 }: AgentEventHandlerOptions) {
   const emitChatDelta = (sessionKey: string, clientRunId: string, seq: number, text: string) => {
     chatRunState.buffers.set(clientRunId, text);
+    // Also cache for stream resume
+    responseCache?.appendChunk(clientRunId, { seq, text });
     const now = Date.now();
     const last = chatRunState.deltaSentAt.get(clientRunId) ?? 0;
     if (now - last < 150) {
@@ -181,6 +186,14 @@ export function createAgentEventHandler({
     const text = chatRunState.buffers.get(clientRunId)?.trim() ?? "";
     chatRunState.buffers.delete(clientRunId);
     chatRunState.deltaSentAt.delete(clientRunId);
+
+    // Mark response cache as complete or error
+    if (jobState === "done") {
+      responseCache?.complete(clientRunId);
+    } else {
+      responseCache?.error(clientRunId, error ? formatForLog(error) : undefined);
+    }
+
     if (jobState === "done") {
       const payload = {
         runId: clientRunId,

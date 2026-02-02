@@ -13,7 +13,12 @@ import type { MsgContext } from "../templating.js";
 import { SILENT_REPLY_TOKEN } from "../tokens.js";
 import { applyMediaUnderstanding } from "../../media-understanding/apply.js";
 import { applyLinkUnderstanding } from "../../link-understanding/apply.js";
+import {
+  shouldUseDeferredProcessing,
+  startDeferredAudioProcessing,
+} from "../../media-understanding/deferred-reply.js";
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
+import { logInfo } from "../../logger.js";
 import { resolveDefaultModel } from "./directive-handling.js";
 import { resolveReplyDirectives } from "./get-reply-directives.js";
 import { handleInlineActions } from "./get-reply-inline-actions.js";
@@ -83,17 +88,121 @@ export async function getReplyFromConfig(
 
   const finalized = finalizeInboundContext(ctx);
 
+  // Check if transcript already exists (from deferred callback) - skip media understanding
+  const hasTranscript = Boolean(finalized.Transcript);
+
   if (!isFastTestEnv) {
-    await applyMediaUnderstanding({
-      ctx: finalized,
-      cfg,
-      agentDir,
-      activeModel: { provider, model },
-    });
-    await applyLinkUnderstanding({
-      ctx: finalized,
-      cfg,
-    });
+    // Check if we should use deferred processing for audio
+    // Skip if this is already a deferred reply callback (Transcript already set)
+    const skipDeferred = hasTranscript || opts?.skipDeferredProcessing;
+    if (!skipDeferred && shouldUseDeferredProcessing(finalized, cfg)) {
+      const channelType = String(finalized.OriginatingChannel ?? finalized.Provider ?? "telegram");
+      const channelId = finalized.OriginatingTo ?? finalized.To ?? "";
+      const messageId = finalized.MessageSid ?? "";
+      const sessionKey = finalized.SessionKey ?? "";
+
+      if (channelId && sessionKey) {
+        logInfo(`[DEFERRED] Starting deferred audio processing for session ${sessionKey}`);
+
+        const result = await startDeferredAudioProcessing({
+          ctx: finalized,
+          cfg,
+          channelType,
+          channelId,
+          messageId,
+          sessionKey,
+          runTranscription: async () => {
+            // Run only audio transcription
+            const mediaResult = await applyMediaUnderstanding({
+              ctx: finalized,
+              cfg,
+              agentDir,
+              activeModel: { provider, model },
+            });
+            // Return the audio transcription output if any
+            const audioOutput = mediaResult.outputs.find((o) => o.kind === "audio.transcription");
+            return audioOutput ?? null;
+          },
+          onReplyReady: async (transcript, deferredCtx) => {
+            logInfo(`[DEFERRED] onReplyReady called with transcript: "${transcript.substring(0, 100)}..."`);
+            logInfo(`[DEFERRED] deferredCtx.Body: "${deferredCtx.Body?.substring(0, 100)}..."`);
+            logInfo(`[DEFERRED] deferredCtx.Transcript: "${deferredCtx.Transcript?.substring(0, 100)}..."`);
+
+            // Capture text from block replies (AI may send via tool)
+            const capturedTexts: string[] = [];
+
+            // Get the AI reply with the transcript already populated
+            // Note: We don't pass onReplyStart to avoid creating a typing loop
+            // since we're running in background and placeholder was already sent
+            const replyResult = await getReplyFromConfig(deferredCtx, {
+              ...opts,
+              skipDeferredProcessing: true,
+              // Disable typing for background processing - placeholder already sent
+              onReplyStart: undefined,
+              onTypingController: undefined,
+              // Capture block replies to get text sent via message tool
+              onBlockReply: async (payload) => {
+                logInfo(`[DEFERRED] onBlockReply received: text="${payload.text?.substring(0, 100)}..." mediaUrl=${payload.mediaUrl ?? "none"}`);
+                if (payload.text?.trim()) {
+                  capturedTexts.push(payload.text);
+                }
+              },
+            }, configOverride);
+
+            logInfo(`[DEFERRED] AI call complete: capturedTexts.length=${capturedTexts.length}`);
+            logInfo(`[DEFERRED] replyResult type=${Array.isArray(replyResult) ? "array" : typeof replyResult}, text="${(Array.isArray(replyResult) ? replyResult[0]?.text : replyResult?.text)?.substring(0, 100) ?? "empty"}..."`);
+
+            // Use captured block reply text if available, otherwise use return value
+            if (capturedTexts.length > 0) {
+              const result = capturedTexts.join("\n");
+              logInfo(`[DEFERRED] Returning capturedTexts: "${result.substring(0, 100)}..."`);
+              return result;
+            }
+
+            // Fallback: Extract text from reply
+            if (Array.isArray(replyResult)) {
+              const result = replyResult.map((r) => r.text ?? "").join("\n");
+              logInfo(`[DEFERRED] Returning array result: "${result.substring(0, 100)}..."`);
+              return result;
+            }
+            const result = replyResult?.text ?? "";
+            logInfo(`[DEFERRED] Returning single result: "${result.substring(0, 100)}..."`);
+            return result;
+          },
+        });
+
+        // Cleanup typing controller since we're returning early
+        // The background task has its own typing lifecycle
+        typing.cleanup();
+
+        // Return a special "deferred" response indicating the task was started
+        return {
+          text: "", // Empty text - placeholder already sent
+          channelData: {
+            deferred: true,
+            taskId: result.taskId,
+            placeholderSent: result.placeholderSent,
+          },
+        };
+      }
+    }
+
+    // Normal synchronous processing
+    // Skip media understanding if transcript already exists (from deferred callback)
+    if (!hasTranscript) {
+      await applyMediaUnderstanding({
+        ctx: finalized,
+        cfg,
+        agentDir,
+        activeModel: { provider, model },
+      });
+      await applyLinkUnderstanding({
+        ctx: finalized,
+        cfg,
+      });
+    } else {
+      logInfo(`[DEFERRED] Skipping media understanding - transcript already exists`);
+    }
   }
 
   const commandAuthorized = finalized.CommandAuthorized;

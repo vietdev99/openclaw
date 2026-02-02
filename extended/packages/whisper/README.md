@@ -7,6 +7,7 @@ Pre-built [whisper.cpp](https://github.com/ggerganov/whisper.cpp) binaries for W
 ```
 whisper/
 ├── bin/
+│   ├── ffmpeg.exe         # Bundled FFmpeg for audio conversion
 │   ├── whisper-cli.exe    # Main executable
 │   ├── whisper.dll        # Whisper library
 │   ├── ggml.dll           # GGML library
@@ -39,17 +40,16 @@ whisper/
 ```
 
 The script will:
-1. Convert audio to WAV format (16kHz, mono) using FFmpeg
+1. Convert audio to WAV format (16kHz, mono) using bundled FFmpeg
 2. Transcribe using whisper-cli with Vietnamese language
 3. Output the transcription text
 4. Clean up temporary files
 
 ## Requirements
 
-- **FFmpeg**: Required for audio conversion
-  ```powershell
-  winget install FFmpeg.FFmpeg
-  ```
+All dependencies are bundled:
+- **FFmpeg**: Included in `bin/ffmpeg.exe` (no installation required)
+- **Whisper**: Included in `bin/whisper-cli.exe`
 
 ## OpenClaw Integration
 

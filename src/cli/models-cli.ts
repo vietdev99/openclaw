@@ -6,6 +6,8 @@ import {
   modelsAliasesListCommand,
   modelsAliasesRemoveCommand,
   modelsAuthAddCommand,
+  modelsAuthClearCooldownCommand,
+  modelsAuthListCooldownsCommand,
   modelsAuthLoginCommand,
   modelsAuthOrderClearCommand,
   modelsAuthOrderGetCommand,
@@ -436,6 +438,46 @@ export function registerModelsCli(program: Command) {
           {
             provider: opts.provider as string,
             agent,
+          },
+          defaultRuntime,
+        );
+      });
+    });
+
+  auth
+    .command("cooldowns")
+    .description("List auth profiles currently in cooldown")
+    .option("--agent <id>", "Agent id (default: configured default agent)")
+    .option("--json", "Output JSON", false)
+    .action(async (opts, command) => {
+      const agent =
+        resolveOptionFromCommand<string>(command, "agent") ?? (opts.agent as string | undefined);
+      await runModelsCommand(async () => {
+        await modelsAuthListCooldownsCommand(
+          {
+            agent,
+            json: Boolean(opts.json),
+          },
+          defaultRuntime,
+        );
+      });
+    });
+
+  auth
+    .command("clear-cooldown")
+    .description("Clear cooldown for an auth profile (makes it available immediately)")
+    .argument("[profileId]", "Auth profile id (e.g. anthropic:default)")
+    .option("--all", "Clear cooldown for all profiles", false)
+    .option("--agent <id>", "Agent id (default: configured default agent)")
+    .action(async (profileId: string | undefined, opts, command) => {
+      const agent =
+        resolveOptionFromCommand<string>(command, "agent") ?? (opts.agent as string | undefined);
+      await runModelsCommand(async () => {
+        await modelsAuthClearCooldownCommand(
+          {
+            profileId: profileId ?? "",
+            agent,
+            all: Boolean(opts.all),
           },
           defaultRuntime,
         );

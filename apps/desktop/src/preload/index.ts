@@ -38,6 +38,40 @@ export interface AuthProfile {
   mode: 'oauth' | 'api_key';
 }
 
+// Auth profiles store (from auth-profiles.json - separate from openclaw.json)
+export interface AuthProfileCredential {
+  type: 'token' | 'oauth';
+  provider: string;
+  token?: string;
+}
+
+export interface AuthProfileUsageStats {
+  lastUsed?: number;
+  errorCount?: number;
+  cooldownUntil?: number;
+  lastError?: string;
+  lastErrorAt?: number;
+}
+
+export interface AuthProfilesStore {
+  version: number;
+  profiles: Record<string, AuthProfileCredential>;
+  lastGood: Record<string, string>;
+  usageStats: Record<string, AuthProfileUsageStats>;
+}
+
+// Gateway config
+export interface GatewayConfig {
+  port?: number;
+  mode?: 'local' | 'remote';
+  bind?: 'loopback' | 'lan' | 'tailnet' | 'auto' | 'custom';
+  auth?: {
+    mode: 'token' | 'password' | 'none';
+    token?: string;
+    password?: string;
+  };
+}
+
 export interface AgentsDefaults {
   model?: {
     primary: string;
@@ -156,6 +190,14 @@ export interface ElectronAPI {
     getModelCatalog: () => Promise<ModelCatalogEntry[]>;
     getSkills: () => Promise<Record<string, SkillConfig>>;
     updateSkills: (skills: Record<string, SkillConfig>) => Promise<Record<string, SkillConfig>>;
+    // Gateway config
+    getGateway: () => Promise<GatewayConfig | undefined>;
+    updateGateway: (config: GatewayConfig) => Promise<GatewayConfig | undefined>;
+    // Auth profiles store (credentials - separate file)
+    getAuthProfilesStore: () => Promise<AuthProfilesStore>;
+    updateAuthProfileCredential: (profileId: string, data: AuthProfileCredential) => Promise<{ success: boolean; error?: string }>;
+    deleteAuthProfileCredential: (profileId: string) => Promise<{ success: boolean; error?: string }>;
+    clearAuthProfileCooldown: (profileId: string) => Promise<{ success: boolean; error?: string }>;
   };
   setup: {
     backupAndReset: () => Promise<{ success: boolean; backupPath?: string; error?: string }>;
@@ -302,6 +344,17 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getModelCatalog: () => ipcRenderer.invoke('config:get-model-catalog'),
     getSkills: () => ipcRenderer.invoke('config:get-skills'),
     updateSkills: (skills: Record<string, any>) => ipcRenderer.invoke('config:update-skills', skills),
+    // Gateway config
+    getGateway: () => ipcRenderer.invoke('config:get-gateway'),
+    updateGateway: (config: any) => ipcRenderer.invoke('config:update-gateway', config),
+    // Auth profiles store (credentials - separate file)
+    getAuthProfilesStore: () => ipcRenderer.invoke('config:get-auth-profiles-store'),
+    updateAuthProfileCredential: (profileId: string, data: any) =>
+      ipcRenderer.invoke('config:update-auth-profile-credential', profileId, data),
+    deleteAuthProfileCredential: (profileId: string) =>
+      ipcRenderer.invoke('config:delete-auth-profile-credential', profileId),
+    clearAuthProfileCooldown: (profileId: string) =>
+      ipcRenderer.invoke('config:clear-auth-profile-cooldown', profileId),
   },
   setup: {
     backupAndReset: () => ipcRenderer.invoke('config:backup-and-reset'),

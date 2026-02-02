@@ -99,20 +99,9 @@ try {
     exit 1
 }
 
-# FFmpeg
-Write-Host "  Checking FFmpeg..." -NoNewline
-try {
-    ffmpeg -version 2>$null | Out-Null
-    Write-Host " found" -ForegroundColor Green
-} catch {
-    Write-Host " installing via winget..." -ForegroundColor Yellow
-    try {
-        winget install FFmpeg.FFmpeg --accept-source-agreements --accept-package-agreements 2>$null | Out-Null
-        Write-OK "FFmpeg installed"
-    } catch {
-        Write-Warn "Could not install FFmpeg. Install manually: winget install FFmpeg.FFmpeg"
-    }
-}
+# FFmpeg is bundled with the whisper package, no need to install
+Write-Host "  FFmpeg..." -NoNewline
+Write-Host " bundled with whisper package" -ForegroundColor Green
 
 # ============================================
 # Clone repositories

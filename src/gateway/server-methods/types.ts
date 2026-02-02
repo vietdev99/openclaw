@@ -5,6 +5,7 @@ import type { CronService } from "../../cron/service.js";
 import type { WizardSession } from "../../wizard/session.js";
 import type { ChatAbortControllerEntry } from "../chat-abort.js";
 import type { NodeRegistry } from "../node-registry.js";
+import type { ResponseCache } from "../response-cache.js";
 import type { ConnectParams, ErrorShape, RequestFrame } from "../protocol/index.js";
 import type { ChannelRuntimeSnapshot } from "../server-channels.js";
 import type { DedupeEntry } from "../server-shared.js";
@@ -61,6 +62,7 @@ export type GatewayRequestContext = {
     sessionKey?: string,
   ) => { sessionKey: string; clientRunId: string } | undefined;
   dedupe: Map<string, DedupeEntry>;
+  responseCache: ResponseCache;
   wizardSessions: Map<string, WizardSession>;
   findRunningWizard: () => string | null;
   purgeWizardSession: (id: string) => void;

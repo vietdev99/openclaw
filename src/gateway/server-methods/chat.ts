@@ -264,6 +264,7 @@ export const chatHandlers: GatewayRequestHandlers = {
       agentRunSeq: context.agentRunSeq,
       broadcast: context.broadcast,
       nodeSendToSession: context.nodeSendToSession,
+      responseCache: context.responseCache,
     };
 
     if (!runId) {
@@ -404,6 +405,7 @@ export const chatHandlers: GatewayRequestHandlers = {
           agentRunSeq: context.agentRunSeq,
           broadcast: context.broadcast,
           nodeSendToSession: context.nodeSendToSession,
+          responseCache: context.responseCache,
         },
         { sessionKey: p.sessionKey, stopReason: "stop" },
       );
@@ -428,6 +430,58 @@ export const chatHandlers: GatewayRequestHandlers = {
       return;
     }
 
+    // Check response cache for stream resume
+    const cachedResponse = context.responseCache.get(clientRunId);
+    if (cachedResponse) {
+      if (cachedResponse.status === "streaming") {
+        // Still streaming, return in_flight with partial response
+        respond(
+          true,
+          {
+            runId: clientRunId,
+            status: "in_flight" as const,
+            partialResponse: cachedResponse.fullText,
+            chunksReceived: cachedResponse.chunks.length,
+          },
+          undefined,
+          { cached: true, runId: clientRunId },
+        );
+        return;
+      } else if (cachedResponse.status === "complete") {
+        // Already complete, return cached response
+        respond(
+          true,
+          {
+            runId: clientRunId,
+            status: "complete" as const,
+            message: {
+              role: "assistant",
+              content: [{ type: "text", text: cachedResponse.fullText }],
+            },
+          },
+          undefined,
+          { cached: true, runId: clientRunId },
+        );
+        return;
+      } else if (cachedResponse.status === "aborted" || cachedResponse.status === "error") {
+        // Was aborted/errored, return partial and allow retry
+        // Remove from cache so next request starts fresh
+        context.responseCache.remove(clientRunId);
+        respond(
+          true,
+          {
+            runId: clientRunId,
+            status: "aborted" as const,
+            partialResponse: cachedResponse.fullText,
+            errorMessage: cachedResponse.errorMessage,
+          },
+          undefined,
+          { cached: true, runId: clientRunId },
+        );
+        return;
+      }
+    }
+
     try {
       const abortController = new AbortController();
       context.chatAbortControllers.set(clientRunId, {
@@ -436,6 +490,13 @@ export const chatHandlers: GatewayRequestHandlers = {
         sessionKey: p.sessionKey,
         startedAtMs: now,
         expiresAtMs: resolveChatRunExpiresAtMs({ now, timeoutMs }),
+      });
+
+      // Start caching response for stream resume
+      context.responseCache.start({
+        idempotencyKey: clientRunId,
+        sessionKey: p.sessionKey,
+        runId: clientRunId,
       });
 
       const ackPayload = {

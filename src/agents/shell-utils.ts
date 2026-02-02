@@ -67,6 +67,43 @@ function resolveShellFromPath(name: string): string | undefined {
   return undefined;
 }
 
+/**
+ * Collapse carriage return sequences to simulate terminal behavior.
+ * Progress bars like "0%\r1%\r2%\r...100%\r" become just "100%".
+ * This prevents wasting tokens on intermediate progress states.
+ */
+export function collapseCarriageReturns(text: string): string {
+  if (!text.includes("\r")) {
+    return text;
+  }
+
+  // Split by newlines, process each line separately
+  const lines = text.split("\n");
+  const result: string[] = [];
+
+  for (const line of lines) {
+    if (!line.includes("\r")) {
+      result.push(line);
+      continue;
+    }
+
+    // Split by \r and keep only the last non-empty segment
+    // "0%\r1%\r2%\r100%" -> ["0%", "1%", "2%", "100%"] -> "100%"
+    const segments = line.split("\r");
+    let lastNonEmpty = "";
+    for (let i = segments.length - 1; i >= 0; i--) {
+      const seg = segments[i].trim();
+      if (seg) {
+        lastNonEmpty = segments[i];
+        break;
+      }
+    }
+    result.push(lastNonEmpty);
+  }
+
+  return result.join("\n");
+}
+
 export function sanitizeBinaryOutput(text: string): string {
   const scrubbed = text.replace(/[\p{Format}\p{Surrogate}]/gu, "");
   if (!scrubbed) {
@@ -87,7 +124,8 @@ export function sanitizeBinaryOutput(text: string): string {
     }
     chunks.push(char);
   }
-  return chunks.join("");
+  // Collapse carriage returns to avoid progress bar spam
+  return collapseCarriageReturns(chunks.join(""));
 }
 
 export function killProcessTree(pid: number): void {

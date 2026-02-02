@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import * as path from 'path';
 import * as os from 'os';
+import * as fs from 'fs';
 import { TrayManager } from './tray';
 import { WindowManager, setQuitting } from './window';
 import { GatewayBridge } from './gateway-bridge';
@@ -236,6 +237,133 @@ function setupIpcHandlers() {
     log.info('IPC: config:update-skills');
     await configManager?.updateSkills(skillsConfig);
     return configManager?.getSkills();
+  });
+
+  // Gateway config
+  ipcMain.handle('config:get-gateway', async () => {
+    log.info('IPC: config:get-gateway');
+    return configManager?.getGatewayConfig();
+  });
+
+  ipcMain.handle('config:update-gateway', async (_, gatewayConfig: any) => {
+    log.info('IPC: config:update-gateway');
+    await configManager?.updateGatewayConfig(gatewayConfig);
+    return configManager?.getGatewayConfig();
+  });
+
+  // Auth profiles from auth-profiles.json (credentials file, separate from main config)
+  ipcMain.handle('config:get-auth-profiles-store', async () => {
+    log.info('IPC: config:get-auth-profiles-store');
+    try {
+      const authProfilesPath = path.join(
+        os.homedir(), '.openclaw', 'agents', 'main', 'agent', 'auth-profiles.json'
+      );
+      if (fs.existsSync(authProfilesPath)) {
+        const content = fs.readFileSync(authProfilesPath, 'utf-8');
+        return JSON.parse(content);
+      }
+      return { version: 1, profiles: {}, lastGood: {}, usageStats: {} };
+    } catch (error: any) {
+      log.error('Failed to get auth profiles store:', error);
+      return { version: 1, profiles: {}, lastGood: {}, usageStats: {} };
+    }
+  });
+
+  ipcMain.handle('config:update-auth-profile-credential', async (_, profileId: string, profileData: any) => {
+    log.info(`IPC: config:update-auth-profile-credential - ${profileId}`);
+    try {
+      const authProfilesDir = path.join(
+        os.homedir(), '.openclaw', 'agents', 'main', 'agent'
+      );
+      const authProfilesPath = path.join(authProfilesDir, 'auth-profiles.json');
+
+      // Ensure directory exists
+      if (!fs.existsSync(authProfilesDir)) {
+        fs.mkdirSync(authProfilesDir, { recursive: true });
+      }
+
+      // Load existing or create new
+      let store = { version: 1, profiles: {}, lastGood: {}, usageStats: {} } as any;
+      if (fs.existsSync(authProfilesPath)) {
+        const content = fs.readFileSync(authProfilesPath, 'utf-8');
+        store = JSON.parse(content);
+      }
+
+      // Update profile
+      store.profiles[profileId] = profileData;
+
+      // Save
+      fs.writeFileSync(authProfilesPath, JSON.stringify(store, null, 2));
+      log.info(`Auth profile credential updated: ${profileId}`);
+      return { success: true };
+    } catch (error: any) {
+      log.error('Failed to update auth profile credential:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle('config:delete-auth-profile-credential', async (_, profileId: string) => {
+    log.info(`IPC: config:delete-auth-profile-credential - ${profileId}`);
+    try {
+      const authProfilesPath = path.join(
+        os.homedir(), '.openclaw', 'agents', 'main', 'agent', 'auth-profiles.json'
+      );
+
+      if (!fs.existsSync(authProfilesPath)) {
+        return { success: true }; // Nothing to delete
+      }
+
+      const content = fs.readFileSync(authProfilesPath, 'utf-8');
+      const store = JSON.parse(content);
+
+      if (store.profiles?.[profileId]) {
+        delete store.profiles[profileId];
+        // Also clean up related data
+        if (store.usageStats?.[profileId]) {
+          delete store.usageStats[profileId];
+        }
+        fs.writeFileSync(authProfilesPath, JSON.stringify(store, null, 2));
+        log.info(`Auth profile credential deleted: ${profileId}`);
+      }
+
+      return { success: true };
+    } catch (error: any) {
+      log.error('Failed to delete auth profile credential:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle('config:clear-auth-profile-cooldown', async (_, profileId: string) => {
+    log.info(`IPC: config:clear-auth-profile-cooldown - ${profileId}`);
+    try {
+      const authProfilesPath = path.join(
+        os.homedir(), '.openclaw', 'agents', 'main', 'agent', 'auth-profiles.json'
+      );
+
+      if (!fs.existsSync(authProfilesPath)) {
+        return { success: false, error: 'Auth profiles file not found' };
+      }
+
+      const content = fs.readFileSync(authProfilesPath, 'utf-8');
+      const store = JSON.parse(content);
+
+      if (store.usageStats?.[profileId]) {
+        // Clear cooldown fields
+        delete store.usageStats[profileId].cooldownUntil;
+        delete store.usageStats[profileId].disabledUntil;
+        delete store.usageStats[profileId].disabledReason;
+        delete store.usageStats[profileId].failureCounts;
+        store.usageStats[profileId].errorCount = 0;
+
+        fs.writeFileSync(authProfilesPath, JSON.stringify(store, null, 2));
+        log.info(`Auth profile cooldown cleared: ${profileId}`);
+      }
+
+      return { success: true };
+    } catch (error: any) {
+      log.error('Failed to clear auth profile cooldown:', error);
+      return { success: false, error: error.message };
+    }
   });
 
   // Workspace and setup handlers

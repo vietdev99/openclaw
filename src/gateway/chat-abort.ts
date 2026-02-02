@@ -1,4 +1,5 @@
 import { isAbortTrigger } from "../auto-reply/reply/abort.js";
+import type { ResponseCache } from "./response-cache.js";
 
 export type ChatAbortControllerEntry = {
   controller: AbortController;
@@ -44,6 +45,7 @@ export type ChatAbortOps = {
   agentRunSeq: Map<string, number>;
   broadcast: (event: string, payload: unknown, opts?: { dropIfSlow?: boolean }) => void;
   nodeSendToSession: (sessionKey: string, event: string, payload: unknown) => void;
+  responseCache?: ResponseCache;
 };
 
 function broadcastChatAborted(
@@ -89,6 +91,8 @@ export function abortChatRunById(
   ops.chatRunBuffers.delete(runId);
   ops.chatDeltaSentAt.delete(runId);
   ops.removeChatRun(runId, runId, sessionKey);
+  // Mark response cache as aborted for stream resume
+  ops.responseCache?.abort(runId, stopReason);
   broadcastChatAborted(ops, { runId, sessionKey, stopReason });
   return { aborted: true };
 }

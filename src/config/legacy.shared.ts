@@ -45,7 +45,21 @@ export const mergeMissing = (target: Record<string, unknown>, source: Record<str
   }
 };
 
-const AUDIO_TRANSCRIPTION_CLI_ALLOWLIST = new Set(["whisper"]);
+const AUDIO_TRANSCRIPTION_CLI_ALLOWLIST = new Set([
+  "whisper",
+  "whisper-cli",
+  "sherpa-onnx-offline",
+  // Shell wrappers for custom transcription scripts
+  "powershell.exe",
+  "powershell",
+  "pwsh.exe",
+  "pwsh",
+  "bash",
+  "sh",
+  "zsh",
+  "cmd.exe",
+  "cmd",
+]);
 
 export const mapLegacyAudioTranscription = (value: unknown): Record<string, unknown> | null => {
   const transcriber = getRecord(value);
@@ -62,7 +76,14 @@ export const mapLegacyAudioTranscription = (value: unknown): Record<string, unkn
     return null;
   }
 
-  const args = command.slice(1).map((part) => String(part));
+  // Convert legacy template variables to new format
+  const convertLegacyTemplateVar = (arg: string): string => {
+    return arg
+      .replace(/\$\{input\}/gi, "{{MediaPath}}")
+      .replace(/\$\{output\}/gi, "{{OutputBase}}")
+      .replace(/\$\{outputDir\}/gi, "{{OutputDir}}");
+  };
+  const args = command.slice(1).map((part) => convertLegacyTemplateVar(String(part)));
   const timeoutSeconds =
     typeof transcriber?.timeoutSeconds === "number" ? transcriber?.timeoutSeconds : undefined;
 

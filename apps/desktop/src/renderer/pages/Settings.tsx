@@ -56,7 +56,7 @@ interface AgentsDefaults {
   };
 }
 
-type SettingsTab = 'providers' | 'auth' | 'agents' | 'skills' | 'channels' | 'advanced' | 'general';
+type SettingsTab = 'providers' | 'auth' | 'agents' | 'skills' | 'channels' | 'gateway' | 'advanced' | 'general';
 
 const settingsTabs: { id: SettingsTab; label: string }[] = [
   { id: 'providers', label: 'Providers' },
@@ -64,6 +64,7 @@ const settingsTabs: { id: SettingsTab; label: string }[] = [
   { id: 'agents', label: 'Agent Defaults' },
   { id: 'skills', label: 'Skills' },
   { id: 'channels', label: 'Channels' },
+  { id: 'gateway', label: 'Gateway' },
   { id: 'advanced', label: 'Advanced' },
   { id: 'general', label: 'Config' },
 ];
@@ -112,8 +113,30 @@ function Settings({ onConfigChange, onReinitSetup }: SettingsProps) {
   const [editingSkill, setEditingSkill] = useState<string | null>(null);
   const [catalogLoading, setCatalogLoading] = useState(false);
 
-  // Gateway state for Advanced tab
-  const [gatewayConfig, setGatewayConfig] = useState<{ port: number; token: string } | null>(null);
+  // Gateway state for Gateway tab
+  const [gatewayConfig, setGatewayConfig] = useState<{
+    port: number;
+    mode: string;
+    bind: string;
+    auth: { mode: string; token?: string; password?: string };
+  } | null>(null);
+  const [editingGateway, setEditingGateway] = useState(false);
+  const [editedGateway, setEditedGateway] = useState<{
+    port: number;
+    bind: string;
+    authMode: string;
+    token: string;
+    password: string;
+  }>({ port: 18789, bind: 'loopback', authMode: 'token', token: '', password: '' });
+
+  // Auth profiles store state (credentials from auth-profiles.json)
+  const [authProfilesStore, setAuthProfilesStore] = useState<{
+    profiles: Record<string, { type: string; provider: string; token?: string }>;
+    usageStats: Record<string, { lastUsed?: number; errorCount?: number; cooldownUntil?: number; lastError?: string }>;
+  }>({ profiles: {}, usageStats: {} });
+  const [editingAuthProfile, setEditingAuthProfile] = useState<string | null>(null);
+  const [editedAuthToken, setEditedAuthToken] = useState('');
+  const [showAuthToken, setShowAuthToken] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     loadData();
@@ -122,11 +145,13 @@ function Settings({ onConfigChange, onReinitSetup }: SettingsProps) {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [summary, path, raw, skillsData] = await Promise.all([
+      const [summary, path, raw, skillsData, gatewayData, authStoreData] = await Promise.all([
         window.electronAPI.config.getModelSummary(),
         window.electronAPI.config.getPath(),
         window.electronAPI.config.getRawConfig(),
         window.electronAPI.config.getSkills(),
+        window.electronAPI.config.getGateway().catch(() => null),
+        window.electronAPI.config.getAuthProfilesStore().catch(() => ({ profiles: {}, usageStats: {} })),
       ]);
       setProviders(summary.providers || {});
       setAuthProfiles(summary.authProfiles || {});
@@ -140,12 +165,21 @@ function Settings({ onConfigChange, onReinitSetup }: SettingsProps) {
       // Load model catalog
       loadModelCatalog();
 
-      // Load gateway config for Advanced tab
-      const fullConfig = await window.electronAPI.config.getFullConfig() as any;
-      if (fullConfig?.gateway) {
+      // Load gateway config
+      if (gatewayData) {
         setGatewayConfig({
-          port: fullConfig.gateway.port || 18789,
-          token: fullConfig.gateway.auth?.token || '',
+          port: gatewayData.port || 18789,
+          mode: gatewayData.mode || 'local',
+          bind: gatewayData.bind || 'loopback',
+          auth: gatewayData.auth || { mode: 'token' },
+        });
+      }
+
+      // Load auth profiles store (credentials)
+      if (authStoreData) {
+        setAuthProfilesStore({
+          profiles: authStoreData.profiles || {},
+          usageStats: authStoreData.usageStats || {},
         });
       }
     } catch (err) {
@@ -363,87 +397,241 @@ function Settings({ onConfigChange, onReinitSetup }: SettingsProps) {
         );
 
       case 'auth':
+        const formatDate = (timestamp: number) => {
+          return new Date(timestamp).toLocaleString();
+        };
+        const isInCooldown = (profileId: string) => {
+          const stats = authProfilesStore.usageStats[profileId];
+          return stats?.cooldownUntil && stats.cooldownUntil > Date.now();
+        };
+
         return (
           <div className="settings-section">
             <div className="section-header">
               <h2>Authentication Profiles</h2>
             </div>
             <div className="section-description">
-              <p>Auth profiles store credentials for accessing AI providers. Each profile is linked to a provider (defined in Providers tab) and specifies how to authenticate.</p>
+              <p>Auth profiles store credentials for accessing AI providers. Credentials are stored separately in <code>auth-profiles.json</code>.</p>
               <ul className="auth-explainer">
                 <li><strong>OAuth:</strong> Browser-based login (Anthropic Console, Google Cloud)</li>
-                <li><strong>API Key:</strong> Direct API key authentication</li>
+                <li><strong>API Key:</strong> Direct API key/token authentication</li>
               </ul>
             </div>
-            {Object.keys(authProfiles).length === 0 ? (
-              <div className="empty-state">
-                <p>No auth profiles configured</p>
-                <p className="hint">Auth profiles are created via CLI: <code>moltbot auth login</code></p>
-              </div>
-            ) : (
-              <div className="auth-profiles-list">
-                {Object.entries(authProfiles).map(([name, profile]) => {
-                  const PROFILE_ICONS: Record<string, string> = {
-                    anthropic: '🤖',
-                    openai: '🧠',
-                    google: '🔮',
-                    openrouter: '🌐',
-                    antigravity: '🚀',
-                    default: '🔑',
-                  };
-                  const icon = PROFILE_ICONS[profile.provider] || PROFILE_ICONS.default;
 
-                  return (
-                    <div key={name} className="auth-profile-card">
-                      <div className="profile-header">
-                        <span className="profile-icon">{icon}</span>
-                        <span className="profile-name">{name}</span>
-                        <span className={`auth-mode-badge ${profile.mode}`}>
-                          {profile.mode === 'oauth' ? 'OAuth' : 'API Key'}
-                        </span>
-                      </div>
-                      <div className="profile-details">
-                        <div className="detail-row">
-                          <span className="label">Provider:</span>
-                          <span className="value">{profile.provider}</span>
+            {/* Credentials from auth-profiles.json */}
+            {Object.keys(authProfilesStore.profiles).length > 0 && (
+              <>
+                <h3 style={{ marginTop: '24px', marginBottom: '12px' }}>Stored Credentials</h3>
+                <div className="auth-profiles-list">
+                  {Object.entries(authProfilesStore.profiles).map(([profileId, credential]) => {
+                    const PROFILE_ICONS: Record<string, string> = {
+                      anthropic: '🤖',
+                      openai: '🧠',
+                      google: '🔮',
+                      openrouter: '🌐',
+                      antigravity: '🚀',
+                      default: '🔑',
+                    };
+                    const icon = PROFILE_ICONS[credential.provider] || PROFILE_ICONS.default;
+                    const stats = authProfilesStore.usageStats[profileId];
+                    const inCooldown = isInCooldown(profileId);
+
+                    return (
+                      <div key={profileId} className={`auth-profile-card ${inCooldown ? 'cooldown' : ''}`}>
+                        <div className="profile-header">
+                          <span className="profile-icon">{icon}</span>
+                          <span className="profile-name">{profileId}</span>
+                          <span className={`auth-mode-badge ${credential.type}`}>
+                            {credential.type === 'oauth' ? 'OAuth' : 'Token'}
+                          </span>
+                          {inCooldown && <span className="cooldown-badge">⏸ Cooldown</span>}
                         </div>
-                        <div className="detail-row">
-                          <span className="label">Used by:</span>
-                          <span className="value hint">
-                            {Object.entries(providers).filter(([_, p]) =>
-                              p.apiKey?.includes(profile.provider) || name.startsWith(profile.provider)
-                            ).map(([n]) => n).join(', ') || 'Not linked to any provider'}
+                        <div className="profile-details">
+                          <div className="detail-row">
+                            <span className="label">Provider:</span>
+                            <span className="value">{credential.provider}</span>
+                          </div>
+                          {credential.token && (
+                            <div className="detail-row">
+                              <span className="label">Token:</span>
+                              {editingAuthProfile === profileId ? (
+                                <input
+                                  type="text"
+                                  className="text-input"
+                                  value={editedAuthToken}
+                                  onChange={(e) => setEditedAuthToken(e.target.value)}
+                                  placeholder="Enter new token"
+                                  style={{ flex: 1 }}
+                                />
+                              ) : (
+                                <span className="value">
+                                  {showAuthToken[profileId]
+                                    ? credential.token
+                                    : `${credential.token.substring(0, 12)}...${credential.token.slice(-4)}`}
+                                </span>
+                              )}
+                              {editingAuthProfile !== profileId && (
+                                <button
+                                  className="btn btn-icon"
+                                  onClick={() => setShowAuthToken({ ...showAuthToken, [profileId]: !showAuthToken[profileId] })}
+                                  title={showAuthToken[profileId] ? 'Hide token' : 'Show token'}
+                                >
+                                  {showAuthToken[profileId] ? '🙈' : '👁'}
+                                </button>
+                              )}
+                            </div>
+                          )}
+                          {stats?.lastUsed && (
+                            <div className="detail-row">
+                              <span className="label">Last Used:</span>
+                              <span className="value hint">{formatDate(stats.lastUsed)}</span>
+                            </div>
+                          )}
+                          {stats?.errorCount != null && stats.errorCount > 0 && (
+                            <div className="detail-row">
+                              <span className="label">Errors:</span>
+                              <span className="value error">{stats.errorCount} errors</span>
+                            </div>
+                          )}
+                          {inCooldown && stats?.cooldownUntil && (
+                            <div className="detail-row cooldown-info">
+                              <span className="label">Cooldown Until:</span>
+                              <span className="value warning">{formatDate(stats.cooldownUntil)}</span>
+                            </div>
+                          )}
+                          {stats?.lastError && (
+                            <div className="detail-row">
+                              <span className="label">Last Error:</span>
+                              <span className="value error hint">{stats.lastError}</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="profile-actions">
+                          {editingAuthProfile === profileId ? (
+                            <>
+                              <button
+                                className="btn btn-secondary btn-small"
+                                onClick={() => {
+                                  setEditingAuthProfile(null);
+                                  setEditedAuthToken('');
+                                }}
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                className="btn btn-primary btn-small"
+                                onClick={async () => {
+                                  try {
+                                    await window.electronAPI.config.updateAuthProfileCredential(profileId, {
+                                      ...credential,
+                                      token: editedAuthToken,
+                                    });
+                                    await loadData();
+                                    setEditingAuthProfile(null);
+                                    setEditedAuthToken('');
+                                  } catch (err) {
+                                    console.error('Failed to update token:', err);
+                                    alert('Failed to update token');
+                                  }
+                                }}
+                              >
+                                Save
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                className="btn btn-secondary btn-small"
+                                onClick={() => {
+                                  setEditingAuthProfile(profileId);
+                                  setEditedAuthToken(credential.token || '');
+                                }}
+                              >
+                                Edit Token
+                              </button>
+                              {inCooldown && (
+                                <button
+                                  className="btn btn-warning btn-small"
+                                  onClick={async () => {
+                                    try {
+                                      await window.electronAPI.config.clearAuthProfileCooldown(profileId);
+                                      await loadData();
+                                    } catch (err) {
+                                      console.error('Failed to clear cooldown:', err);
+                                      alert('Failed to clear cooldown');
+                                    }
+                                  }}
+                                >
+                                  Clear Cooldown
+                                </button>
+                              )}
+                              <button
+                                className="btn btn-danger btn-small"
+                                onClick={async () => {
+                                  if (!confirm(`Delete credential "${profileId}"?`)) return;
+                                  try {
+                                    await window.electronAPI.config.deleteAuthProfileCredential(profileId);
+                                    await loadData();
+                                  } catch (err) {
+                                    console.error('Failed to delete credential:', err);
+                                  }
+                                }}
+                              >
+                                Delete
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+
+            {/* Auth profiles from openclaw.json (metadata) */}
+            {Object.keys(authProfiles).length > 0 && (
+              <>
+                <h3 style={{ marginTop: '24px', marginBottom: '12px' }}>Profile Metadata</h3>
+                <p className="hint" style={{ marginBottom: '12px' }}>These are profile references in the main config file.</p>
+                <div className="auth-profiles-list">
+                  {Object.entries(authProfiles).map(([name, profile]) => {
+                    const PROFILE_ICONS: Record<string, string> = {
+                      anthropic: '🤖',
+                      openai: '🧠',
+                      google: '🔮',
+                      openrouter: '🌐',
+                      antigravity: '🚀',
+                      default: '🔑',
+                    };
+                    const icon = PROFILE_ICONS[profile.provider] || PROFILE_ICONS.default;
+
+                    return (
+                      <div key={name} className="auth-profile-card compact">
+                        <div className="profile-header">
+                          <span className="profile-icon">{icon}</span>
+                          <span className="profile-name">{name}</span>
+                          <span className={`auth-mode-badge ${profile.mode}`}>
+                            {profile.mode === 'oauth' ? 'OAuth' : 'API Key'}
                           </span>
                         </div>
+                        <div className="profile-details">
+                          <div className="detail-row">
+                            <span className="label">Provider:</span>
+                            <span className="value">{profile.provider}</span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="profile-actions">
-                        <button
-                          className="btn btn-secondary btn-small"
-                          onClick={() => {
-                            // Re-authenticate via CLI command hint
-                            alert(`To re-authenticate, run:\nmoltbot auth login --provider ${profile.provider}`);
-                          }}
-                        >
-                          Re-auth
-                        </button>
-                        <button
-                          className="btn btn-danger btn-small"
-                          onClick={async () => {
-                            if (!confirm(`Delete auth profile "${name}"?`)) return;
-                            try {
-                              await window.electronAPI.config.deleteAuthProfile(name);
-                              await loadData();
-                            } catch (err) {
-                              console.error('Failed to delete auth profile:', err);
-                            }
-                          }}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
+              </>
+            )}
+
+            {Object.keys(authProfilesStore.profiles).length === 0 && Object.keys(authProfiles).length === 0 && (
+              <div className="empty-state">
+                <p>No auth profiles configured</p>
+                <p className="hint">Auth profiles are created via CLI: <code>openclaw auth login</code></p>
               </div>
             )}
           </div>
@@ -794,6 +982,186 @@ function Settings({ onConfigChange, onReinitSetup }: SettingsProps) {
       case 'channels':
         return <Channels onConfigSave={onConfigChange} />;
 
+      case 'gateway':
+        return (
+          <div className="settings-section">
+            <div className="section-header">
+              <h2>Gateway Configuration</h2>
+              {!editingGateway ? (
+                <button className="btn btn-primary" onClick={() => {
+                  if (gatewayConfig) {
+                    setEditedGateway({
+                      port: gatewayConfig.port,
+                      bind: gatewayConfig.bind,
+                      authMode: gatewayConfig.auth?.mode || 'token',
+                      token: gatewayConfig.auth?.token || '',
+                      password: gatewayConfig.auth?.password || '',
+                    });
+                  }
+                  setEditingGateway(true);
+                }}>
+                  Edit
+                </button>
+              ) : (
+                <div className="button-group">
+                  <button className="btn btn-secondary" onClick={() => setEditingGateway(false)}>
+                    Cancel
+                  </button>
+                  <button className="btn btn-primary" onClick={async () => {
+                    try {
+                      const newConfig: any = {
+                        port: editedGateway.port,
+                        mode: 'local',
+                        bind: editedGateway.bind,
+                        auth: { mode: editedGateway.authMode },
+                      };
+                      if (editedGateway.authMode === 'token') {
+                        newConfig.auth.token = editedGateway.token;
+                      } else if (editedGateway.authMode === 'password') {
+                        newConfig.auth.password = editedGateway.password;
+                      }
+                      await window.electronAPI.config.updateGateway(newConfig);
+                      await loadData();
+                      setEditingGateway(false);
+                    } catch (err) {
+                      console.error('Failed to save gateway config:', err);
+                      alert('Failed to save gateway config');
+                    }
+                  }}>
+                    Save
+                  </button>
+                </div>
+              )}
+            </div>
+            <p className="section-description">
+              Configure how the gateway server listens for connections.
+            </p>
+
+            {editingGateway ? (
+              <div className="config-card">
+                <div className="settings-form">
+                  <div className="form-row">
+                    <label>Port:</label>
+                    <input
+                      type="number"
+                      className="number-input"
+                      value={editedGateway.port}
+                      onChange={(e) => setEditedGateway({ ...editedGateway, port: parseInt(e.target.value) || 18789 })}
+                      min={1024}
+                      max={65535}
+                    />
+                  </div>
+                  <div className="form-row">
+                    <label>Bind:</label>
+                    <select
+                      className="model-select"
+                      value={editedGateway.bind}
+                      onChange={(e) => setEditedGateway({ ...editedGateway, bind: e.target.value })}
+                    >
+                      <option value="loopback">Loopback (127.0.0.1) - Local only</option>
+                      <option value="lan">LAN (0.0.0.0) - All interfaces</option>
+                      <option value="tailnet">Tailnet - Tailscale VPN</option>
+                    </select>
+                  </div>
+                  <div className="form-hint">
+                    {editedGateway.bind === 'loopback' && '✓ Secure: Only accessible from this machine'}
+                    {editedGateway.bind === 'lan' && '⚠ Warning: Accessible from any device on your network'}
+                    {editedGateway.bind === 'tailnet' && '✓ Secure: Accessible via encrypted Tailscale VPN'}
+                  </div>
+                  <div className="form-row">
+                    <label>Auth Mode:</label>
+                    <select
+                      className="model-select"
+                      value={editedGateway.authMode}
+                      onChange={(e) => setEditedGateway({ ...editedGateway, authMode: e.target.value })}
+                    >
+                      <option value="token">Token</option>
+                      <option value="password">Password</option>
+                      <option value="none">None (not recommended)</option>
+                    </select>
+                  </div>
+                  {editedGateway.authMode === 'token' && (
+                    <div className="form-row">
+                      <label>Token:</label>
+                      <div className="input-with-button">
+                        <input
+                          type="text"
+                          className="text-input"
+                          value={editedGateway.token}
+                          onChange={(e) => setEditedGateway({ ...editedGateway, token: e.target.value })}
+                          placeholder="Enter token or generate one"
+                        />
+                        <button
+                          className="btn btn-secondary btn-small"
+                          onClick={() => {
+                            const token = Array.from(crypto.getRandomValues(new Uint8Array(24)))
+                              .map(b => b.toString(16).padStart(2, '0'))
+                              .join('');
+                            setEditedGateway({ ...editedGateway, token });
+                          }}
+                        >
+                          Generate
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  {editedGateway.authMode === 'password' && (
+                    <div className="form-row">
+                      <label>Password:</label>
+                      <input
+                        type="password"
+                        className="text-input"
+                        value={editedGateway.password}
+                        onChange={(e) => setEditedGateway({ ...editedGateway, password: e.target.value })}
+                        placeholder="Enter password"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="config-card">
+                {gatewayConfig ? (
+                  <div className="settings-grid">
+                    <div className="setting-item">
+                      <span className="label">Port:</span>
+                      <code>{gatewayConfig.port}</code>
+                    </div>
+                    <div className="setting-item">
+                      <span className="label">Bind:</span>
+                      <code>{gatewayConfig.bind}</code>
+                    </div>
+                    <div className="setting-item">
+                      <span className="label">Auth Mode:</span>
+                      <code>{gatewayConfig.auth?.mode || 'none'}</code>
+                    </div>
+                    {gatewayConfig.auth?.token && (
+                      <div className="setting-item">
+                        <span className="label">Token:</span>
+                        <code>{gatewayConfig.auth.token.substring(0, 8)}...</code>
+                        <button
+                          className="btn btn-icon"
+                          onClick={() => {
+                            navigator.clipboard.writeText(gatewayConfig.auth.token!);
+                            alert('Token copied to clipboard');
+                          }}
+                          title="Copy token"
+                        >
+                          📋
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="empty-state">
+                    <p>No gateway configuration found</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        );
+
       case 'advanced':
         return (
           <div className="settings-section">
@@ -817,16 +1185,16 @@ function Settings({ onConfigChange, onReinitSetup }: SettingsProps) {
                       <span className="label">URL:</span>
                       <code>http://localhost:{gatewayConfig.port}</code>
                     </div>
-                    {gatewayConfig.token && (
+                    {gatewayConfig.auth?.token && (
                       <div className="detail-row">
                         <span className="label">Token:</span>
                         <code className="token-masked">
-                          {gatewayConfig.token.substring(0, 8)}...
+                          {gatewayConfig.auth.token.substring(0, 8)}...
                         </code>
                         <button
                           className="btn btn-icon"
                           onClick={() => {
-                            navigator.clipboard.writeText(gatewayConfig.token);
+                            navigator.clipboard.writeText(gatewayConfig.auth.token!);
                             alert('Token copied to clipboard');
                           }}
                           title="Copy token"
@@ -839,7 +1207,8 @@ function Settings({ onConfigChange, onReinitSetup }: SettingsProps) {
                   <button
                     className="btn btn-primary"
                     onClick={() => {
-                      const url = `http://localhost:${gatewayConfig.port}?token=${encodeURIComponent(gatewayConfig.token)}`;
+                      const token = gatewayConfig.auth?.token || '';
+                      const url = `http://localhost:${gatewayConfig.port}${token ? `?token=${encodeURIComponent(token)}` : ''}`;
                       window.electronAPI.shell?.openExternal?.(url) ||
                         window.open(url, '_blank');
                     }}

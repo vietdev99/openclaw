@@ -16,6 +16,10 @@ export {
   modelsAuthOrderSetCommand,
 } from "./models/auth-order.js";
 export {
+  modelsAuthClearCooldownCommand,
+  modelsAuthListCooldownsCommand,
+} from "./models/auth-cooldown.js";
+export {
   modelsFallbacksAddCommand,
   modelsFallbacksClearCommand,
   modelsFallbacksListCommand,

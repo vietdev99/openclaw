@@ -285,6 +285,7 @@ export async function startGatewayServer(
     addChatRun,
     removeChatRun,
     chatAbortControllers,
+    responseCache,
   } = await createGatewayRuntimeState({
     cfg: cfgAtStart,
     bindHost,
@@ -402,6 +403,7 @@ export async function startGatewayServer(
       nodeSendToSession,
       agentRunSeq,
       chatRunState,
+      responseCache,
       resolveSessionKeyForRun,
       clearAgentRunContext,
     }),
@@ -468,6 +470,7 @@ export async function startGatewayServer(
       addChatRun,
       removeChatRun,
       dedupe,
+      responseCache,
       wizardSessions,
       findRunningWizard,
       purgeWizardSession,

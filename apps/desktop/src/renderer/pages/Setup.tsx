@@ -296,8 +296,8 @@ export const Setup: React.FC<SetupProps> = ({ onComplete }) => {
         },
       });
 
-      // 2. Save gateway config with correct format
-      // Map bind values to schema-compliant values
+      // 2. Save gateway config using dedicated handler
+      // Map UI values to schema-compliant values
       const bindMap: Record<string, string> = {
         'localhost': 'loopback',
         'all-interfaces': 'lan',
@@ -306,11 +306,11 @@ export const Setup: React.FC<SetupProps> = ({ onComplete }) => {
 
       const gatewayConfig: any = {
         port: data.gateway.port,
-        mode: data.gateway.mode === 'service' ? 'local' : 'local', // Always local for now
+        mode: 'local',
         bind: bindMap[data.gateway.bind] || 'loopback',
       };
 
-      // Auth must be object format
+      // Auth must be object format per schema
       if (data.gateway.auth === 'token') {
         gatewayConfig.auth = {
           mode: 'token',
@@ -321,13 +321,26 @@ export const Setup: React.FC<SetupProps> = ({ onComplete }) => {
           mode: 'password',
           password: data.gateway.password || '',
         };
+      } else {
+        gatewayConfig.auth = {
+          mode: 'none',
+        };
       }
 
-      const config = await window.electronAPI.config.getFullConfig() as any;
-      config.gateway = { ...config.gateway, ...gatewayConfig };
-      await window.electronAPI.config.updateAgentsDefaults({}); // Trigger save
+      // Use the new updateGateway handler
+      await window.electronAPI.config.updateGateway(gatewayConfig);
 
-      // 3. Install gateway service if needed
+      // 3. Save auth profile credential if API key provided
+      if (data.authData.apiKey && data.authProvider !== 'skip') {
+        const profileId = `${data.authProvider}:default`;
+        await window.electronAPI.config.updateAuthProfileCredential(profileId, {
+          type: 'token',
+          provider: data.authProvider,
+          token: data.authData.apiKey,
+        });
+      }
+
+      // 4. Install gateway service if needed
       if (data.gateway.mode === 'service') {
         const result = await window.electronAPI.setup.installGatewayService(data.gateway);
         if (!result.success) {
@@ -335,7 +348,7 @@ export const Setup: React.FC<SetupProps> = ({ onComplete }) => {
         }
       }
 
-      // 4. Save channel configurations
+      // 5. Save channel configurations
       for (const channel of data.channels) {
         if (channel.enabled) {
           const channelConfig: any = {
