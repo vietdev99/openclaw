@@ -12,6 +12,7 @@ import type {
   TalkConfig,
 } from "./types.gateway.js";
 import type { HooksConfig } from "./types.hooks.js";
+import type { MemoryConfig } from "./types.memory.js";
 import type {
   AudioConfig,
   BroadcastConfig,
@@ -98,6 +99,7 @@ export type OpenClawConfig = {
   gateway?: GatewayConfig;
   /** Terminal host configuration for isolated command execution. */
   terminal?: TerminalConfig;
+  memory?: MemoryConfig;
 };
 
 export type ConfigValidationIssue = {

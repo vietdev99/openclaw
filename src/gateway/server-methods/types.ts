@@ -15,6 +15,7 @@ type SubsystemLogger = ReturnType<typeof createSubsystemLogger>;
 
 export type GatewayClient = {
   connect: ConnectParams;
+  connId?: string;
 };
 
 export type RespondFn = (
@@ -43,6 +44,15 @@ export type GatewayRequestContext = {
       stateVersion?: { presence?: number; health?: number };
     },
   ) => void;
+  broadcastToConnIds: (
+    event: string,
+    payload: unknown,
+    connIds: ReadonlySet<string>,
+    opts?: {
+      dropIfSlow?: boolean;
+      stateVersion?: { presence?: number; health?: number };
+    },
+  ) => void;
   nodeSendToSession: (sessionKey: string, event: string, payload: unknown) => void;
   nodeSendToAllSubscribed: (event: string, payload: unknown) => void;
   nodeSubscribe: (nodeId: string, sessionKey: string) => void;
@@ -61,6 +71,7 @@ export type GatewayRequestContext = {
     clientRunId: string,
     sessionKey?: string,
   ) => { sessionKey: string; clientRunId: string } | undefined;
+  registerToolEventRecipient: (runId: string, connId: string) => void;
   dedupe: Map<string, DedupeEntry>;
   responseCache: ResponseCache;
   wizardSessions: Map<string, WizardSession>;
