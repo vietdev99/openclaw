@@ -4,9 +4,9 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
   plugins: [react()],
-  base: "/v2/",
+  base: "/",
   build: {
-    outDir: path.resolve(__dirname, "../dist/control-ui-v2"),
+    outDir: path.resolve(__dirname, "../dist/control-ui"),
     emptyOutDir: true,
     sourcemap: true,
   },
