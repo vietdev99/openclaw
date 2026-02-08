@@ -148,15 +148,29 @@ $validationSrc = Join-Path $InstallDir "scripts\patches\pi-ai-validation.patch.t
 $validationDst = Join-Path $piMonoDir "packages\ai\src\utils\validation.ts"
 
 if (Test-Path $validationSrc) {
-    Copy-Item -Path $validationSrc -Destination $validationDst -Force
-    Write-OK "Patched: validation.ts"
+    try {
+        $dstDir = Split-Path -Parent $validationDst
+        if (-not (Test-Path $dstDir)) {
+            New-Item -ItemType Directory -Path $dstDir -Force | Out-Null
+        }
+        Copy-Item -Path $validationSrc -Destination $validationDst -Force
+        Write-OK "Patched: validation.ts"
 
-    # Build pi-ai
-    Push-Location (Join-Path $piMonoDir "packages\ai")
-    pnpm install 2>$null | Out-Null
-    pnpm build 2>$null | Out-Null
-    Pop-Location
-    Write-OK "Built pi-ai"
+        # Build pi-ai
+        $piAiDir = Join-Path $piMonoDir "packages\ai"
+        if (Test-Path $piAiDir) {
+            Push-Location $piAiDir
+            pnpm install 2>$null | Out-Null
+            pnpm build 2>$null | Out-Null
+            Pop-Location
+            Write-OK "Built pi-ai"
+        } else {
+            Write-Warn "pi-ai package not found, skipping build"
+        }
+    } catch {
+        Write-Warn "Could not apply pi-ai fix: $($_.Exception.Message)"
+        Write-Warn "Continuing without patch (non-critical)"
+    }
 } else {
     Write-Warn "Patch file not found, skipping"
 }
