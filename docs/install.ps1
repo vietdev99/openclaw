@@ -154,8 +154,25 @@ if (Test-Path $piAiDir) {
 # ============================================
 Write-Step "Installing dependencies..."
 Push-Location $InstallDir
-pnpm install
+pnpm install 2>$null
 Write-OK "Dependencies installed"
+
+# Fix: ensure @mariozechner/pi-ai is properly linked
+$piAiNodeModules = Join-Path $InstallDir "node_modules\@mariozechner\pi-ai"
+$piAiSource = Join-Path $InstallDir "pi-mono\packages\ai"
+if (Test-Path $piAiSource) {
+    # Remove pnpm symlink and copy actual files
+    if (Test-Path $piAiNodeModules) {
+        cmd /c "rmdir /s /q `"$piAiNodeModules`"" 2>$null
+        Remove-Item -Path $piAiNodeModules -Recurse -Force -ErrorAction SilentlyContinue
+    }
+    $piAiParent = Split-Path -Parent $piAiNodeModules
+    if (-not (Test-Path $piAiParent)) {
+        New-Item -ItemType Directory -Path $piAiParent -Force | Out-Null
+    }
+    Copy-Item -Path $piAiSource -Destination $piAiNodeModules -Recurse -Force
+    Write-OK "Linked @mariozechner/pi-ai from pi-mono"
+}
 Pop-Location
 
 # ============================================
