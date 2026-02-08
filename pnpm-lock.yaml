@@ -13,7 +13,6 @@ overrides:
   '@sinclair/typebox': 0.34.48
   tar: 7.5.7
   tough-cookie: 4.1.3
-  '@mariozechner/pi-ai': file:./pi-mono/packages/ai
 
 importers:
 
@@ -53,8 +52,8 @@ importers:
         specifier: 0.52.7
         version: 0.52.7(ws@8.19.0)(zod@4.3.6)
       '@mariozechner/pi-ai':
-        specifier: file:pi-mono/packages/ai
-        version: file:pi-mono/packages/ai(ws@8.19.0)(zod@4.3.6)
+        specifier: 0.52.7
+        version: 0.52.7(ws@8.19.0)(zod@4.3.6)
       '@mariozechner/pi-coding-agent':
         specifier: 0.52.7
         version: 0.52.7(ws@8.19.0)(zod@4.3.6)
@@ -1460,8 +1459,8 @@ packages:
     resolution: {integrity: sha512-zthFSKW7aha7R9jKktDWt+pD5qeK0cT1TI6Ge/lqUDsPbjXj/vkyh1/BLJa8KtfKQzJaC0IXtWhUO2LQzyKwsw==}
     engines: {node: '>=20.0.0'}
 
-  '@mariozechner/pi-ai@file:pi-mono/packages/ai':
-    resolution: {directory: pi-mono/packages/ai, type: directory}
+  '@mariozechner/pi-ai@0.52.7':
+    resolution: {integrity: sha512-kr3isYX1wVxHaKok1Sa6Jbx9TgVp+Vp24LrVxUtQRXGMq6IjB5/RLLF61XT8pgGLBPhs/8esQbO/Av3l2MJibA==}
     engines: {node: '>=20.0.0'}
     hasBin: true
 
@@ -6707,7 +6706,7 @@ snapshots:
 
   '@mariozechner/pi-agent-core@0.52.7(ws@8.19.0)(zod@4.3.6)':
     dependencies:
-      '@mariozechner/pi-ai': file:pi-mono/packages/ai(ws@8.19.0)(zod@4.3.6)
+      '@mariozechner/pi-ai': 0.52.7(ws@8.19.0)(zod@4.3.6)
     transitivePeerDependencies:
       - '@modelcontextprotocol/sdk'
       - aws-crt
@@ -6717,7 +6716,7 @@ snapshots:
       - ws
       - zod
 
-  '@mariozechner/pi-ai@file:pi-mono/packages/ai(ws@8.19.0)(zod@4.3.6)':
+  '@mariozechner/pi-ai@0.52.7(ws@8.19.0)(zod@4.3.6)':
     dependencies:
       '@anthropic-ai/sdk': 0.73.0(zod@4.3.6)
       '@aws-sdk/client-bedrock-runtime': 3.985.0
@@ -6745,7 +6744,7 @@ snapshots:
     dependencies:
       '@mariozechner/jiti': 2.6.5
       '@mariozechner/pi-agent-core': 0.52.7(ws@8.19.0)(zod@4.3.6)
-      '@mariozechner/pi-ai': file:pi-mono/packages/ai(ws@8.19.0)(zod@4.3.6)
+      '@mariozechner/pi-ai': 0.52.7(ws@8.19.0)(zod@4.3.6)
       '@mariozechner/pi-tui': 0.52.7
       '@silvia-odwyer/photon-node': 0.3.4
       chalk: 5.6.2

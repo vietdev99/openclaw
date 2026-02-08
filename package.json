@@ -213,8 +213,7 @@
       "qs": "6.14.1",
       "@sinclair/typebox": "0.34.48",
       "tar": "7.5.7",
-      "tough-cookie": "4.1.3",
-      "@mariozechner/pi-ai": "file:./pi-mono/packages/ai"
+      "tough-cookie": "4.1.3"
     },
     "onlyBuiltDependencies": [
       "@lydell/node-pty",
