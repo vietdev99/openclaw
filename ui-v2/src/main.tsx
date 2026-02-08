@@ -38,7 +38,7 @@ const token = getToken();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <BrowserRouter basename="/v2">
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <GatewayProvider url={gatewayUrl} token={token}>
         <App />
       </GatewayProvider>
