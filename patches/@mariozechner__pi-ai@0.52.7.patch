@@ -1,0 +1,35 @@
+diff --git a/dist/models.generated.js b/dist/models.generated.js
+index b82ede2a0cd8c45660498f29da5a1e7bf49486ad..89c89ad159fb3a883d4770526782ffdb1ddab9c6 100644
+--- a/dist/models.generated.js
++++ b/dist/models.generated.js
+@@ -2968,22 +2968,22 @@ export const MODELS = {
+         },
+     },
+     "google-antigravity": {
+-        "claude-opus-4-5-thinking": {
+-            id: "claude-opus-4-5-thinking",
+-            name: "Claude Opus 4.5 Thinking (Antigravity)",
++        "claude-opus-4-6-thinking": {
++            id: "claude-opus-4-6-thinking",
++            name: "Claude Opus 4.6 Thinking (Antigravity)",
+             api: "google-gemini-cli",
+             provider: "google-antigravity",
+             baseUrl: "https://daily-cloudcode-pa.sandbox.googleapis.com",
+             reasoning: true,
+             input: ["text", "image"],
+             cost: {
+-                input: 5,
+-                output: 25,
+-                cacheRead: 0.5,
+-                cacheWrite: 6.25,
++                input: 15,
++                output: 75,
++                cacheRead: 1.5,
++                cacheWrite: 18.75,
+             },
+             contextWindow: 200000,
+-            maxTokens: 64000,
++            maxTokens: 32000,
+         },
+         "claude-sonnet-4-5": {
+             id: "claude-sonnet-4-5",

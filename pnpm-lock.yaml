@@ -14,6 +14,11 @@ overrides:
   tar: 7.5.7
   tough-cookie: 4.1.3
 
+patchedDependencies:
+  '@mariozechner/pi-ai@0.52.7':
+    hash: b7c5a3d217e84e1bdc0ad21c6179bff22cd6d0b37547fd6131897e374b87e9b2
+    path: patches/@mariozechner__pi-ai@0.52.7.patch
+
 importers:
 
   .:
@@ -53,7 +58,7 @@ importers:
         version: 0.52.7(ws@8.19.0)(zod@4.3.6)
       '@mariozechner/pi-ai':
         specifier: 0.52.7
-        version: 0.52.7(ws@8.19.0)(zod@4.3.6)
+        version: 0.52.7(patch_hash=b7c5a3d217e84e1bdc0ad21c6179bff22cd6d0b37547fd6131897e374b87e9b2)(ws@8.19.0)(zod@4.3.6)
       '@mariozechner/pi-coding-agent':
         specifier: 0.52.7
         version: 0.52.7(ws@8.19.0)(zod@4.3.6)
@@ -6706,7 +6711,7 @@ snapshots:
 
   '@mariozechner/pi-agent-core@0.52.7(ws@8.19.0)(zod@4.3.6)':
     dependencies:
-      '@mariozechner/pi-ai': 0.52.7(ws@8.19.0)(zod@4.3.6)
+      '@mariozechner/pi-ai': 0.52.7(patch_hash=b7c5a3d217e84e1bdc0ad21c6179bff22cd6d0b37547fd6131897e374b87e9b2)(ws@8.19.0)(zod@4.3.6)
     transitivePeerDependencies:
       - '@modelcontextprotocol/sdk'
       - aws-crt
@@ -6716,7 +6721,7 @@ snapshots:
       - ws
       - zod
 
-  '@mariozechner/pi-ai@0.52.7(ws@8.19.0)(zod@4.3.6)':
+  '@mariozechner/pi-ai@0.52.7(patch_hash=b7c5a3d217e84e1bdc0ad21c6179bff22cd6d0b37547fd6131897e374b87e9b2)(ws@8.19.0)(zod@4.3.6)':
     dependencies:
       '@anthropic-ai/sdk': 0.73.0(zod@4.3.6)
       '@aws-sdk/client-bedrock-runtime': 3.985.0
@@ -6744,7 +6749,7 @@ snapshots:
     dependencies:
       '@mariozechner/jiti': 2.6.5
       '@mariozechner/pi-agent-core': 0.52.7(ws@8.19.0)(zod@4.3.6)
-      '@mariozechner/pi-ai': 0.52.7(ws@8.19.0)(zod@4.3.6)
+      '@mariozechner/pi-ai': 0.52.7(patch_hash=b7c5a3d217e84e1bdc0ad21c6179bff22cd6d0b37547fd6131897e374b87e9b2)(ws@8.19.0)(zod@4.3.6)
       '@mariozechner/pi-tui': 0.52.7
       '@silvia-odwyer/photon-node': 0.3.4
       chalk: 5.6.2
