@@ -85,6 +85,7 @@ const BASE_METHODS = [
   "chat.history",
   "chat.abort",
   "chat.send",
+  "auth.profile.upsert",
 ];
 
 export function listGatewayMethods(): string[] {

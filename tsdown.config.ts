@@ -30,4 +30,11 @@ export default defineConfig([
     fixedExtension: false,
     platform: "node",
   },
+  {
+    entry: "src/terminal-host/ipc-server.ts",
+    outDir: "dist",
+    env,
+    fixedExtension: false,
+    platform: "node",
+  },
 ]);

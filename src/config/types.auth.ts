@@ -8,11 +8,21 @@ export type AuthProfileConfig = {
    */
   mode: "api_key" | "oauth" | "token";
   email?: string;
+  /** When true, this profile is excluded from routing (failover + loadbalance). */
+  disabled?: boolean;
 };
+
+export type AuthProfileStrategy = "failover" | "loadbalance";
 
 export type AuthConfig = {
   profiles?: Record<string, AuthProfileConfig>;
   order?: Record<string, string[]>;
+  /**
+   * Per-provider profile selection strategy.
+   * - "failover": use lastGood profile first, switch to next on failure (default)
+   * - "loadbalance": round-robin across profiles by least-recently-used
+   */
+  profileStrategy?: Record<string, AuthProfileStrategy>;
   cooldowns?: {
     /** Default billing backoff (hours). Default: 5. */
     billingBackoffHours?: number;

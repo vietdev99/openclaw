@@ -121,10 +121,19 @@ export async function resolveSessionAuthProfileOverride(params: {
   let next = current;
   if (isNewSession) {
     next = current ? pickNextAvailable(current) : pickFirstAvailable();
+    console.log(`[DEBUG-LB] session-override: isNewSession=true, current=${current}, next=${next}`);
   } else if (current && compactionCount > storedCompaction) {
     next = pickNextAvailable(current);
+    console.log(
+      `[DEBUG-LB] session-override: compaction rotated, current=${current}, next=${next}, compactionCount=${compactionCount}, storedCompaction=${storedCompaction}`,
+    );
   } else if (!current || isProfileInCooldown(store, current)) {
     next = pickFirstAvailable();
+    console.log(
+      `[DEBUG-LB] session-override: no current or in cooldown, current=${current}, next=${next}`,
+    );
+  } else {
+    console.log(`[DEBUG-LB] session-override: keeping current=${current} (source=${source})`);
   }
 
   if (!next) {
@@ -135,6 +144,7 @@ export async function resolveSessionAuthProfileOverride(params: {
     sessionEntry.authProfileOverrideSource !== "auto" ||
     sessionEntry.authProfileOverrideCompactionCount !== compactionCount;
   if (shouldPersist) {
+    console.log(`[DEBUG-LB] session-override: PERSISTING next=${next} for session=${sessionKey}`);
     sessionEntry.authProfileOverride = next;
     sessionEntry.authProfileOverrideSource = "auto";
     sessionEntry.authProfileOverrideCompactionCount = compactionCount;

@@ -25,6 +25,29 @@ export type ControlUiRootState =
   | { kind: "invalid"; path: string }
   | { kind: "missing" };
 
+function resolveControlUiV2Root(): string | null {
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  const execDir = (() => {
+    try {
+      return path.dirname(fs.realpathSync(process.execPath));
+    } catch {
+      return null;
+    }
+  })();
+  const candidates = [
+    execDir ? path.resolve(execDir, "control-ui-v2") : null,
+    path.resolve(here, "../control-ui-v2"),
+    path.resolve(here, "../../dist/control-ui-v2"),
+    path.resolve(process.cwd(), "dist", "control-ui-v2"),
+  ].filter((dir): dir is string => Boolean(dir));
+  for (const dir of candidates) {
+    if (fs.existsSync(path.join(dir, "index.html"))) {
+      return dir;
+    }
+  }
+  return null;
+}
+
 function contentTypeForExt(ext: string): string {
   switch (ext) {
     case ".html":
@@ -360,6 +383,98 @@ export function handleControlUiHttpRequest(
       config: opts?.config,
       agentId: opts?.agentId,
     });
+    return true;
+  }
+
+  respondNotFound(res);
+  return true;
+}
+
+/**
+ * Handle HTTP requests for UI v2 at /v2/ path
+ */
+export function handleControlUiV2HttpRequest(
+  req: IncomingMessage,
+  res: ServerResponse,
+  opts?: ControlUiRequestOptions,
+): boolean {
+  const urlRaw = req.url;
+  if (!urlRaw) {
+    return false;
+  }
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    return false;
+  }
+
+  const url = new URL(urlRaw, "http://localhost");
+  const pathname = url.pathname;
+
+  // Only handle /v2 and /v2/* paths
+  if (!pathname.startsWith("/v2")) {
+    return false;
+  }
+
+  // Redirect /v2 to /v2/
+  if (pathname === "/v2") {
+    res.statusCode = 302;
+    res.setHeader("Location", `/v2/${url.search}`);
+    res.end();
+    return true;
+  }
+
+  const root = resolveControlUiV2Root();
+  if (!root) {
+    res.statusCode = 503;
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.end(
+      "Control UI v2 assets not found. Build them with `pnpm ui-v2:build`, or run `pnpm ui-v2:dev` during development.",
+    );
+    return true;
+  }
+
+  // Remove /v2 prefix to get the relative path
+  const uiPath = pathname.slice(3); // Remove "/v2"
+  const rel = (() => {
+    if (uiPath === "/" || uiPath === "") {
+      return "";
+    }
+    const assetsIndex = uiPath.indexOf("/assets/");
+    if (assetsIndex >= 0) {
+      return uiPath.slice(assetsIndex + 1);
+    }
+    return uiPath.slice(1);
+  })();
+  const requested = rel && !rel.endsWith("/") ? rel : `${rel}index.html`;
+  const fileRel = requested || "index.html";
+  if (!isSafeRelativePath(fileRel)) {
+    respondNotFound(res);
+    return true;
+  }
+
+  const filePath = path.join(root, fileRel);
+  if (!filePath.startsWith(root)) {
+    respondNotFound(res);
+    return true;
+  }
+
+  if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+    if (path.basename(filePath) === "index.html") {
+      // Serve index.html without config injection (React app handles its own config)
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.setHeader("Cache-Control", "no-cache");
+      res.end(fs.readFileSync(filePath, "utf8"));
+      return true;
+    }
+    serveFile(res, filePath);
+    return true;
+  }
+
+  // SPA fallback: serve index.html for unknown paths
+  const indexPath = path.join(root, "index.html");
+  if (fs.existsSync(indexPath)) {
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader("Cache-Control", "no-cache");
+    res.end(fs.readFileSync(indexPath, "utf8"));
     return true;
   }
 

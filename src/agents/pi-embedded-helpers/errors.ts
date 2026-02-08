@@ -31,7 +31,7 @@ export function isContextOverflowError(errorMessage?: string): boolean {
 
 const CONTEXT_WINDOW_TOO_SMALL_RE = /context window.*(too small|minimum is)/i;
 const CONTEXT_OVERFLOW_HINT_RE =
-  /context.*overflow|context window.*(too (?:large|long)|exceed|over|limit|max(?:imum)?|requested|sent|tokens)|(?:prompt|request|input).*(too (?:large|long)|exceed|over|limit|max(?:imum)?)/i;
+  /context.*overflow|context window.*(too (?:large|long)|exceed|over|limit|max(?:imum)?|requested|sent|tokens)|(?:prompt|request|input)\b.*?\b(too (?:large|long)|exceed(?:ed|s)?|overflow|max(?:imum)? (?:context|token|size|length))/i;
 
 export function isLikelyContextOverflowError(errorMessage?: string): boolean {
   if (!errorMessage) {
@@ -472,6 +472,9 @@ const ERROR_PATTERNS = {
     "token has expired",
     /\b401\b/,
     /\b403\b/,
+    /\b404\b/,
+    "not found",
+    "entity was not found",
     "no credentials found",
     "no api key found",
   ],

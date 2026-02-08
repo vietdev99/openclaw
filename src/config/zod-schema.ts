@@ -249,11 +249,15 @@ export const OpenClawSchema = z
                 provider: z.string(),
                 mode: z.union([z.literal("api_key"), z.literal("oauth"), z.literal("token")]),
                 email: z.string().optional(),
+                disabled: z.boolean().optional(),
               })
               .strict(),
           )
           .optional(),
         order: z.record(z.string(), z.array(z.string())).optional(),
+        profileStrategy: z
+          .record(z.string(), z.union([z.literal("failover"), z.literal("loadbalance")]))
+          .optional(),
         cooldowns: z
           .object({
             billingBackoffHours: z.number().positive().optional(),

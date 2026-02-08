@@ -198,6 +198,8 @@ export type AgentDefaultsConfig = {
      */
     includeReasoning?: boolean;
   };
+  /** Global routing strategy: failover (primary → fallback) or loadbalance (round-robin across providers). */
+  strategy?: "failover" | "loadbalance";
   /** Max concurrent agent runs across all conversations. Default: 1 (sequential). */
   maxConcurrent?: number;
   /** Sub-agent defaults (spawned via sessions_spawn). */

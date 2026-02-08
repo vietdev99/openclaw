@@ -23,6 +23,7 @@ import { authorizeGatewayConnect, isLocalDirectRequest, type ResolvedGatewayAuth
 import {
   handleControlUiAvatarRequest,
   handleControlUiHttpRequest,
+  handleControlUiV2HttpRequest,
   type ControlUiRootState,
 } from "./control-ui.js";
 import { applyHookMappings } from "./hooks-mapping.js";
@@ -377,6 +378,10 @@ export function createGatewayHttpServer(opts: {
         }
       }
       if (controlUiEnabled) {
+        // UI v2 handler first (more specific /v2/ path)
+        if (handleControlUiV2HttpRequest(req, res, { config: configSnapshot })) {
+          return;
+        }
         if (
           handleControlUiAvatarRequest(req, res, {
             basePath: controlUiBasePath,

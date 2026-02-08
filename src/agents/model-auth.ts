@@ -170,6 +170,9 @@ export async function resolveApiKeyForProvider(params: {
     provider,
     preferredProfile,
   });
+  console.log(
+    `[DEBUG-LB] resolveApiKeyForProvider: provider=${provider}, order=[${order.join(", ")}]`,
+  );
   for (const candidate of order) {
     try {
       const resolved = await resolveApiKeyForProfile({
@@ -180,14 +183,29 @@ export async function resolveApiKeyForProvider(params: {
       });
       if (resolved) {
         const mode = store.profiles[candidate]?.type;
+        // Debug: log which profile was selected and its projectId
+        try {
+          const parsed = JSON.parse(resolved.apiKey);
+          console.log(
+            `[DEBUG-LB] SELECTED profile=${candidate}, projectId=${parsed.projectId}, tokenPrefix=${parsed.token?.substring(0, 20)}...`,
+          );
+        } catch {
+          console.log(`[DEBUG-LB] SELECTED profile=${candidate}, apiKey is not JSON (raw key)`);
+        }
         return {
           apiKey: resolved.apiKey,
           profileId: candidate,
           source: `profile:${candidate}`,
           mode: mode === "oauth" ? "oauth" : mode === "token" ? "token" : "api-key",
         };
+      } else {
+        console.log(`[DEBUG-LB] SKIPPED profile=${candidate} (no resolved credentials)`);
       }
-    } catch {}
+    } catch (err) {
+      console.log(
+        `[DEBUG-LB] SKIPPED profile=${candidate} (error: ${err instanceof Error ? err.message : String(err)})`,
+      );
+    }
   }
 
   const envResolved = resolveEnvApiKey(provider);

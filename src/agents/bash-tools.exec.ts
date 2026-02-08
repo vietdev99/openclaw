@@ -3,6 +3,7 @@ import type { ChildProcessWithoutNullStreams } from "node:child_process";
 import { Type } from "@sinclair/typebox";
 import crypto from "node:crypto";
 import path from "node:path";
+import type { TerminalConfig } from "../config/types.terminal.js";
 import type { BashSandboxConfig } from "./bash-tools.shared.js";
 import {
   type ExecAsk,
@@ -29,6 +30,7 @@ import { enqueueSystemEvent } from "../infra/system-events.js";
 import { logInfo, logWarn } from "../logger.js";
 import { formatSpawnError, spawnWithFallback } from "../process/spawn-utils.js";
 import { parseAgentSessionKey, resolveAgentIdFromSessionKey } from "../routing/session-key.js";
+import { type TerminalHostClient, getTerminalHostClient } from "../terminal-host/ipc-client.js";
 import {
   type ProcessSession,
   type SessionStdin,
@@ -55,12 +57,6 @@ import { buildCursorPositionResponse, stripDsrRequests } from "./pty-dsr.js";
 import { getShellConfig, sanitizeBinaryOutput } from "./shell-utils.js";
 import { callGatewayTool } from "./tools/gateway.js";
 import { listNodes, resolveNodeIdFromList } from "./tools/nodes-utils.js";
-import { parseAgentSessionKey, resolveAgentIdFromSessionKey } from "../routing/session-key.js";
-import type { TerminalConfig } from "../config/types.terminal.js";
-import {
-  type TerminalHostClient,
-  getTerminalHostClient,
-} from "../terminal-host/ipc-client.js";
 
 // Security: Blocklist of environment variables that could alter execution flow
 // or inject code when running on non-sandboxed hosts (Gateway/Node).
@@ -450,7 +446,9 @@ async function runExecViaTerminalHost(opts: {
       await terminalHostClientInstance.start();
     } catch (err) {
       const errMsg = String(err);
-      opts.warnings.push(`Warning: Terminal host start failed (${errMsg}); falling back to legacy mode.`);
+      opts.warnings.push(
+        `Warning: Terminal host start failed (${errMsg}); falling back to legacy mode.`,
+      );
       logWarn(`exec: Terminal host start failed (${errMsg}); falling back to legacy mode.`);
       terminalHostClientInstance = null;
       throw new Error(`Terminal host unavailable: ${errMsg}`);
@@ -490,7 +488,9 @@ async function runExecViaTerminalHost(opts: {
         durationMs,
         aggregated,
         timedOut: result.timedOut,
-        reason: result.error ?? (result.timedOut ? `Command timed out after ${opts.timeoutMs}ms` : "Command failed"),
+        reason:
+          result.error ??
+          (result.timedOut ? `Command timed out after ${opts.timeoutMs}ms` : "Command failed"),
       };
     }
 

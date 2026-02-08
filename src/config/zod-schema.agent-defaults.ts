@@ -136,6 +136,7 @@ export const AgentDefaultsSchema = z
       ])
       .optional(),
     heartbeat: HeartbeatSchema,
+    strategy: z.union([z.literal("failover"), z.literal("loadbalance")]).optional(),
     maxConcurrent: z.number().int().positive().optional(),
     subagents: z
       .object({

@@ -152,7 +152,15 @@ if (!shouldBuild()) {
     if (code !== 0 && code !== null) {
       process.exit(code);
     }
-    writeBuildStamp();
-    runNode();
+    // Fix tsdown/rolldown circular chunk dependency (inlines __exportAll helper).
+    const fix = spawn(process.execPath, [path.join(cwd, "scripts", "fix-dist-circular.mjs")], {
+      cwd,
+      env,
+      stdio: "inherit",
+    });
+    fix.on("exit", () => {
+      writeBuildStamp();
+      runNode();
+    });
   });
 }
