@@ -170,7 +170,7 @@ if (-not $SkipModel) {
 
     $modelScript = Join-Path $InstallDir "extended\packages\whisper\models\download-model.ps1"
     if (Test-Path $modelScript) {
-        & $modelScript -Model "base"
+        & $modelScript -Model "large-v3"
         Write-OK "Model downloaded"
     } else {
         Write-Warn "Model download script not found"
