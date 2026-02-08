@@ -29,9 +29,8 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-# GitHub repo URLs
+# GitHub repo URL
 $CLAWDBOT_REPO = "https://github.com/vietdev99/openclaw.git"
-$PIMONO_REPO = "https://github.com/anthropics/claude-code.git"
 
 # Colors
 function Write-Step { param($msg) Write-Host "`n==> $msg" -ForegroundColor Cyan }
@@ -104,7 +103,7 @@ Write-Host "  FFmpeg..." -NoNewline
 Write-Host " bundled with whisper package" -ForegroundColor Green
 
 # ============================================
-# Clone repositories
+# Clone repository (includes pi-mono submodule)
 # ============================================
 $parentDir = Split-Path -Parent $InstallDir
 
@@ -112,7 +111,7 @@ if (-not (Test-Path $parentDir)) {
     New-Item -ItemType Directory -Path $parentDir -Force | Out-Null
 }
 
-# Clone clawdbot
+# Clone clawdbot (with submodules)
 Write-Step "Cloning OpenClaw..."
 if (Test-Path $InstallDir) {
     Write-Warn "Directory exists: $InstallDir"
@@ -125,19 +124,17 @@ if (Test-Path $InstallDir) {
 }
 
 if (-not (Test-Path $InstallDir)) {
-    git clone --branch $Branch $CLAWDBOT_REPO $InstallDir
-    Write-OK "Cloned to: $InstallDir"
+    git clone --recursive --branch $Branch $CLAWDBOT_REPO $InstallDir
+    Write-OK "Cloned to: $InstallDir (with pi-mono submodule)"
+} else {
+    # Ensure submodule is initialized
+    Push-Location $InstallDir
+    git submodule update --init --recursive 2>$null
+    Pop-Location
+    Write-OK "Submodule initialized"
 }
 
-# Clone pi-mono (sibling directory)
-$piMonoDir = Join-Path $parentDir "pi-mono"
-Write-Step "Cloning pi-mono..."
-if (-not (Test-Path $piMonoDir)) {
-    git clone --branch main $PIMONO_REPO $piMonoDir
-    Write-OK "Cloned to: $piMonoDir"
-} else {
-    Write-OK "Already exists: $piMonoDir"
-}
+$piMonoDir = Join-Path $InstallDir "pi-mono"
 
 # ============================================
 # Apply pi-ai fix
