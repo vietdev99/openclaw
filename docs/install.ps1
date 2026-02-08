@@ -150,16 +150,12 @@ if (Test-Path $piAiDir) {
 }
 
 # ============================================
-# Build project
+# Install dependencies (dist/ is pre-built in git)
 # ============================================
 Write-Step "Installing dependencies..."
 Push-Location $InstallDir
 pnpm install
 Write-OK "Dependencies installed"
-
-Write-Step "Building project..."
-pnpm build
-Write-OK "Build complete"
 Pop-Location
 
 # ============================================

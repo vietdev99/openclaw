@@ -1,0 +1,33 @@
+import type { MediaUnderstandingOutput } from "./types.js";
+export type PendingMediaTaskStatus = "pending" | "processing" | "complete" | "failed";
+export type PendingMediaTask = {
+    id: string;
+    channelId: string;
+    channelType: string;
+    messageId: string;
+    sessionKey: string;
+    capability: "audio" | "image" | "video";
+    status: PendingMediaTaskStatus;
+    result?: MediaUnderstandingOutput;
+    error?: string;
+    progress?: number;
+    placeholderMessageId?: string;
+    createdAt: number;
+    expiresAt: number;
+};
+export declare function createPendingTask(params: {
+    channelId: string;
+    channelType: string;
+    messageId: string;
+    sessionKey: string;
+    capability: "audio" | "image" | "video";
+    ttlMs?: number;
+}): PendingMediaTask;
+export declare function getPendingTask(taskId: string): PendingMediaTask | undefined;
+export declare function updateTaskStatus(taskId: string, status: PendingMediaTaskStatus, updates?: Partial<Pick<PendingMediaTask, "result" | "error" | "progress" | "placeholderMessageId">>): PendingMediaTask | undefined;
+export declare function setTaskPlaceholderMessageId(taskId: string, placeholderMessageId: string): void;
+export declare function deletePendingTask(taskId: string): boolean;
+export declare function getPendingTasksBySession(sessionKey: string): PendingMediaTask[];
+export declare function getPendingTasksByChannel(channelId: string): PendingMediaTask[];
+export declare function getActivePendingTaskCount(): number;
+export declare function clearAllPendingTasks(): void;

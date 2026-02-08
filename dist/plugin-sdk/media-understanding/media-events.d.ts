@@ -1,0 +1,22 @@
+import type { MediaUnderstandingOutput } from "./types.js";
+export type MediaEventType = "pending" | "processing" | "progress" | "complete" | "failed";
+export type MediaEventPayload = {
+    type: MediaEventType;
+    taskId: string;
+    channelId: string;
+    channelType: string;
+    messageId: string;
+    sessionKey: string;
+    capability: "audio" | "image" | "video";
+    progress?: number;
+    result?: MediaUnderstandingOutput;
+    error?: string;
+    timestamp: number;
+};
+type MediaEventListener = (event: MediaEventPayload) => void;
+export declare function emitMediaEvent(event: Omit<MediaEventPayload, "timestamp">): void;
+export declare function onMediaEvent(listener: MediaEventListener): () => void;
+export declare function removeMediaEventListener(listener: MediaEventListener): void;
+export declare function getMediaEventListenerCount(): number;
+export declare function clearMediaEventListeners(): void;
+export {};
