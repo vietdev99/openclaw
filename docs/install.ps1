@@ -117,7 +117,8 @@ if (Test-Path $InstallDir) {
     Write-Warn "Directory exists: $InstallDir"
     $response = Read-Host "  Remove and re-clone? [y/N]"
     if ($response -eq 'y' -or $response -eq 'Y') {
-        Remove-Item -Recurse -Force $InstallDir
+        # Use cmd rmdir to handle long paths (node_modules exceeds MAX_PATH)
+        cmd /c "rmdir /s /q `"$InstallDir`""
     } else {
         Write-Host "  Using existing directory"
     }
