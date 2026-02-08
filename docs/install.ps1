@@ -138,39 +138,15 @@ if (-not (Test-Path $InstallDir)) {
 $piMonoDir = Join-Path $InstallDir "pi-mono"
 
 # ============================================
-# Apply pi-ai fix
+# Verify pi-mono submodule
 # ============================================
-Write-Step "Applying Claude Code compatibility fix..."
+Write-Step "Verifying pi-mono submodule..."
 
-$validationSrc = Join-Path $InstallDir "scripts\patches\pi-ai-validation.patch.ts"
-$validationDst = Join-Path $piMonoDir "packages\ai\src\utils\validation.ts"
-
-if (Test-Path $validationSrc) {
-    try {
-        $dstDir = Split-Path -Parent $validationDst
-        if (-not (Test-Path $dstDir)) {
-            New-Item -ItemType Directory -Path $dstDir -Force | Out-Null
-        }
-        Copy-Item -Path $validationSrc -Destination $validationDst -Force
-        Write-OK "Patched: validation.ts"
-
-        # Build pi-ai
-        $piAiDir = Join-Path $piMonoDir "packages\ai"
-        if (Test-Path $piAiDir) {
-            Push-Location $piAiDir
-            pnpm install 2>$null | Out-Null
-            pnpm build 2>$null | Out-Null
-            Pop-Location
-            Write-OK "Built pi-ai"
-        } else {
-            Write-Warn "pi-ai package not found, skipping build"
-        }
-    } catch {
-        Write-Warn "Could not apply pi-ai fix: $($_.Exception.Message)"
-        Write-Warn "Continuing without patch (non-critical)"
-    }
+$piAiDir = Join-Path $piMonoDir "packages\ai"
+if (Test-Path $piAiDir) {
+    Write-OK "pi-mono/packages/ai found (patch pre-applied in fork)"
 } else {
-    Write-Warn "Patch file not found, skipping"
+    Write-Warn "pi-mono submodule may not have initialized. Run: git submodule update --init --recursive"
 }
 
 # ============================================
