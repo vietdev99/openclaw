@@ -399,6 +399,17 @@ export async function runReplyAgent(params: {
     // Otherwise, a late typing trigger (e.g. from a tool callback) can outlive the run and
     // keep the typing indicator stuck.
     if (payloadArray.length === 0) {
+      const embeddedError = runResult.meta?.error;
+      const messagingToolTexts = runResult.messagingToolSentTexts;
+      defaultRuntime.error(
+        `[DEBUG-EMPTY-REPLY] Agent returned 0 payloads. ` +
+          `provider=${providerUsed}, model=${modelUsed}, ` +
+          `fallbackProvider=${fallbackProvider ?? "none"}, fallbackModel=${fallbackModel ?? "none"}, ` +
+          `embeddedError=${embeddedError ? JSON.stringify(embeddedError) : "none"}, ` +
+          `usage=${usage ? JSON.stringify(usage) : "none"}, ` +
+          `messagingToolTexts=${messagingToolTexts?.length ?? 0}, ` +
+          `sessionKey=${sessionKey ?? "unknown"}`,
+      );
       return finalizeWithFollowup(undefined, queueKey, runFollowupTurn);
     }
 

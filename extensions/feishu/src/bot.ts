@@ -863,7 +863,7 @@ export async function handleFeishuMessage(params: {
     }
 
     log(
-      `feishu[${account.accountId}]: dispatch complete (queuedFinal=${queuedFinal}, replies=${counts.final})`,
+      `feishu[${account.accountId}]: dispatch complete (queuedFinal=${queuedFinal}, final=${counts.final}, block=${counts.block ?? 0}, tool=${counts.tool ?? 0})`,
     );
   } catch (err) {
     error(`feishu[${account.accountId}]: failed to dispatch message: ${String(err)}`);
