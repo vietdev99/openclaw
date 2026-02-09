@@ -50,8 +50,16 @@ function resolveRunner() {
   return null;
 }
 
+function quoteIfNeeded(str) {
+  if (process.platform === "win32" && str.includes(" ") && !str.startsWith('"')) {
+    return `"${str}"`;
+  }
+  return str;
+}
+
 function run(cmd, args) {
-  const child = spawn(cmd, args, {
+  const quotedCmd = quoteIfNeeded(cmd);
+  const child = spawn(quotedCmd, args, {
     cwd: uiDir,
     stdio: "inherit",
     env: process.env,
@@ -66,7 +74,8 @@ function run(cmd, args) {
 }
 
 function runSync(cmd, args, envOverride) {
-  const result = spawnSync(cmd, args, {
+  const quotedCmd = quoteIfNeeded(cmd);
+  const result = spawnSync(quotedCmd, args, {
     cwd: uiDir,
     stdio: "inherit",
     env: envOverride ?? process.env,
