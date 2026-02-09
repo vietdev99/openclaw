@@ -17,7 +17,7 @@ const OAUTH_CONFIG = {
 };
 
 function getRedirectUri(): string {
-  return `${window.location.origin}/v2/oauth/callback`;
+  return `${window.location.origin}/oauth/callback`;
 }
 
 export interface OAuthState {
