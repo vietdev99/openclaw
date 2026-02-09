@@ -553,6 +553,14 @@ export async function handleFeishuMessage(params: {
     `feishu[${account.accountId}]: received message from ${ctx.senderOpenId} in ${ctx.chatId} (${ctx.chatType})`,
   );
 
+  // DEBUG: Log raw incoming message data for troubleshooting
+  log(
+    `[DEBUG-FEISHU-INCOMING] account=${account.accountId} messageId=${ctx.messageId} ` +
+      `chatId=${ctx.chatId} chatType=${ctx.chatType} senderId=${ctx.senderOpenId} ` +
+      `contentType=${ctx.contentType} contentLength=${ctx.content?.length ?? 0} ` +
+      `mentionedBot=${ctx.mentionedBot} content=${JSON.stringify(ctx.content?.slice(0, 200))}`,
+  );
+
   // Log mention targets if detected
   if (ctx.mentionTargets && ctx.mentionTargets.length > 0) {
     const names = ctx.mentionTargets.map((t) => t.name).join(", ");

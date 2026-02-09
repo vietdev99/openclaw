@@ -329,6 +329,14 @@ export async function runEmbeddedPiAgent(
           const prompt =
             provider === "anthropic" ? scrubAnthropicRefusalMagic(params.prompt) : params.prompt;
 
+          // DEBUG: Log AI API request data
+          log.info(
+            `[DEBUG-AI-REQUEST] sessionKey=${params.sessionKey ?? params.sessionId} ` +
+              `provider=${provider} model=${modelId} profileId=${lastProfileId ?? "none"} ` +
+              `thinkLevel=${thinkLevel} promptLength=${prompt?.length ?? 0} ` +
+              `prompt=${JSON.stringify(prompt?.slice(0, 500))}`,
+          );
+
           const attempt = await runEmbeddedAttempt({
             sessionId: params.sessionId,
             sessionKey: params.sessionKey,
@@ -386,7 +394,48 @@ export async function runEmbeddedPiAgent(
             enforceFinalTag: params.enforceFinalTag,
           });
 
-          const { aborted, promptError, timedOut, sessionIdUsed, lastAssistant } = attempt;
+          const { aborted, promptError, timedOut, sessionIdUsed, lastAssistant, messagesSnapshot } =
+            attempt;
+
+          // DEBUG: Log AI API response data with enhanced diagnostics
+          const responseUsage = lastAssistant?.usage as
+            | { input?: number; output?: number; cacheRead?: number }
+            | undefined;
+          const responseError = lastAssistant?.errorMessage;
+          const responseContent = Array.isArray(lastAssistant?.content)
+            ? (lastAssistant.content as Array<{ type: string; text?: string }>)
+                .filter((c) => c.type === "text" && c.text)
+                .map((c) => c.text ?? "")
+                .join("")
+                .slice(0, 500)
+            : "";
+
+          // Count assistant messages to detect if a new one was added
+          const assistantMsgs = messagesSnapshot?.filter((m) => m.role === "assistant") ?? [];
+          const lastAssistantTimestamp = lastAssistant?.timestamp ?? 0;
+          const timeSinceLastAssistant = Date.now() - lastAssistantTimestamp;
+          const isStaleAssistant = timeSinceLastAssistant > 60_000; // > 60 seconds old
+
+          log.info(
+            `[DEBUG-AI-RESPONSE] sessionKey=${params.sessionKey ?? params.sessionId} ` +
+              `provider=${lastAssistant?.provider ?? provider} model=${lastAssistant?.model ?? modelId} ` +
+              `stopReason=${lastAssistant?.stopReason ?? "none"} aborted=${aborted} timedOut=${timedOut} ` +
+              `usage={input:${responseUsage?.input ?? 0},output:${responseUsage?.output ?? 0},cacheRead:${responseUsage?.cacheRead ?? 0}} ` +
+              `hasError=${!!responseError} errorSnippet=${responseError ? JSON.stringify(responseError.slice(0, 300)) : "none"} ` +
+              `contentSnippet=${JSON.stringify(responseContent)} ` +
+              `msgCount=${messagesSnapshot?.length ?? 0} assistantCount=${assistantMsgs.length} ` +
+              `lastAssistantAge=${timeSinceLastAssistant}ms isStale=${isStaleAssistant}`,
+          );
+
+          // Warn if the lastAssistant appears to be stale (from a previous run)
+          if (isStaleAssistant && lastAssistant?.model === "delivery-mirror") {
+            log.warn(
+              `[DEBUG-STALE-RESPONSE] sessionKey=${params.sessionKey ?? params.sessionId} ` +
+                `The lastAssistant is a stale delivery-mirror entry (age=${timeSinceLastAssistant}ms). ` +
+                `This suggests the AI call may not have produced a response. ` +
+                `promptError=${promptError ? "yes" : "no"} aborted=${aborted} timedOut=${timedOut}`,
+            );
+          }
 
           if (promptError && !aborted) {
             const errorText = describeUnknownError(promptError);
@@ -552,6 +601,82 @@ export async function runEmbeddedPiAgent(
             throw promptError;
           }
 
+          // FIX: Also check lastAssistant.errorMessage for context overflow
+          // (some providers return overflow errors via stream instead of throwing)
+          if (lastAssistant?.errorMessage && !aborted) {
+            const assistantErrorText = lastAssistant.errorMessage;
+            if (isContextOverflowError(assistantErrorText)) {
+              const msgCount = attempt.messagesSnapshot?.length ?? 0;
+              log.warn(
+                `[context-overflow-diag-assistant] sessionKey=${params.sessionKey ?? params.sessionId} ` +
+                  `provider=${provider}/${modelId} messages=${msgCount} ` +
+                  `sessionFile=${params.sessionFile} compactionAttempts=${overflowCompactionAttempts} ` +
+                  `error=${assistantErrorText.slice(0, 200)}`,
+              );
+              const isCompactionFailure = isCompactionFailureError(assistantErrorText);
+              // Attempt auto-compaction on context overflow (not compaction_failure)
+              if (
+                !isCompactionFailure &&
+                overflowCompactionAttempts < MAX_OVERFLOW_COMPACTION_ATTEMPTS
+              ) {
+                overflowCompactionAttempts++;
+                log.warn(
+                  `context overflow detected from assistant error (attempt ${overflowCompactionAttempts}/${MAX_OVERFLOW_COMPACTION_ATTEMPTS}); attempting auto-compaction for ${provider}/${modelId}`,
+                );
+                const compactResult = await compactEmbeddedPiSessionDirect({
+                  sessionId: params.sessionId,
+                  sessionKey: params.sessionKey,
+                  messageChannel: params.messageChannel,
+                  messageProvider: params.messageProvider,
+                  agentAccountId: params.agentAccountId,
+                  authProfileId: lastProfileId,
+                  sessionFile: params.sessionFile,
+                  workspaceDir: resolvedWorkspace,
+                  agentDir,
+                  config: params.config,
+                  skillsSnapshot: params.skillsSnapshot,
+                  senderIsOwner: params.senderIsOwner,
+                  provider,
+                  model: modelId,
+                  thinkLevel,
+                  reasoningLevel: params.reasoningLevel,
+                  bashElevated: params.bashElevated,
+                  extraSystemPrompt: params.extraSystemPrompt,
+                  ownerNumbers: params.ownerNumbers,
+                });
+                if (compactResult.compacted) {
+                  log.info(`auto-compaction succeeded for ${provider}/${modelId}; retrying prompt`);
+                  continue;
+                }
+                log.warn(
+                  `auto-compaction failed for ${provider}/${modelId}: ${compactResult.reason ?? "nothing to compact"}`,
+                );
+              }
+              // If compaction didn't help or failed, return context overflow error
+              const kind = isCompactionFailure ? "compaction_failure" : "context_overflow";
+              return {
+                payloads: [
+                  {
+                    text:
+                      "Context overflow: prompt too large for the model. " +
+                      "Try again with less input or a larger-context model.",
+                    isError: true,
+                  },
+                ],
+                meta: {
+                  durationMs: Date.now() - started,
+                  agentMeta: {
+                    sessionId: sessionIdUsed,
+                    provider,
+                    model: model.id,
+                  },
+                  systemPromptReport: attempt.systemPromptReport,
+                  error: { kind, message: assistantErrorText },
+                },
+              };
+            }
+          }
+
           const fallbackThinking = pickFallbackThinkingLevel({
             message: lastAssistant?.errorMessage,
             attempted: attemptedThinking,
@@ -663,6 +788,17 @@ export async function runEmbeddedPiAgent(
             model: lastAssistant?.model ?? model.id,
             usage,
           };
+
+          // DEBUG: Log streaming output for troubleshooting duplicate responses
+          const assistantTextsJoined = attempt.assistantTexts?.join("").slice(0, 500) ?? "";
+          log.info(
+            `[DEBUG-STREAMING-OUTPUT] sessionKey=${params.sessionKey ?? params.sessionId} ` +
+              `assistantTextsCount=${attempt.assistantTexts?.length ?? 0} ` +
+              `assistantTextsLength=${attempt.assistantTexts?.reduce((acc, t) => acc + t.length, 0) ?? 0} ` +
+              `didSendViaMessagingTool=${attempt.didSendViaMessagingTool} ` +
+              `messagingToolSentCount=${attempt.messagingToolSentTexts?.length ?? 0} ` +
+              `sample=${JSON.stringify(assistantTextsJoined)}`,
+          );
 
           const payloads = buildEmbeddedRunPayloads({
             assistantTexts: attempt.assistantTexts,
