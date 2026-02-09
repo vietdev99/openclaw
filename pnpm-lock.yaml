@@ -560,6 +560,12 @@ importers:
         specifier: workspace:*
         version: link:../..
 
+  extensions/zaloweb:
+    devDependencies:
+      moltbot:
+        specifier: workspace:*
+        version: link:../../packages/moltbot
+
   packages/clawdbot:
     dependencies:
       openclaw:
