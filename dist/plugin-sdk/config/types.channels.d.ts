@@ -20,6 +20,18 @@ export type ChannelDefaultsConfig = {
     /** Default heartbeat visibility for all channels. */
     heartbeat?: ChannelHeartbeatVisibilityConfig;
 };
+/**
+ * Base type for extension channel config sections.
+ * Extensions can use this as a starting point for their channel config.
+ */
+export type ExtensionChannelConfig = {
+    enabled?: boolean;
+    allowFrom?: string | string[];
+    dmPolicy?: string;
+    groupPolicy?: GroupPolicy;
+    accounts?: Record<string, unknown>;
+    [key: string]: unknown;
+};
 export type ChannelsConfig = {
     defaults?: ChannelDefaultsConfig;
     whatsapp?: WhatsAppConfig;
@@ -30,5 +42,5 @@ export type ChannelsConfig = {
     signal?: SignalConfig;
     imessage?: IMessageConfig;
     msteams?: MSTeamsConfig;
-    [key: string]: unknown;
+    [key: string]: any;
 };

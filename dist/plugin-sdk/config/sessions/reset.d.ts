@@ -1,6 +1,6 @@
 import type { SessionConfig, SessionResetConfig } from "../types.base.js";
 export type SessionResetMode = "daily" | "idle";
-export type SessionResetType = "dm" | "group" | "thread";
+export type SessionResetType = "direct" | "group" | "thread";
 export type SessionResetPolicy = {
     mode: SessionResetMode;
     atHour: number;

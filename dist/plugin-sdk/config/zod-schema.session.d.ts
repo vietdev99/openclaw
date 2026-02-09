@@ -5,7 +5,7 @@ export declare const SessionSendPolicySchema: z.ZodObject<{
         action: z.ZodUnion<readonly [z.ZodLiteral<"allow">, z.ZodLiteral<"deny">]>;
         match: z.ZodOptional<z.ZodObject<{
             channel: z.ZodOptional<z.ZodString>;
-            chatType: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"direct">, z.ZodLiteral<"group">, z.ZodLiteral<"channel">]>>;
+            chatType: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"direct">, z.ZodLiteral<"group">, z.ZodLiteral<"channel">, z.ZodLiteral<"dm">]>>;
             keyPrefix: z.ZodOptional<z.ZodString>;
         }, z.core.$strict>>;
     }, z.core.$strict>>>;
@@ -22,6 +22,11 @@ export declare const SessionSchema: z.ZodOptional<z.ZodObject<{
         idleMinutes: z.ZodOptional<z.ZodNumber>;
     }, z.core.$strict>>;
     resetByType: z.ZodOptional<z.ZodObject<{
+        direct: z.ZodOptional<z.ZodObject<{
+            mode: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"daily">, z.ZodLiteral<"idle">]>>;
+            atHour: z.ZodOptional<z.ZodNumber>;
+            idleMinutes: z.ZodOptional<z.ZodNumber>;
+        }, z.core.$strict>>;
         dm: z.ZodOptional<z.ZodObject<{
             mode: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"daily">, z.ZodLiteral<"idle">]>>;
             atHour: z.ZodOptional<z.ZodNumber>;
@@ -53,7 +58,7 @@ export declare const SessionSchema: z.ZodOptional<z.ZodObject<{
             action: z.ZodUnion<readonly [z.ZodLiteral<"allow">, z.ZodLiteral<"deny">]>;
             match: z.ZodOptional<z.ZodObject<{
                 channel: z.ZodOptional<z.ZodString>;
-                chatType: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"direct">, z.ZodLiteral<"group">, z.ZodLiteral<"channel">]>>;
+                chatType: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"direct">, z.ZodLiteral<"group">, z.ZodLiteral<"channel">, z.ZodLiteral<"dm">]>>;
                 keyPrefix: z.ZodOptional<z.ZodString>;
             }, z.core.$strict>>;
         }, z.core.$strict>>>;

@@ -32,7 +32,10 @@ export declare function killSession(session: {
     child?: ChildProcessWithoutNullStreams;
 }): void;
 export declare function resolveWorkdir(workdir: string, warnings: string[]): string;
-export declare function clampNumber(value: number | undefined, defaultValue: number, min: number, max: number): number;
+/**
+ * Clamp a number within min/max bounds, using defaultValue if undefined or NaN.
+ */
+export declare function clampWithDefault(value: number | undefined, defaultValue: number, min: number, max: number): number;
 export declare function readEnvInt(key: string): number | undefined;
 export declare function chunkString(input: string, limit?: number): string[];
 export declare function truncateMiddle(str: string, max: number): string;
@@ -42,5 +45,4 @@ export declare function sliceLogLines(text: string, offset?: number, limit?: num
     totalChars: number;
 };
 export declare function deriveSessionName(command: string): string | undefined;
-export declare function formatDuration(ms: number): string;
 export declare function pad(str: string, width: number): string;

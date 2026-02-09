@@ -14,6 +14,8 @@ type TelegramSendOpts = {
     plainText?: string;
     /** Send audio as voice message (voice bubble) instead of audio file. Defaults to false. */
     asVoice?: boolean;
+    /** Send video as video note (voice bubble) instead of regular video. Defaults to false. */
+    asVideoNote?: boolean;
     /** Send message silently (no notification). Defaults to false. */
     silent?: boolean;
     /** Message ID to reply to (for threading) */

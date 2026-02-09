@@ -1,3 +1,4 @@
+import type { ChatType } from "../channels/chat-type.js";
 export { isAcpSessionKey, isSubagentSessionKey, parseAgentSessionKey, type ParsedAgentSessionKey, } from "../sessions/session-key-utils.js";
 export declare const DEFAULT_AGENT_ID = "main";
 export declare const DEFAULT_MAIN_KEY = "main";
@@ -24,7 +25,7 @@ export declare function buildAgentPeerSessionKey(params: {
     mainKey?: string | undefined;
     channel: string;
     accountId?: string | null;
-    peerKind?: "dm" | "group" | "channel" | null;
+    peerKind?: ChatType | null;
     peerId?: string | null;
     identityLinks?: Record<string, string[]>;
     /** DM session scope. */

@@ -10,6 +10,7 @@ export type TypingController = {
 };
 export declare function createTypingController(params: {
     onReplyStart?: () => Promise<void> | void;
+    onCleanup?: () => void;
     typingIntervalSeconds?: number;
     typingTtlMs?: number;
     silentToken?: string;

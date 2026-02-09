@@ -6,7 +6,7 @@ export type ElevatedMode = "off" | "ask" | "full";
 export type ReasoningLevel = "off" | "on" | "stream";
 export type UsageDisplayLevel = "off" | "tokens" | "full";
 export declare function isBinaryThinkingProvider(provider?: string | null): boolean;
-export declare const XHIGH_MODEL_REFS: readonly ["openai/gpt-5.2", "openai-codex/gpt-5.3-codex", "openai-codex/gpt-5.2-codex", "openai-codex/gpt-5.1-codex"];
+export declare const XHIGH_MODEL_REFS: readonly ["openai/gpt-5.2", "openai-codex/gpt-5.3-codex", "openai-codex/gpt-5.2-codex", "openai-codex/gpt-5.1-codex", "github-copilot/gpt-5.2-codex", "github-copilot/gpt-5.2"];
 export declare function normalizeThinkLevel(raw?: string | null): ThinkLevel | undefined;
 export declare function supportsXHighThinking(provider?: string | null, model?: string | null): boolean;
 export declare function listThinkingLevels(provider?: string | null, model?: string | null): ThinkLevel[];

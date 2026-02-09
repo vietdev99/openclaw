@@ -88,7 +88,7 @@ export declare function getPageForTargetId(opts: {
     cdpUrl: string;
     targetId?: string;
 }): Promise<Page>;
-export declare function refLocator(page: Page, ref: string): import("playwright-core").Locator;
+export declare function refLocator(page: Page, ref: string): import("node_modules/playwright-core/index.js").Locator;
 export declare function closePlaywrightBrowserConnection(): Promise<void>;
 /**
  * List all pages/tabs from the persistent Playwright connection.

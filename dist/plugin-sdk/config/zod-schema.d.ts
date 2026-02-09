@@ -623,7 +623,7 @@ export declare const OpenClawSchema: z.ZodObject<{
         web: z.ZodOptional<z.ZodObject<{
             search: z.ZodOptional<z.ZodObject<{
                 enabled: z.ZodOptional<z.ZodBoolean>;
-                provider: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"brave">, z.ZodLiteral<"perplexity">]>>;
+                provider: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"brave">, z.ZodLiteral<"perplexity">, z.ZodLiteral<"grok">]>>;
                 apiKey: z.ZodOptional<z.ZodString>;
                 maxResults: z.ZodOptional<z.ZodNumber>;
                 timeoutSeconds: z.ZodOptional<z.ZodNumber>;
@@ -632,6 +632,11 @@ export declare const OpenClawSchema: z.ZodObject<{
                     apiKey: z.ZodOptional<z.ZodString>;
                     baseUrl: z.ZodOptional<z.ZodString>;
                     model: z.ZodOptional<z.ZodString>;
+                }, z.core.$strict>>;
+                grok: z.ZodOptional<z.ZodObject<{
+                    apiKey: z.ZodOptional<z.ZodString>;
+                    model: z.ZodOptional<z.ZodString>;
+                    inlineCitations: z.ZodOptional<z.ZodBoolean>;
                 }, z.core.$strict>>;
             }, z.core.$strict>>;
             fetch: z.ZodOptional<z.ZodObject<{
@@ -678,7 +683,7 @@ export declare const OpenClawSchema: z.ZodObject<{
                         action: z.ZodUnion<readonly [z.ZodLiteral<"allow">, z.ZodLiteral<"deny">]>;
                         match: z.ZodOptional<z.ZodObject<{
                             channel: z.ZodOptional<z.ZodString>;
-                            chatType: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"direct">, z.ZodLiteral<"group">, z.ZodLiteral<"channel">]>>;
+                            chatType: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"direct">, z.ZodLiteral<"group">, z.ZodLiteral<"channel">, z.ZodLiteral<"dm">]>>;
                             keyPrefix: z.ZodOptional<z.ZodString>;
                         }, z.core.$strict>>;
                     }, z.core.$strict>>>;
@@ -734,7 +739,7 @@ export declare const OpenClawSchema: z.ZodObject<{
                         action: z.ZodUnion<readonly [z.ZodLiteral<"allow">, z.ZodLiteral<"deny">]>;
                         match: z.ZodOptional<z.ZodObject<{
                             channel: z.ZodOptional<z.ZodString>;
-                            chatType: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"direct">, z.ZodLiteral<"group">, z.ZodLiteral<"channel">]>>;
+                            chatType: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"direct">, z.ZodLiteral<"group">, z.ZodLiteral<"channel">, z.ZodLiteral<"dm">]>>;
                             keyPrefix: z.ZodOptional<z.ZodString>;
                         }, z.core.$strict>>;
                     }, z.core.$strict>>>;
@@ -790,7 +795,7 @@ export declare const OpenClawSchema: z.ZodObject<{
                         action: z.ZodUnion<readonly [z.ZodLiteral<"allow">, z.ZodLiteral<"deny">]>;
                         match: z.ZodOptional<z.ZodObject<{
                             channel: z.ZodOptional<z.ZodString>;
-                            chatType: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"direct">, z.ZodLiteral<"group">, z.ZodLiteral<"channel">]>>;
+                            chatType: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"direct">, z.ZodLiteral<"group">, z.ZodLiteral<"channel">, z.ZodLiteral<"dm">]>>;
                             keyPrefix: z.ZodOptional<z.ZodString>;
                         }, z.core.$strict>>;
                     }, z.core.$strict>>>;
@@ -846,7 +851,7 @@ export declare const OpenClawSchema: z.ZodObject<{
                     action: z.ZodUnion<readonly [z.ZodLiteral<"allow">, z.ZodLiteral<"deny">]>;
                     match: z.ZodOptional<z.ZodObject<{
                         channel: z.ZodOptional<z.ZodString>;
-                        chatType: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"direct">, z.ZodLiteral<"group">, z.ZodLiteral<"channel">]>>;
+                        chatType: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"direct">, z.ZodLiteral<"group">, z.ZodLiteral<"channel">, z.ZodLiteral<"dm">]>>;
                         keyPrefix: z.ZodOptional<z.ZodString>;
                     }, z.core.$strict>>;
                 }, z.core.$strict>>>;
@@ -932,7 +937,7 @@ export declare const OpenClawSchema: z.ZodObject<{
             channel: z.ZodString;
             accountId: z.ZodOptional<z.ZodString>;
             peer: z.ZodOptional<z.ZodObject<{
-                kind: z.ZodUnion<readonly [z.ZodLiteral<"dm">, z.ZodLiteral<"group">, z.ZodLiteral<"channel">]>;
+                kind: z.ZodUnion<readonly [z.ZodLiteral<"direct">, z.ZodLiteral<"group">, z.ZodLiteral<"channel">, z.ZodLiteral<"dm">]>;
                 id: z.ZodString;
             }, z.core.$strict>>;
             guildId: z.ZodOptional<z.ZodString>;
@@ -1099,6 +1104,11 @@ export declare const OpenClawSchema: z.ZodObject<{
             idleMinutes: z.ZodOptional<z.ZodNumber>;
         }, z.core.$strict>>;
         resetByType: z.ZodOptional<z.ZodObject<{
+            direct: z.ZodOptional<z.ZodObject<{
+                mode: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"daily">, z.ZodLiteral<"idle">]>>;
+                atHour: z.ZodOptional<z.ZodNumber>;
+                idleMinutes: z.ZodOptional<z.ZodNumber>;
+            }, z.core.$strict>>;
             dm: z.ZodOptional<z.ZodObject<{
                 mode: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"daily">, z.ZodLiteral<"idle">]>>;
                 atHour: z.ZodOptional<z.ZodNumber>;
@@ -1130,7 +1140,7 @@ export declare const OpenClawSchema: z.ZodObject<{
                 action: z.ZodUnion<readonly [z.ZodLiteral<"allow">, z.ZodLiteral<"deny">]>;
                 match: z.ZodOptional<z.ZodObject<{
                     channel: z.ZodOptional<z.ZodString>;
-                    chatType: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"direct">, z.ZodLiteral<"group">, z.ZodLiteral<"channel">]>>;
+                    chatType: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"direct">, z.ZodLiteral<"group">, z.ZodLiteral<"channel">, z.ZodLiteral<"dm">]>>;
                     keyPrefix: z.ZodOptional<z.ZodString>;
                 }, z.core.$strict>>;
             }, z.core.$strict>>>;
@@ -3022,7 +3032,11 @@ export declare const OpenClawSchema: z.ZodObject<{
                 interval: z.ZodOptional<z.ZodString>;
                 debounceMs: z.ZodOptional<z.ZodNumber>;
                 onBoot: z.ZodOptional<z.ZodBoolean>;
+                waitForBootSync: z.ZodOptional<z.ZodBoolean>;
                 embedInterval: z.ZodOptional<z.ZodString>;
+                commandTimeoutMs: z.ZodOptional<z.ZodNumber>;
+                updateTimeoutMs: z.ZodOptional<z.ZodNumber>;
+                embedTimeoutMs: z.ZodOptional<z.ZodNumber>;
             }, z.core.$strict>>;
             limits: z.ZodOptional<z.ZodObject<{
                 maxResults: z.ZodOptional<z.ZodNumber>;
@@ -3036,7 +3050,7 @@ export declare const OpenClawSchema: z.ZodObject<{
                     action: z.ZodUnion<readonly [z.ZodLiteral<"allow">, z.ZodLiteral<"deny">]>;
                     match: z.ZodOptional<z.ZodObject<{
                         channel: z.ZodOptional<z.ZodString>;
-                        chatType: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"direct">, z.ZodLiteral<"group">, z.ZodLiteral<"channel">]>>;
+                        chatType: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"direct">, z.ZodLiteral<"group">, z.ZodLiteral<"channel">, z.ZodLiteral<"dm">]>>;
                         keyPrefix: z.ZodOptional<z.ZodString>;
                     }, z.core.$strict>>;
                 }, z.core.$strict>>>;

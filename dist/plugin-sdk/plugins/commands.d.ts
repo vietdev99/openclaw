@@ -5,7 +5,7 @@
  * These commands are processed before built-in commands and before agent invocation.
  */
 import type { OpenClawConfig } from "../config/config.js";
-import type { OpenClawPluginCommandDefinition, PluginCommandResult } from "./types.js";
+import type { OpenClawPluginCommandDefinition, PluginCommandContext, PluginCommandResult } from "./types.js";
 type RegisteredPluginCommand = OpenClawPluginCommandDefinition & {
     pluginId: string;
 };
@@ -55,9 +55,14 @@ export declare function executePluginCommand(params: {
     args?: string;
     senderId?: string;
     channel: string;
+    channelId?: PluginCommandContext["channelId"];
     isAuthorizedSender: boolean;
     commandBody: string;
     config: OpenClawConfig;
+    from?: PluginCommandContext["from"];
+    to?: PluginCommandContext["to"];
+    accountId?: PluginCommandContext["accountId"];
+    messageThreadId?: PluginCommandContext["messageThreadId"];
 }): Promise<PluginCommandResult>;
 /**
  * List all registered plugin commands.

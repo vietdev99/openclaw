@@ -1,7 +1,9 @@
+import type { ChatType } from "../channels/chat-type.js";
 import type { OpenClawConfig } from "../config/config.js";
-export type RoutePeerKind = "dm" | "group" | "channel";
+/** @deprecated Use ChatType from channels/chat-type.js */
+export type RoutePeerKind = ChatType;
 export type RoutePeer = {
-    kind: RoutePeerKind;
+    kind: ChatType;
     id: string;
 };
 export type ResolveAgentRouteInput = {

@@ -10,6 +10,7 @@ export type SubagentRunOutcome = {
     status: "ok" | "error" | "timeout" | "unknown";
     error?: string;
 };
+export type SubagentAnnounceType = "subagent task" | "cron job";
 export declare function runSubagentAnnounceFlow(params: {
     childSessionKey: string;
     childRunId: string;
@@ -25,4 +26,5 @@ export declare function runSubagentAnnounceFlow(params: {
     endedAt?: number;
     label?: string;
     outcome?: SubagentRunOutcome;
+    announceType?: SubagentAnnounceType;
 }): Promise<boolean>;

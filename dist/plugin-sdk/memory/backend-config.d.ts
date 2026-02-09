@@ -16,7 +16,11 @@ export type ResolvedQmdUpdateConfig = {
     intervalMs: number;
     debounceMs: number;
     onBoot: boolean;
+    waitForBootSync: boolean;
     embedIntervalMs: number;
+    commandTimeoutMs: number;
+    updateTimeoutMs: number;
+    embedTimeoutMs: number;
 };
 export type ResolvedQmdLimitsConfig = {
     maxResults: number;

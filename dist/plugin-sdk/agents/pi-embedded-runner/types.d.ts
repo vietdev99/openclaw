@@ -4,6 +4,7 @@ export type EmbeddedPiAgentMeta = {
     sessionId: string;
     provider: string;
     model: string;
+    compactionCount?: number;
     usage?: {
         input?: number;
         output?: number;

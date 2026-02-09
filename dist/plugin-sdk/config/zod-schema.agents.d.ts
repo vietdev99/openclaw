@@ -469,7 +469,7 @@ export declare const BindingsSchema: z.ZodOptional<z.ZodArray<z.ZodObject<{
         channel: z.ZodString;
         accountId: z.ZodOptional<z.ZodString>;
         peer: z.ZodOptional<z.ZodObject<{
-            kind: z.ZodUnion<readonly [z.ZodLiteral<"dm">, z.ZodLiteral<"group">, z.ZodLiteral<"channel">]>;
+            kind: z.ZodUnion<readonly [z.ZodLiteral<"direct">, z.ZodLiteral<"group">, z.ZodLiteral<"channel">, z.ZodLiteral<"dm">]>;
             id: z.ZodString;
         }, z.core.$strict>>;
         guildId: z.ZodOptional<z.ZodString>;

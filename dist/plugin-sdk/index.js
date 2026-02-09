@@ -1,9 +1,9 @@
 import "./pi-model-discovery-DtlCLGwD.js";
 import { createRequire } from "node:module";
 import { z } from "zod";
-import os, { homedir } from "node:os";
 import path from "node:path";
 import fs, { createWriteStream, existsSync, statSync } from "node:fs";
+import os, { homedir } from "node:os";
 import { Logger } from "tslog";
 import json5 from "json5";
 import chalk, { Chalk } from "chalk";
@@ -798,7 +798,8 @@ const MediaUnderstandingScopeSchema = z.object({
 			chatType: z.union([
 				z.literal("direct"),
 				z.literal("group"),
-				z.literal("channel")
+				z.literal("channel"),
+				z.literal("dm")
 			]).optional(),
 			keyPrefix: z.string().optional()
 		}).strict().optional()
@@ -1010,7 +1011,11 @@ const ToolPolicySchema = ToolPolicyBaseSchema.superRefine((value, ctx) => {
 }).optional();
 const ToolsWebSearchSchema = z.object({
 	enabled: z.boolean().optional(),
-	provider: z.union([z.literal("brave"), z.literal("perplexity")]).optional(),
+	provider: z.union([
+		z.literal("brave"),
+		z.literal("perplexity"),
+		z.literal("grok")
+	]).optional(),
 	apiKey: z.string().optional(),
 	maxResults: z.number().int().positive().optional(),
 	timeoutSeconds: z.number().int().positive().optional(),
@@ -1019,6 +1024,11 @@ const ToolsWebSearchSchema = z.object({
 		apiKey: z.string().optional(),
 		baseUrl: z.string().optional(),
 		model: z.string().optional()
+	}).strict().optional(),
+	grok: z.object({
+		apiKey: z.string().optional(),
+		model: z.string().optional(),
+		inlineCitations: z.boolean().optional()
 	}).strict().optional()
 }).strict().optional();
 const ToolsWebFetchSchema = z.object({
@@ -2113,6 +2123,49 @@ function normalizeAccountId(value) {
 }
 
 //#endregion
+//#region src/infra/home-dir.ts
+function normalize(value) {
+	const trimmed = value?.trim();
+	return trimmed ? trimmed : void 0;
+}
+function resolveEffectiveHomeDir(env = process.env, homedir = os.homedir) {
+	const raw = resolveRawHomeDir(env, homedir);
+	return raw ? path.resolve(raw) : void 0;
+}
+function resolveRawHomeDir(env, homedir) {
+	const explicitHome = normalize(env.OPENCLAW_HOME);
+	if (explicitHome) {
+		if (explicitHome === "~" || explicitHome.startsWith("~/") || explicitHome.startsWith("~\\")) {
+			const fallbackHome = normalize(env.HOME) ?? normalize(env.USERPROFILE) ?? normalizeSafe(homedir);
+			if (fallbackHome) return explicitHome.replace(/^~(?=$|[\\/])/, fallbackHome);
+			return;
+		}
+		return explicitHome;
+	}
+	const envHome = normalize(env.HOME);
+	if (envHome) return envHome;
+	const userProfile = normalize(env.USERPROFILE);
+	if (userProfile) return userProfile;
+	return normalizeSafe(homedir);
+}
+function normalizeSafe(homedir) {
+	try {
+		return normalize(homedir());
+	} catch {
+		return;
+	}
+}
+function resolveRequiredHomeDir(env = process.env, homedir = os.homedir) {
+	return resolveEffectiveHomeDir(env, homedir) ?? path.resolve(process.cwd());
+}
+function expandHomePrefix(input, opts) {
+	if (!input.startsWith("~")) return input;
+	const home = normalize(opts?.home) ?? resolveEffectiveHomeDir(opts?.env ?? process.env, opts?.homedir ?? os.homedir);
+	if (!home) return input;
+	return input.replace(/^~(?=$|[\\/])/, home);
+}
+
+//#endregion
 //#region src/config/paths.ts
 /**
 * Nix mode detection: When OPENCLAW_NIX_MODE=1, the gateway is running under Nix.
@@ -2137,10 +2190,17 @@ const LEGACY_CONFIG_FILENAMES = [
 	"moltbot.json",
 	"moldbot.json"
 ];
-function legacyStateDirs(homedir = os.homedir) {
+function resolveDefaultHomeDir() {
+	return resolveRequiredHomeDir(process.env, os.homedir);
+}
+/** Build a homedir thunk that respects OPENCLAW_HOME for the given env. */
+function envHomedir(env) {
+	return () => resolveRequiredHomeDir(env, os.homedir);
+}
+function legacyStateDirs(homedir = resolveDefaultHomeDir) {
 	return LEGACY_STATE_DIRNAMES.map((dir) => path.join(homedir(), dir));
 }
-function newStateDir(homedir = os.homedir) {
+function newStateDir(homedir = resolveDefaultHomeDir) {
 	return path.join(homedir(), NEW_STATE_DIRNAME);
 }
 /**
@@ -2148,11 +2208,12 @@ function newStateDir(homedir = os.homedir) {
 * Can be overridden via OPENCLAW_STATE_DIR.
 * Default: ~/.openclaw
 */
-function resolveStateDir(env = process.env, homedir = os.homedir) {
+function resolveStateDir(env = process.env, homedir = envHomedir(env)) {
+	const effectiveHomedir = () => resolveRequiredHomeDir(env, homedir);
 	const override = env.OPENCLAW_STATE_DIR?.trim() || env.CLAWDBOT_STATE_DIR?.trim();
-	if (override) return resolveUserPath$1(override);
-	const newDir = newStateDir(homedir);
-	const legacyDirs = legacyStateDirs(homedir);
+	if (override) return resolveUserPath$1(override, env, effectiveHomedir);
+	const newDir = newStateDir(effectiveHomedir);
+	const legacyDirs = legacyStateDirs(effectiveHomedir);
 	if (fs.existsSync(newDir)) return newDir;
 	const existingLegacy = legacyDirs.find((dir) => {
 		try {
@@ -2164,11 +2225,15 @@ function resolveStateDir(env = process.env, homedir = os.homedir) {
 	if (existingLegacy) return existingLegacy;
 	return newDir;
 }
-function resolveUserPath$1(input) {
+function resolveUserPath$1(input, env = process.env, homedir = envHomedir(env)) {
 	const trimmed = input.trim();
 	if (!trimmed) return trimmed;
 	if (trimmed.startsWith("~")) {
-		const expanded = trimmed.replace(/^~(?=$|[\\/])/, os.homedir());
+		const expanded = expandHomePrefix(trimmed, {
+			home: resolveRequiredHomeDir(env, homedir),
+			env,
+			homedir
+		});
 		return path.resolve(expanded);
 	}
 	return path.resolve(trimmed);
@@ -2179,16 +2244,16 @@ const STATE_DIR = resolveStateDir();
 * Can be overridden via OPENCLAW_CONFIG_PATH.
 * Default: ~/.openclaw/openclaw.json (or $OPENCLAW_STATE_DIR/openclaw.json)
 */
-function resolveCanonicalConfigPath(env = process.env, stateDir = resolveStateDir(env, os.homedir)) {
+function resolveCanonicalConfigPath(env = process.env, stateDir = resolveStateDir(env, envHomedir(env))) {
 	const override = env.OPENCLAW_CONFIG_PATH?.trim() || env.CLAWDBOT_CONFIG_PATH?.trim();
-	if (override) return resolveUserPath$1(override);
+	if (override) return resolveUserPath$1(override, env, envHomedir(env));
 	return path.join(stateDir, CONFIG_FILENAME);
 }
 /**
 * Resolve the active config path by preferring existing config candidates
 * before falling back to the canonical path.
 */
-function resolveConfigPathCandidate(env = process.env, homedir = os.homedir) {
+function resolveConfigPathCandidate(env = process.env, homedir = envHomedir(env)) {
 	const existing = resolveDefaultConfigCandidates(env, homedir).find((candidate) => {
 		try {
 			return fs.existsSync(candidate);
@@ -2202,9 +2267,9 @@ function resolveConfigPathCandidate(env = process.env, homedir = os.homedir) {
 /**
 * Active config path (prefers existing config files).
 */
-function resolveConfigPath(env = process.env, stateDir = resolveStateDir(env, os.homedir), homedir = os.homedir) {
+function resolveConfigPath(env = process.env, stateDir = resolveStateDir(env, envHomedir(env)), homedir = envHomedir(env)) {
 	const override = env.OPENCLAW_CONFIG_PATH?.trim();
-	if (override) return resolveUserPath$1(override);
+	if (override) return resolveUserPath$1(override, env, homedir);
 	const stateOverride = env.OPENCLAW_STATE_DIR?.trim();
 	const existing = [path.join(stateDir, CONFIG_FILENAME), ...LEGACY_CONFIG_FILENAMES.map((name) => path.join(stateDir, name))].find((candidate) => {
 		try {
@@ -2224,17 +2289,18 @@ const CONFIG_PATH = resolveConfigPathCandidate();
 * Resolve default config path candidates across default locations.
 * Order: explicit config path → state-dir-derived paths → new default.
 */
-function resolveDefaultConfigCandidates(env = process.env, homedir = os.homedir) {
+function resolveDefaultConfigCandidates(env = process.env, homedir = envHomedir(env)) {
+	const effectiveHomedir = () => resolveRequiredHomeDir(env, homedir);
 	const explicit = env.OPENCLAW_CONFIG_PATH?.trim() || env.CLAWDBOT_CONFIG_PATH?.trim();
-	if (explicit) return [resolveUserPath$1(explicit)];
+	if (explicit) return [resolveUserPath$1(explicit, env, effectiveHomedir)];
 	const candidates = [];
 	const openclawStateDir = env.OPENCLAW_STATE_DIR?.trim() || env.CLAWDBOT_STATE_DIR?.trim();
 	if (openclawStateDir) {
-		const resolved = resolveUserPath$1(openclawStateDir);
+		const resolved = resolveUserPath$1(openclawStateDir, env, effectiveHomedir);
 		candidates.push(path.join(resolved, CONFIG_FILENAME));
 		candidates.push(...LEGACY_CONFIG_FILENAMES.map((name) => path.join(resolved, name)));
 	}
-	const defaultDirs = [newStateDir(homedir), ...legacyStateDirs(homedir)];
+	const defaultDirs = [newStateDir(effectiveHomedir), ...legacyStateDirs(effectiveHomedir)];
 	for (const dir of defaultDirs) {
 		candidates.push(path.join(dir, CONFIG_FILENAME));
 		candidates.push(...LEGACY_CONFIG_FILENAMES.map((name) => path.join(dir, name)));
@@ -2250,12 +2316,12 @@ const OAUTH_FILENAME = "oauth.json";
 * - `OPENCLAW_OAUTH_DIR` (explicit override)
 * - `$*_STATE_DIR/credentials` (canonical server/default)
 */
-function resolveOAuthDir(env = process.env, stateDir = resolveStateDir(env, os.homedir)) {
+function resolveOAuthDir(env = process.env, stateDir = resolveStateDir(env, envHomedir(env))) {
 	const override = env.OPENCLAW_OAUTH_DIR?.trim();
-	if (override) return resolveUserPath$1(override);
+	if (override) return resolveUserPath$1(override, env, envHomedir(env));
 	return path.join(stateDir, "credentials");
 }
-function resolveOAuthPath(env = process.env, stateDir = resolveStateDir(env, os.homedir)) {
+function resolveOAuthPath(env = process.env, stateDir = resolveStateDir(env, envHomedir(env))) {
 	return path.join(resolveOAuthDir(env, stateDir), OAUTH_FILENAME);
 }
 function resolveGatewayPort(cfg, env = process.env) {
@@ -2518,6 +2584,27 @@ const danger = theme.error;
 async function ensureDir$2(dir) {
 	await fs.promises.mkdir(dir, { recursive: true });
 }
+function clampNumber$1(value, min, max) {
+	return Math.max(min, Math.min(max, value));
+}
+/** Alias for clampNumber (shorter, more common name) */
+const clamp = clampNumber$1;
+/**
+* Escapes special regex characters in a string so it can be used in a RegExp constructor.
+*/
+function escapeRegExp(value) {
+	return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+/**
+* Safely parse JSON, returning null on error instead of throwing.
+*/
+function safeParseJson(raw) {
+	try {
+		return JSON.parse(raw);
+	} catch {
+		return null;
+	}
+}
 function normalizeE164(number) {
 	const digits = number.replace(/^whatsapp:/, "").trim().replace(/[^\d+]/g, "");
 	if (digits.startsWith("+")) return `+${digits.slice(1)}`;
@@ -2553,7 +2640,11 @@ function resolveUserPath(input) {
 	const trimmed = input.trim();
 	if (!trimmed) return trimmed;
 	if (trimmed.startsWith("~")) {
-		const expanded = trimmed.replace(/^~(?=$|[\\/])/, os.homedir());
+		const expanded = expandHomePrefix(trimmed, {
+			home: resolveRequiredHomeDir(process.env, os.homedir),
+			env: process.env,
+			homedir: os.homedir
+		});
 		return path.resolve(expanded);
 	}
 	return path.resolve(trimmed);
@@ -2561,29 +2652,32 @@ function resolveUserPath(input) {
 function resolveConfigDir(env = process.env, homedir = os.homedir) {
 	const override = env.OPENCLAW_STATE_DIR?.trim() || env.CLAWDBOT_STATE_DIR?.trim();
 	if (override) return resolveUserPath(override);
-	const newDir = path.join(homedir(), ".openclaw");
+	const newDir = path.join(resolveRequiredHomeDir(env, homedir), ".openclaw");
 	try {
 		if (fs.existsSync(newDir)) return newDir;
 	} catch {}
 	return newDir;
 }
 function resolveHomeDir() {
-	const envHome = process.env.HOME?.trim();
-	if (envHome) return envHome;
-	const envProfile = process.env.USERPROFILE?.trim();
-	if (envProfile) return envProfile;
-	try {
-		const home = os.homedir();
-		return home?.trim() ? home : void 0;
-	} catch {
-		return;
-	}
+	return resolveEffectiveHomeDir(process.env, os.homedir);
+}
+function resolveHomeDisplayPrefix() {
+	const home = resolveHomeDir();
+	if (!home) return;
+	if (process.env.OPENCLAW_HOME?.trim()) return {
+		home,
+		prefix: "$OPENCLAW_HOME"
+	};
+	return {
+		home,
+		prefix: "~"
+	};
 }
 function shortenHomeInString(input) {
 	if (!input) return input;
-	const home = resolveHomeDir();
-	if (!home) return input;
-	return input.split(home).join("~");
+	const display = resolveHomeDisplayPrefix();
+	if (!display) return input;
+	return input.split(display.home).join(display.prefix);
 }
 function formatTerminalLink(label, url, opts) {
 	const esc = "\x1B";
@@ -2664,6 +2758,9 @@ const ANSI_SGR_PATTERN = "\\x1b\\[[0-9;]*m";
 const OSC8_PATTERN = "\\x1b\\]8;;.*?\\x1b\\\\|\\x1b\\]8;;\\x1b\\\\";
 const ANSI_REGEX = new RegExp(ANSI_SGR_PATTERN, "g");
 const OSC8_REGEX = new RegExp(OSC8_PATTERN, "g");
+function stripAnsi(input) {
+	return input.replace(OSC8_REGEX, "").replace(ANSI_REGEX, "");
+}
 
 //#endregion
 //#region src/logging/console.ts
@@ -3109,9 +3206,10 @@ const FALLBACK_TEMPLATE_DIR = path.resolve(path.dirname(fileURLToPath(import.met
 //#endregion
 //#region src/agents/workspace.ts
 function resolveDefaultAgentWorkspaceDir(env = process.env, homedir = os.homedir) {
+	const home = resolveRequiredHomeDir(env, homedir);
 	const profile = env.OPENCLAW_PROFILE?.trim();
-	if (profile && profile.toLowerCase() !== "default") return path.join(homedir(), ".openclaw", `workspace-${profile}`);
-	return path.join(homedir(), ".openclaw", "workspace");
+	if (profile && profile.toLowerCase() !== "default") return path.join(home, ".openclaw", `workspace-${profile}`);
+	return path.join(home, ".openclaw", "workspace");
 }
 const DEFAULT_AGENT_WORKSPACE_DIR = resolveDefaultAgentWorkspaceDir();
 
@@ -3164,9 +3262,10 @@ function resolveAgentWorkspaceDir(cfg, agentId) {
 	if (id === resolveDefaultAgentId(cfg)) {
 		const fallback = cfg.agents?.defaults?.workspace?.trim();
 		if (fallback) return resolveUserPath(fallback);
-		return DEFAULT_AGENT_WORKSPACE_DIR;
+		return resolveDefaultAgentWorkspaceDir(process.env);
 	}
-	return path.join(os.homedir(), ".openclaw", `workspace-${id}`);
+	const stateDir = resolveStateDir(process.env);
+	return path.join(stateDir, `workspace-${id}`);
 }
 
 //#endregion
@@ -3237,14 +3336,202 @@ function resolveEffectiveMessagesConfig(cfg, agentId, opts) {
 //#endregion
 //#region src/auto-reply/tokens.ts
 const SILENT_REPLY_TOKEN = "NO_REPLY";
-function escapeRegExp$2(value) {
-	return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
 function isSilentReplyText(text, token = SILENT_REPLY_TOKEN) {
 	if (!text) return false;
-	const escaped = escapeRegExp$2(token);
+	const escaped = escapeRegExp(token);
 	if (new RegExp(`^\\s*${escaped}(?=$|\\W)`).test(text)) return true;
 	return new RegExp(`\\b${escaped}\\b\\W*$`).test(text);
+}
+
+//#endregion
+//#region src/infra/device-pairing.ts
+const PENDING_TTL_MS$1 = 300 * 1e3;
+function resolvePaths(baseDir) {
+	const root = baseDir ?? resolveStateDir();
+	const dir = path.join(root, "devices");
+	return {
+		dir,
+		pendingPath: path.join(dir, "pending.json"),
+		pairedPath: path.join(dir, "paired.json")
+	};
+}
+async function readJSON(filePath) {
+	try {
+		const raw = await fs$1.readFile(filePath, "utf8");
+		return JSON.parse(raw);
+	} catch {
+		return null;
+	}
+}
+async function writeJSONAtomic(filePath, value) {
+	const dir = path.dirname(filePath);
+	await fs$1.mkdir(dir, { recursive: true });
+	const tmp = `${filePath}.${randomUUID()}.tmp`;
+	await fs$1.writeFile(tmp, JSON.stringify(value, null, 2), "utf8");
+	try {
+		await fs$1.chmod(tmp, 384);
+	} catch {}
+	await fs$1.rename(tmp, filePath);
+	try {
+		await fs$1.chmod(filePath, 384);
+	} catch {}
+}
+function pruneExpiredPending(pendingById, nowMs) {
+	for (const [id, req] of Object.entries(pendingById)) if (nowMs - req.ts > PENDING_TTL_MS$1) delete pendingById[id];
+}
+let lock$1 = Promise.resolve();
+async function withLock(fn) {
+	const prev = lock$1;
+	let release;
+	lock$1 = new Promise((resolve) => {
+		release = resolve;
+	});
+	await prev;
+	try {
+		return await fn();
+	} finally {
+		release?.();
+	}
+}
+async function loadState(baseDir) {
+	const { pendingPath, pairedPath } = resolvePaths(baseDir);
+	const [pending, paired] = await Promise.all([readJSON(pendingPath), readJSON(pairedPath)]);
+	const state = {
+		pendingById: pending ?? {},
+		pairedByDeviceId: paired ?? {}
+	};
+	pruneExpiredPending(state.pendingById, Date.now());
+	return state;
+}
+async function persistState(state, baseDir) {
+	const { pendingPath, pairedPath } = resolvePaths(baseDir);
+	await Promise.all([writeJSONAtomic(pendingPath, state.pendingById), writeJSONAtomic(pairedPath, state.pairedByDeviceId)]);
+}
+function normalizeRole$1(role) {
+	const trimmed = role?.trim();
+	return trimmed ? trimmed : null;
+}
+function mergeRoles(...items) {
+	const roles = /* @__PURE__ */ new Set();
+	for (const item of items) {
+		if (!item) continue;
+		if (Array.isArray(item)) for (const role of item) {
+			const trimmed = role.trim();
+			if (trimmed) roles.add(trimmed);
+		}
+		else {
+			const trimmed = item.trim();
+			if (trimmed) roles.add(trimmed);
+		}
+	}
+	if (roles.size === 0) return;
+	return [...roles];
+}
+function mergeScopes(...items) {
+	const scopes = /* @__PURE__ */ new Set();
+	for (const item of items) {
+		if (!item) continue;
+		for (const scope of item) {
+			const trimmed = scope.trim();
+			if (trimmed) scopes.add(trimmed);
+		}
+	}
+	if (scopes.size === 0) return;
+	return [...scopes];
+}
+function normalizeScopes$1(scopes) {
+	if (!Array.isArray(scopes)) return [];
+	const out = /* @__PURE__ */ new Set();
+	for (const scope of scopes) {
+		const trimmed = scope.trim();
+		if (trimmed) out.add(trimmed);
+	}
+	return [...out].toSorted();
+}
+function newToken() {
+	return randomUUID().replaceAll("-", "");
+}
+async function listDevicePairing(baseDir) {
+	const state = await loadState(baseDir);
+	return {
+		pending: Object.values(state.pendingById).toSorted((a, b) => b.ts - a.ts),
+		paired: Object.values(state.pairedByDeviceId).toSorted((a, b) => b.approvedAtMs - a.approvedAtMs)
+	};
+}
+async function approveDevicePairing(requestId, baseDir) {
+	return await withLock(async () => {
+		const state = await loadState(baseDir);
+		const pending = state.pendingById[requestId];
+		if (!pending) return null;
+		const now = Date.now();
+		const existing = state.pairedByDeviceId[pending.deviceId];
+		const roles = mergeRoles(existing?.roles, existing?.role, pending.roles, pending.role);
+		const scopes = mergeScopes(existing?.scopes, pending.scopes);
+		const tokens = existing?.tokens ? { ...existing.tokens } : {};
+		const roleForToken = normalizeRole$1(pending.role);
+		if (roleForToken) {
+			const nextScopes = normalizeScopes$1(pending.scopes);
+			const existingToken = tokens[roleForToken];
+			const now = Date.now();
+			tokens[roleForToken] = {
+				token: newToken(),
+				role: roleForToken,
+				scopes: nextScopes,
+				createdAtMs: existingToken?.createdAtMs ?? now,
+				rotatedAtMs: existingToken ? now : void 0,
+				revokedAtMs: void 0,
+				lastUsedAtMs: existingToken?.lastUsedAtMs
+			};
+		}
+		const device = {
+			deviceId: pending.deviceId,
+			publicKey: pending.publicKey,
+			displayName: pending.displayName,
+			platform: pending.platform,
+			clientId: pending.clientId,
+			clientMode: pending.clientMode,
+			role: pending.role,
+			roles,
+			scopes,
+			remoteIp: pending.remoteIp,
+			tokens,
+			createdAtMs: existing?.createdAtMs ?? now,
+			approvedAtMs: now
+		};
+		delete state.pendingById[requestId];
+		state.pairedByDeviceId[device.deviceId] = device;
+		await persistState(state, baseDir);
+		return {
+			requestId,
+			device
+		};
+	});
+}
+async function rejectDevicePairing(requestId, baseDir) {
+	return await withLock(async () => {
+		const state = await loadState(baseDir);
+		const pending = state.pendingById[requestId];
+		if (!pending) return null;
+		delete state.pendingById[requestId];
+		await persistState(state, baseDir);
+		return {
+			requestId,
+			deviceId: pending.deviceId
+		};
+	});
+}
+
+//#endregion
+//#region src/infra/errors.ts
+function formatErrorMessage(err) {
+	if (err instanceof Error) return err.message || err.name || "Error";
+	if (typeof err === "string") return err;
+	if (typeof err === "number" || typeof err === "boolean" || typeof err === "bigint") return String(err);
+	try {
+		return JSON.stringify(err);
+	} catch {
+		return Object.prototype.toString.call(err);
+	}
 }
 
 //#endregion
@@ -4423,7 +4710,6 @@ function resolveBlueBubblesGroupToolPolicy(params) {
 //#endregion
 //#region src/channels/dock.ts
 const formatLower = (allowFrom) => allowFrom.map((entry) => String(entry).trim()).filter(Boolean).map((entry) => entry.toLowerCase());
-const escapeRegExp$1 = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const DOCKS = {
 	telegram: {
 		id: "telegram",
@@ -4489,7 +4775,7 @@ const DOCKS = {
 		mentions: { stripPatterns: ({ ctx }) => {
 			const selfE164 = (ctx.To ?? "").replace(/^whatsapp:/, "");
 			if (!selfE164) return [];
-			const escaped = escapeRegExp$1(selfE164);
+			const escaped = escapeRegExp(selfE164);
 			return [escaped, `@${escaped}`];
 		} },
 		threading: { buildToolContext: ({ context, hasRepliedRef }) => {
@@ -5231,11 +5517,13 @@ function createTypingCallbacks(params) {
 			params.onStartError(err);
 		}
 	};
+	const fireStop = stop ? () => {
+		stop().catch((err) => (params.onStopError ?? params.onStartError)(err));
+	} : void 0;
 	return {
 		onReplyStart,
-		onIdle: stop ? () => {
-			stop().catch((err) => (params.onStopError ?? params.onStartError)(err));
-		} : void 0
+		onIdle: fireStop,
+		onCleanup: fireStop
 	};
 }
 
@@ -5803,7 +6091,8 @@ function resolveEffectiveAgentDir(cfg, agentId, deps) {
 	const id = normalizeAgentId(agentId);
 	const trimmed = (Array.isArray(cfg.agents?.list) ? cfg.agents?.list.find((agent) => normalizeAgentId(agent.id) === id)?.agentDir : void 0)?.trim();
 	if (trimmed) return resolveUserPath(trimmed);
-	const root = resolveStateDir(deps?.env ?? process.env, deps?.homedir ?? os.homedir);
+	const env = deps?.env ?? process.env;
+	const root = resolveStateDir(env, deps?.homedir ?? (() => resolveRequiredHomeDir(env, os.homedir)));
 	return path.join(root, "agents", id, "agent");
 }
 function findDuplicateAgentDirs(cfg, deps) {
@@ -5939,6 +6228,26 @@ const MINIMAX_CLI_PROFILE_ID = "minimax-portal:minimax-cli";
 const EXTERNAL_CLI_SYNC_TTL_MS = 900 * 1e3;
 const EXTERNAL_CLI_NEAR_EXPIRY_MS = 600 * 1e3;
 const log$19 = createSubsystemLogger("agents/auth-profiles");
+
+//#endregion
+//#region src/utils/normalize-secret-input.ts
+/**
+* Secret normalization for copy/pasted credentials.
+*
+* Common footgun: line breaks (especially `\r`) embedded in API keys/tokens.
+* We strip line breaks anywhere, then trim whitespace at the ends.
+*
+* Intentionally does NOT remove ordinary spaces inside the string to avoid
+* silently altering "Bearer <token>" style values.
+*/
+function normalizeSecretInput(value) {
+	if (typeof value !== "string") return "";
+	return value.replace(/[\r\n\u2028\u2029]+/g, "").trim();
+}
+function normalizeOptionalSecretInput(value) {
+	const normalized = normalizeSecretInput(value);
+	return normalized ? normalized : void 0;
+}
 
 //#endregion
 //#region src/agents/cli-credentials.ts
@@ -6445,7 +6754,7 @@ function resolveEnvApiKey(provider) {
 	const normalized = normalizeProviderId(provider);
 	const applied = new Set(getShellEnvAppliedKeys());
 	const pick = (envVar) => {
-		const value = process.env[envVar]?.trim();
+		const value = normalizeOptionalSecretInput(process.env[envVar]);
 		if (!value) return null;
 		return {
 			apiKey: value,
@@ -7644,7 +7953,8 @@ function applyModelDefaults(cfg) {
 				const contextWindow = isPositiveNumber(raw.contextWindow) ? raw.contextWindow : DEFAULT_CONTEXT_TOKENS;
 				if (raw.contextWindow !== contextWindow) modelMutated = true;
 				const defaultMaxTokens = Math.min(DEFAULT_MODEL_MAX_TOKENS, contextWindow);
-				const maxTokens = isPositiveNumber(raw.maxTokens) ? raw.maxTokens : defaultMaxTokens;
+				const rawMaxTokens = isPositiveNumber(raw.maxTokens) ? raw.maxTokens : defaultMaxTokens;
+				const maxTokens = Math.min(rawMaxTokens, contextWindow);
 				if (raw.maxTokens !== maxTokens) modelMutated = true;
 				if (!modelMutated) return model;
 				providerMutated = true;
@@ -8986,7 +9296,11 @@ function defaultSlotIdForKey(slotKey) {
 
 //#endregion
 //#region src/plugins/config-state.ts
-const BUNDLED_ENABLED_BY_DEFAULT = /* @__PURE__ */ new Set();
+const BUNDLED_ENABLED_BY_DEFAULT = new Set([
+	"device-pair",
+	"phone-control",
+	"talk-voice"
+]);
 const normalizeList = (value) => {
 	if (!Array.isArray(value)) return [];
 	return value.map((entry) => typeof entry === "string" ? entry.trim() : "").filter(Boolean);
@@ -9752,9 +10066,10 @@ const BindingsSchema = z.array(z.object({
 		accountId: z.string().optional(),
 		peer: z.object({
 			kind: z.union([
-				z.literal("dm"),
+				z.literal("direct"),
 				z.literal("group"),
-				z.literal("channel")
+				z.literal("channel"),
+				z.literal("dm")
 			]),
 			id: z.string()
 		}).strict().optional(),
@@ -9920,7 +10235,8 @@ const SessionSendPolicySchema = z.object({
 			chatType: z.union([
 				z.literal("direct"),
 				z.literal("group"),
-				z.literal("channel")
+				z.literal("channel"),
+				z.literal("dm")
 			]).optional(),
 			keyPrefix: z.string().optional()
 		}).strict().optional()
@@ -9939,6 +10255,7 @@ const SessionSchema = z.object({
 	idleMinutes: z.number().int().positive().optional(),
 	reset: SessionResetConfigSchema.optional(),
 	resetByType: z.object({
+		direct: SessionResetConfigSchema.optional(),
 		dm: SessionResetConfigSchema.optional(),
 		group: SessionResetConfigSchema.optional(),
 		thread: SessionResetConfigSchema.optional()
@@ -10009,7 +10326,11 @@ const MemoryQmdUpdateSchema = z.object({
 	interval: z.string().optional(),
 	debounceMs: z.number().int().nonnegative().optional(),
 	onBoot: z.boolean().optional(),
-	embedInterval: z.string().optional()
+	waitForBootSync: z.boolean().optional(),
+	embedInterval: z.string().optional(),
+	commandTimeoutMs: z.number().int().nonnegative().optional(),
+	updateTimeoutMs: z.number().int().nonnegative().optional(),
+	embedTimeoutMs: z.number().int().nonnegative().optional()
 }).strict();
 const MemoryQmdLimitsSchema = z.object({
 	maxResults: z.number().int().positive().optional(),
@@ -10742,7 +11063,7 @@ function normalizeDeps(overrides = {}) {
 		fs: overrides.fs ?? fs,
 		json5: overrides.json5 ?? json5,
 		env: overrides.env ?? process.env,
-		homedir: overrides.homedir ?? os.homedir,
+		homedir: overrides.homedir ?? (() => resolveRequiredHomeDir(overrides.env ?? process.env, os.homedir)),
 		configPath: overrides.configPath ?? "",
 		logger: overrides.logger ?? console
 	};
@@ -11047,7 +11368,7 @@ function loadConfig() {
 
 //#endregion
 //#region src/config/sessions/paths.ts
-function resolveAgentSessionsDir(agentId, env = process.env, homedir = os.homedir) {
+function resolveAgentSessionsDir(agentId, env = process.env, homedir = () => resolveRequiredHomeDir(env, os.homedir)) {
 	const root = resolveStateDir(env, homedir);
 	const id = normalizeAgentId(agentId ?? DEFAULT_AGENT_ID);
 	return path.join(root, "agents", id, "sessions");
@@ -11060,10 +11381,18 @@ function resolveStorePath(store, opts) {
 	if (!store) return resolveDefaultSessionStorePath(agentId);
 	if (store.includes("{agentId}")) {
 		const expanded = store.replaceAll("{agentId}", agentId);
-		if (expanded.startsWith("~")) return path.resolve(expanded.replace(/^~(?=$|[\\/])/, os.homedir()));
+		if (expanded.startsWith("~")) return path.resolve(expandHomePrefix(expanded, {
+			home: resolveRequiredHomeDir(process.env, os.homedir),
+			env: process.env,
+			homedir: os.homedir
+		}));
 		return path.resolve(expanded);
 	}
-	if (store.startsWith("~")) return path.resolve(store.replace(/^~(?=$|[\\/])/, os.homedir()));
+	if (store.startsWith("~")) return path.resolve(expandHomePrefix(store, {
+		home: resolveRequiredHomeDir(process.env, os.homedir),
+		env: process.env,
+		homedir: os.homedir
+	}));
 	return path.resolve(store);
 }
 
@@ -11229,6 +11558,12 @@ function normalizeSessionEntryDelivery(entry) {
 		lastThreadId: normalized.lastThreadId
 	};
 }
+function removeThreadFromDeliveryContext(context) {
+	if (!context || context.threadId == null) return context;
+	const next = { ...context };
+	delete next.threadId;
+	return next;
+}
 function normalizeSessionStore(store) {
 	for (const [key, entry] of Object.entries(store)) {
 		if (!entry) continue;
@@ -11391,12 +11726,17 @@ async function updateLastRoute(params) {
 		const store = loadSessionStore(storePath);
 		const existing = store[sessionKey];
 		const now = Date.now();
-		const merged = mergeDeliveryContext(mergeDeliveryContext(normalizeDeliveryContext(params.deliveryContext), normalizeDeliveryContext({
+		const explicitContext = normalizeDeliveryContext(params.deliveryContext);
+		const inlineContext = normalizeDeliveryContext({
 			channel,
 			to,
 			accountId,
 			threadId
-		})), deliveryContextFromSession(existing));
+		});
+		const mergedInput = mergeDeliveryContext(explicitContext, inlineContext);
+		const explicitDeliveryContext = params.deliveryContext;
+		const explicitThreadValue = (explicitDeliveryContext != null && Object.prototype.hasOwnProperty.call(explicitDeliveryContext, "threadId") ? explicitDeliveryContext.threadId : void 0) ?? (threadId != null && threadId !== "" ? threadId : void 0);
+		const merged = mergeDeliveryContext(mergedInput, Boolean(explicitContext?.channel || explicitContext?.to || inlineContext?.channel || inlineContext?.to) && explicitThreadValue == null ? removeThreadFromDeliveryContext(deliveryContextFromSession(existing)) : deliveryContextFromSession(existing));
 		const normalized = normalizeSessionDeliveryFields({ deliveryContext: {
 			channel: merged?.channel,
 			to: merged?.to,
@@ -12493,7 +12833,7 @@ const DEFAULT_RETRY_CONFIG = {
 	jitter: 0
 };
 const asFiniteNumber = (value) => typeof value === "number" && Number.isFinite(value) ? value : void 0;
-const clampNumber$1 = (value, fallback, min, max) => {
+const clampNumber = (value, fallback, min, max) => {
 	const next = asFiniteNumber(value);
 	if (next === void 0) return fallback;
 	const floor = typeof min === "number" ? min : Number.NEGATIVE_INFINITY;
@@ -12501,13 +12841,13 @@ const clampNumber$1 = (value, fallback, min, max) => {
 	return Math.min(Math.max(next, floor), ceiling);
 };
 function resolveRetryConfig(defaults = DEFAULT_RETRY_CONFIG, overrides) {
-	const attempts = Math.max(1, Math.round(clampNumber$1(overrides?.attempts, defaults.attempts, 1)));
-	const minDelayMs = Math.max(0, Math.round(clampNumber$1(overrides?.minDelayMs, defaults.minDelayMs, 0)));
+	const attempts = Math.max(1, Math.round(clampNumber(overrides?.attempts, defaults.attempts, 1)));
+	const minDelayMs = Math.max(0, Math.round(clampNumber(overrides?.minDelayMs, defaults.minDelayMs, 0)));
 	return {
 		attempts,
 		minDelayMs,
-		maxDelayMs: Math.max(minDelayMs, Math.round(clampNumber$1(overrides?.maxDelayMs, defaults.maxDelayMs, 0))),
-		jitter: clampNumber$1(overrides?.jitter, defaults.jitter, 0, 1)
+		maxDelayMs: Math.max(minDelayMs, Math.round(clampNumber(overrides?.maxDelayMs, defaults.maxDelayMs, 0))),
+		jitter: clampNumber(overrides?.jitter, defaults.jitter, 0, 1)
 	};
 }
 function applyJitter(delayMs, jitter) {
@@ -14021,7 +14361,7 @@ function collectDiscordStatusIssues(accounts) {
 
 //#endregion
 //#region src/infra/device-identity.ts
-const DEFAULT_DIR = path.join(os.homedir(), ".openclaw", "identity");
+const DEFAULT_DIR = path.join(STATE_DIR, "identity");
 const DEFAULT_FILE$1 = path.join(DEFAULT_DIR, "device.json");
 function ensureDir$1(filePath) {
 	fs.mkdirSync(path.dirname(filePath), { recursive: true });
@@ -14493,6 +14833,38 @@ const AgentsListResultSchema = Type.Object({
 	scope: Type.Union([Type.Literal("per-sender"), Type.Literal("global")]),
 	agents: Type.Array(AgentSummarySchema)
 }, { additionalProperties: false });
+const AgentsCreateParamsSchema = Type.Object({
+	name: NonEmptyString,
+	workspace: NonEmptyString,
+	emoji: Type.Optional(Type.String()),
+	avatar: Type.Optional(Type.String())
+}, { additionalProperties: false });
+const AgentsCreateResultSchema = Type.Object({
+	ok: Type.Literal(true),
+	agentId: NonEmptyString,
+	name: NonEmptyString,
+	workspace: NonEmptyString
+}, { additionalProperties: false });
+const AgentsUpdateParamsSchema = Type.Object({
+	agentId: NonEmptyString,
+	name: Type.Optional(NonEmptyString),
+	workspace: Type.Optional(NonEmptyString),
+	model: Type.Optional(NonEmptyString),
+	avatar: Type.Optional(Type.String())
+}, { additionalProperties: false });
+const AgentsUpdateResultSchema = Type.Object({
+	ok: Type.Literal(true),
+	agentId: NonEmptyString
+}, { additionalProperties: false });
+const AgentsDeleteParamsSchema = Type.Object({
+	agentId: NonEmptyString,
+	deleteFiles: Type.Optional(Type.Boolean())
+}, { additionalProperties: false });
+const AgentsDeleteResultSchema = Type.Object({
+	ok: Type.Literal(true),
+	agentId: NonEmptyString,
+	removedBindings: Type.Integer({ minimum: 0 })
+}, { additionalProperties: false });
 const AgentsFileEntrySchema = Type.Object({
 	name: NonEmptyString,
 	path: NonEmptyString,
@@ -14732,7 +15104,8 @@ const CronJobStateSchema = Type.Object({
 		Type.Literal("skipped")
 	])),
 	lastError: Type.Optional(Type.String()),
-	lastDurationMs: Type.Optional(Type.Integer({ minimum: 0 }))
+	lastDurationMs: Type.Optional(Type.Integer({ minimum: 0 })),
+	consecutiveErrors: Type.Optional(Type.Integer({ minimum: 0 }))
 }, { additionalProperties: false });
 const CronJobSchema = Type.Object({
 	id: NonEmptyString,
@@ -15360,6 +15733,9 @@ const validateAgentIdentityParams = ajv.compile(AgentIdentityParamsSchema);
 const validateAgentWaitParams = ajv.compile(AgentWaitParamsSchema);
 const validateWakeParams = ajv.compile(WakeParamsSchema);
 const validateAgentsListParams = ajv.compile(AgentsListParamsSchema);
+const validateAgentsCreateParams = ajv.compile(AgentsCreateParamsSchema);
+const validateAgentsUpdateParams = ajv.compile(AgentsUpdateParamsSchema);
+const validateAgentsDeleteParams = ajv.compile(AgentsDeleteParamsSchema);
 const validateAgentsFilesListParams = ajv.compile(AgentsFilesListParamsSchema);
 const validateAgentsFilesGetParams = ajv.compile(AgentsFilesGetParamsSchema);
 const validateAgentsFilesSetParams = ajv.compile(AgentsFilesSetParamsSchema);
@@ -15693,6 +16069,24 @@ var GatewayClient = class {
 };
 
 //#endregion
+//#region src/gateway/net.ts
+/**
+* Pick the primary non-internal IPv4 address (LAN IP).
+* Prefers common interface names (en0, eth0) then falls back to any external IPv4.
+*/
+function pickPrimaryLanIPv4() {
+	const nets = os.networkInterfaces();
+	for (const name of ["en0", "eth0"]) {
+		const entry = nets[name]?.find((n) => n.family === "IPv4" && !n.internal);
+		if (entry?.address) return entry.address;
+	}
+	for (const list of Object.values(nets)) {
+		const entry = list?.find((n) => n.family === "IPv4" && !n.internal);
+		if (entry?.address) return entry.address;
+	}
+}
+
+//#endregion
 //#region src/gateway/call.ts
 function resolveExplicitGatewayAuth(opts) {
 	return {
@@ -15720,13 +16114,15 @@ function buildGatewayConnectionDetails(options = {}) {
 	const tailnetIPv4 = pickPrimaryTailnetIPv4();
 	const bindMode = config.gateway?.bind ?? "loopback";
 	const preferTailnet = bindMode === "tailnet" && !!tailnetIPv4;
+	const preferLan = bindMode === "lan";
+	const lanIPv4 = preferLan ? pickPrimaryLanIPv4() : void 0;
 	const scheme = tlsEnabled ? "wss" : "ws";
-	const localUrl = preferTailnet && tailnetIPv4 ? `${scheme}://${tailnetIPv4}:${localPort}` : `${scheme}://127.0.0.1:${localPort}`;
+	const localUrl = preferTailnet && tailnetIPv4 ? `${scheme}://${tailnetIPv4}:${localPort}` : preferLan && lanIPv4 ? `${scheme}://${lanIPv4}:${localPort}` : `${scheme}://127.0.0.1:${localPort}`;
 	const urlOverride = typeof options.url === "string" && options.url.trim().length > 0 ? options.url.trim() : void 0;
 	const remoteUrl = typeof remote?.url === "string" && remote.url.trim().length > 0 ? remote.url.trim() : void 0;
 	const remoteMisconfigured = isRemoteMode && !urlOverride && !remoteUrl;
 	const url = urlOverride || remoteUrl || localUrl;
-	const urlSource = urlOverride ? "cli --url" : remoteUrl ? "config gateway.remote.url" : remoteMisconfigured ? "missing gateway.remote.url (fallback local)" : preferTailnet && tailnetIPv4 ? `local tailnet ${tailnetIPv4}` : "local loopback";
+	const urlSource = urlOverride ? "cli --url" : remoteUrl ? "config gateway.remote.url" : remoteMisconfigured ? "missing gateway.remote.url (fallback local)" : preferTailnet && tailnetIPv4 ? `local tailnet ${tailnetIPv4}` : preferLan && lanIPv4 ? `local lan ${lanIPv4}` : "local loopback";
 	const remoteFallbackNote = remoteMisconfigured ? "Warn: gateway.mode=remote but gateway.remote.url is missing; set gateway.remote.url or switch gateway.mode=local." : void 0;
 	const bindDetail = !urlOverride && !remoteUrl ? `Bind: ${bindMode}` : void 0;
 	return {
@@ -15744,7 +16140,8 @@ function buildGatewayConnectionDetails(options = {}) {
 	};
 }
 async function callGateway(opts) {
-	const timeoutMs = opts.timeoutMs ?? 1e4;
+	const timeoutMs = typeof opts.timeoutMs === "number" && Number.isFinite(opts.timeoutMs) ? opts.timeoutMs : 1e4;
+	const safeTimerTimeoutMs = Math.max(1, Math.min(Math.floor(timeoutMs), 2147483647));
 	const config = opts.config ?? loadConfig();
 	const isRemoteMode = config.gateway?.mode === "remote";
 	const remote = isRemoteMode ? config.gateway?.remote : void 0;
@@ -15840,7 +16237,7 @@ async function callGateway(opts) {
 			ignoreClose = true;
 			client.stop();
 			stop(new Error(formatTimeoutError()));
-		}, timeoutMs);
+		}, safeTimerTimeoutMs);
 		client.start();
 	});
 }
@@ -17530,7 +17927,9 @@ const XHIGH_MODEL_REFS = [
 	"openai/gpt-5.2",
 	"openai-codex/gpt-5.3-codex",
 	"openai-codex/gpt-5.2-codex",
-	"openai-codex/gpt-5.1-codex"
+	"openai-codex/gpt-5.1-codex",
+	"github-copilot/gpt-5.2-codex",
+	"github-copilot/gpt-5.2"
 ];
 const XHIGH_MODEL_SET = new Set(XHIGH_MODEL_REFS.map((entry) => entry.toLowerCase()));
 const XHIGH_MODEL_IDS = new Set(XHIGH_MODEL_REFS.map((entry) => entry.split("/")[1]?.toLowerCase()).filter((entry) => Boolean(entry)));
@@ -17656,7 +18055,7 @@ async function ensureOpenClawModelsJson(config, agentDirOverride) {
 
 //#endregion
 //#region src/agents/sandbox/constants.ts
-const DEFAULT_SANDBOX_WORKSPACE_ROOT = path.join(os.homedir(), ".openclaw", "sandboxes");
+const DEFAULT_SANDBOX_WORKSPACE_ROOT = path.join(STATE_DIR, "sandboxes");
 const DEFAULT_TOOL_DENY = [
 	"browser",
 	"canvas",
@@ -17665,8 +18064,7 @@ const DEFAULT_TOOL_DENY = [
 	"gateway",
 	...CHANNEL_IDS
 ];
-const resolvedSandboxStateDir = STATE_DIR ?? path.join(os.homedir(), ".openclaw");
-const SANDBOX_STATE_DIR = path.join(resolvedSandboxStateDir, "sandbox");
+const SANDBOX_STATE_DIR = path.join(STATE_DIR, "sandbox");
 const SANDBOX_REGISTRY_PATH = path.join(SANDBOX_STATE_DIR, "containers.json");
 const SANDBOX_BROWSER_REGISTRY_PATH = path.join(SANDBOX_STATE_DIR, "browsers.json");
 
@@ -17714,13 +18112,13 @@ function isContextOverflowError(errorMessage) {
 	const lower = errorMessage.toLowerCase();
 	const hasRequestSizeExceeds = lower.includes("request size exceeds");
 	const hasContextWindow = lower.includes("context window") || lower.includes("context length") || lower.includes("maximum context length");
-	return lower.includes("request_too_large") || lower.includes("request exceeds the maximum size") || lower.includes("context length exceeded") || lower.includes("maximum context length") || lower.includes("prompt is too long") || lower.includes("exceeds model context window") || hasRequestSizeExceeds && hasContextWindow || lower.includes("context overflow") || lower.includes("413") && lower.includes("too large");
+	return lower.includes("request_too_large") || lower.includes("request exceeds the maximum size") || lower.includes("context length exceeded") || lower.includes("maximum context length") || lower.includes("prompt is too long") || lower.includes("exceeds model context window") || hasRequestSizeExceeds && hasContextWindow || lower.includes("context overflow:") || lower.includes("413") && lower.includes("too large");
 }
 function isCompactionFailureError(errorMessage) {
 	if (!errorMessage) return false;
-	if (!isContextOverflowError(errorMessage)) return false;
 	const lower = errorMessage.toLowerCase();
-	return lower.includes("summarization failed") || lower.includes("auto-compaction") || lower.includes("compaction failed") || lower.includes("compaction");
+	if (!(lower.includes("summarization failed") || lower.includes("auto-compaction") || lower.includes("compaction failed") || lower.includes("compaction"))) return false;
+	return isContextOverflowError(errorMessage) || lower.includes("context overflow");
 }
 
 //#endregion
@@ -18540,7 +18938,7 @@ const debugEmbeddings = isTruthyEnvValue(process.env.OPENCLAW_DEBUG_MEMORY_EMBED
 const log$11 = createSubsystemLogger("memory/embeddings");
 
 //#endregion
-//#region src/infra/warnings.ts
+//#region src/infra/warning-filter.ts
 const warningFilterKey = Symbol.for("openclaw.warning-filter");
 
 //#endregion
@@ -18575,6 +18973,32 @@ const MemoryGetSchema = Type.Object({
 //#endregion
 //#region src/web/outbound.ts
 const outboundLog = createSubsystemLogger("gateway/channels/whatsapp").child("outbound");
+
+//#endregion
+//#region src/infra/format-time/format-duration.ts
+/**
+* Compact compound duration: "500ms", "45s", "2m5s", "1h30m".
+* With `spaced`: "45s", "2m 5s", "1h 30m".
+* Omits trailing zero components: "1m" not "1m 0s", "2h" not "2h 0m".
+* Returns undefined for null/undefined/non-finite/non-positive input.
+*/
+function formatDurationCompact(ms, options) {
+	if (ms == null || !Number.isFinite(ms) || ms <= 0) return;
+	if (ms < 1e3) return `${Math.round(ms)}ms`;
+	const sep = options?.spaced ? " " : "";
+	const totalSeconds = Math.round(ms / 1e3);
+	const hours = Math.floor(totalSeconds / 3600);
+	const minutes = Math.floor(totalSeconds % 3600 / 60);
+	const seconds = totalSeconds % 60;
+	if (hours >= 24) {
+		const days = Math.floor(hours / 24);
+		const remainingHours = hours % 24;
+		return remainingHours > 0 ? `${days}d${sep}${remainingHours}h` : `${days}d`;
+	}
+	if (hours > 0) return minutes > 0 ? `${hours}h${sep}${minutes}m` : `${hours}h`;
+	if (minutes > 0) return seconds > 0 ? `${minutes}m${sep}${seconds}s` : `${minutes}m`;
+	return `${seconds}s`;
+}
 
 //#endregion
 //#region src/agents/lanes.ts
@@ -19572,8 +19996,8 @@ function registerUnhandledRejectionHandler(handler) {
 const RECENT_TELEGRAM_UPDATE_TTL_MS = 5 * 6e4;
 
 //#endregion
-//#region src/web/qr-image.ts
-function crcTable() {
+//#region src/media/png-encode.ts
+const CRC_TABLE = (() => {
 	const table = new Uint32Array(256);
 	for (let i = 0; i < 256; i += 1) {
 		let c = i;
@@ -19581,8 +20005,7 @@ function crcTable() {
 		table[i] = c >>> 0;
 	}
 	return table;
-}
-const CRC_TABLE = crcTable();
+})();
 
 //#endregion
 //#region src/web/session.ts
@@ -21763,7 +22186,10 @@ function safeCwd() {
 		return null;
 	}
 }
-function clampNumber(value, defaultValue, min, max) {
+/**
+* Clamp a number within min/max bounds, using defaultValue if undefined or NaN.
+*/
+function clampWithDefault(value, defaultValue, min, max) {
 	if (value === void 0 || Number.isNaN(value)) return defaultValue;
 	return Math.min(Math.max(value, min), max);
 }
@@ -21822,12 +22248,6 @@ function stripQuotes(value) {
 	const trimmed = value.trim();
 	if (trimmed.startsWith("\"") && trimmed.endsWith("\"") || trimmed.startsWith("'") && trimmed.endsWith("'")) return trimmed.slice(1, -1);
 	return trimmed;
-}
-function formatDuration(ms) {
-	if (ms < 1e3) return `${ms}ms`;
-	const seconds = Math.floor(ms / 1e3);
-	if (seconds < 60) return `${seconds}s`;
-	return `${Math.floor(seconds / 60)}m${(seconds % 60).toString().padStart(2, "0")}s`;
 }
 function pad(str, width) {
 	if (str.length >= width) return str;
@@ -21973,8 +22393,8 @@ function validateHostEnv(env) {
 		if (upperKey === "PATH") throw new Error("Security Violation: Custom 'PATH' variable is forbidden during host execution.");
 	}
 }
-const DEFAULT_MAX_OUTPUT = clampNumber(readEnvInt("PI_BASH_MAX_OUTPUT_CHARS"), 2e5, 1e3, 2e5);
-const DEFAULT_PENDING_MAX_OUTPUT = clampNumber(readEnvInt("OPENCLAW_BASH_PENDING_MAX_OUTPUT_CHARS"), 2e5, 1e3, 2e5);
+const DEFAULT_MAX_OUTPUT = clampWithDefault(readEnvInt("PI_BASH_MAX_OUTPUT_CHARS"), 2e5, 1e3, 2e5);
+const DEFAULT_PENDING_MAX_OUTPUT = clampWithDefault(readEnvInt("OPENCLAW_BASH_PENDING_MAX_OUTPUT_CHARS"), 2e5, 1e3, 2e5);
 const DEFAULT_PATH = process.env.PATH ?? "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
 const DEFAULT_NOTIFY_TAIL_CHARS = 400;
 const DEFAULT_APPROVAL_TIMEOUT_MS = 12e4;
@@ -22467,7 +22887,7 @@ async function runExecProcess(opts) {
 	};
 }
 function createExecTool(defaults) {
-	const defaultBackgroundMs = clampNumber(defaults?.backgroundMs ?? readEnvInt("PI_BASH_YIELD_MS"), 1e4, 10, 12e4);
+	const defaultBackgroundMs = clampWithDefault(defaults?.backgroundMs ?? readEnvInt("PI_BASH_YIELD_MS"), 1e4, 10, 12e4);
 	const allowBackground = defaults?.allowBackground ?? true;
 	const defaultTimeoutSec = typeof defaults?.timeoutSec === "number" && defaults.timeoutSec > 0 ? defaults.timeoutSec : 1800;
 	const defaultPathPrepend = normalizePathPrepend(defaults?.pathPrepend);
@@ -22491,7 +22911,7 @@ function createExecTool(defaults) {
 			const backgroundRequested = params.background === true;
 			const yieldRequested = typeof params.yieldMs === "number";
 			if (!allowBackground && (backgroundRequested || yieldRequested)) warnings.push("Warning: background execution is disabled; running synchronously.");
-			const yieldWindow = allowBackground ? backgroundRequested ? 0 : clampNumber(params.yieldMs ?? defaultBackgroundMs, defaultBackgroundMs, 10, 12e4) : null;
+			const yieldWindow = allowBackground ? backgroundRequested ? 0 : clampWithDefault(params.yieldMs ?? defaultBackgroundMs, defaultBackgroundMs, 10, 12e4) : null;
 			const elevatedDefaults = defaults?.elevated;
 			const elevatedAllowed = Boolean(elevatedDefaults?.enabled && elevatedDefaults.allowed);
 			const elevatedDefaultMode = elevatedDefaults?.defaultLevel === "full" ? "full" : elevatedDefaults?.defaultLevel === "ask" ? "ask" : elevatedDefaults?.defaultLevel === "on" ? "ask" : "off";
@@ -23042,9 +23462,6 @@ const TAB = "	";
 const BACKSPACE = "";
 const BRACKETED_PASTE_START = `${ESC}[200~`;
 const BRACKETED_PASTE_END = `${ESC}[201~`;
-function escapeRegExp(value) {
-	return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
 const namedKeyMap = new Map([
 	["enter", CR],
 	["return", CR],
@@ -23300,7 +23717,7 @@ function createProcessTool(defaults) {
 						type: "text",
 						text: [...running, ...finished].toSorted((a, b) => b.startedAt - a.startedAt).map((s) => {
 							const label = s.name ? truncateMiddle(s.name, 80) : truncateMiddle(s.command, 120);
-							return `${s.sessionId} ${pad(s.status, 9)} ${formatDuration(s.runtimeMs)} :: ${label}`;
+							return `${s.sessionId} ${pad(s.status, 9)} ${formatDurationCompact(s.runtimeMs) ?? "n/a"} :: ${label}`;
 						}).join("\n") || "No running or recent sessions."
 					}],
 					details: {
@@ -24304,6 +24721,10 @@ const WebSearchSchema = Type.Object({
 const log$4 = createSubsystemLogger("agents/tools");
 
 //#endregion
+//#region src/agents/pi-embedded-runner/logger.ts
+const log$3 = createSubsystemLogger("agent/embedded");
+
+//#endregion
 //#region src/agents/session-write-lock.ts
 const HELD_LOCKS = /* @__PURE__ */ new Map();
 const CLEANUP_SIGNALS = [
@@ -24364,10 +24785,6 @@ const DEFAULT_CONTEXT_PRUNING_SETTINGS = {
 		placeholder: "[Old tool result content cleared]"
 	}
 };
-
-//#endregion
-//#region src/agents/pi-embedded-runner/logger.ts
-const log$3 = createSubsystemLogger("agent/embedded");
 
 //#endregion
 //#region src/agents/pi-embedded-runner/utils.ts
@@ -24941,4 +25358,4 @@ const LineConfigSchema = z.object({
 }).strict();
 
 //#endregion
-export { BLUEBUBBLES_ACTIONS, BLUEBUBBLES_ACTION_NAMES, BLUEBUBBLES_GROUP_ACTIONS, BlockStreamingCoalesceSchema, CHANNEL_MESSAGE_ACTION_NAMES, DEFAULT_ACCOUNT_ID, DEFAULT_GROUP_HISTORY_LIMIT, DiscordConfigSchema, DmConfigSchema, DmPolicySchema, GoogleChatConfigSchema, GroupPolicySchema, IMessageConfigSchema, LineConfigSchema, MSTeamsConfigSchema, MarkdownConfigSchema, MarkdownTableModeSchema, PAIRING_APPROVED_MESSAGE, SILENT_REPLY_TOKEN, SignalConfigSchema, SlackConfigSchema, TelegramConfigSchema, ToolPolicySchema, WhatsAppConfigSchema, addWildcardAllowFrom, applyAccountNameToChannelSection, buildChannelConfigSchema, buildChannelKeyCandidates, buildPendingHistoryContextFromMap, buildSlackThreadingToolContext, clearHistoryEntries, clearHistoryEntriesIfEnabled, collectBlueBubblesStatusIssues, collectDiscordAuditChannelIds, collectDiscordStatusIssues, collectTelegramStatusIssues, collectWhatsAppStatusIssues, createActionCard, createActionGate, createImageCard, createInfoCard, createListCard, createReceiptCard, createReplyPrefixContext, createReplyPrefixOptions, createTypingCallbacks, deleteAccountFromConfigSection, detectMime, discordOnboardingAdapter, emitDiagnosticEvent, emptyPluginConfigSchema, extensionForMime, extractOriginalFilename, formatAllowlistMatchMeta, formatDocsLink, formatLocationText, formatPairingApproveHint, getChatChannelMeta, getFileExtension, hasMarkdownToConvert, imessageOnboardingAdapter, isDiagnosticsEnabled, isSilentReplyText, isWhatsAppGroupJid, jsonResult, listDiscordAccountIds, listDiscordDirectoryGroupsFromConfig, listDiscordDirectoryPeersFromConfig, listEnabledSlackAccounts, listIMessageAccountIds, listLineAccountIds, listSignalAccountIds, listSlackAccountIds, listSlackDirectoryGroupsFromConfig, listSlackDirectoryPeersFromConfig, listTelegramAccountIds, listTelegramDirectoryGroupsFromConfig, listTelegramDirectoryPeersFromConfig, listWhatsAppAccountIds, listWhatsAppDirectoryGroupsFromConfig, listWhatsAppDirectoryPeersFromConfig, loadWebMedia, logAckFailure, logInboundDrop, logTypingFailure, looksLikeDiscordTargetId, looksLikeIMessageTargetId, looksLikeSignalTargetId, looksLikeSlackTargetId, looksLikeTelegramTargetId, looksLikeWhatsAppTargetId, mergeAllowlist, migrateBaseNameToDefaultAccount, missingTargetError, normalizeAccountId, normalizeAllowFrom, normalizeChannelSlug, normalizeDiscordMessagingTarget, normalizeE164, normalizeIMessageMessagingTarget, normalizeAccountId$1 as normalizeLineAccountId, normalizePluginHttpPath, normalizeSignalMessagingTarget, normalizeSlackMessagingTarget, normalizeTelegramMessagingTarget, normalizeWhatsAppMessagingTarget, normalizeWhatsAppTarget, onDiagnosticEvent, optionalStringEnum, processLineMessage, promptAccountId, promptChannelAccessConfig, readNumberParam, readReactionParams, readStringParam, recordInboundSession, recordPendingHistoryEntry, recordPendingHistoryEntryIfEnabled, registerLogTransport, registerPluginHttpRoute, removeAckReactionAfterReply, requireOpenAllowFrom, resolveAckReaction, resolveBlueBubblesGroupRequireMention, resolveBlueBubblesGroupToolPolicy, resolveChannelEntryMatch, resolveChannelEntryMatchWithFallback, resolveChannelMediaMaxBytes, resolveControlCommandGate, resolveDefaultDiscordAccountId, resolveDefaultIMessageAccountId, resolveDefaultLineAccountId, resolveDefaultSignalAccountId, resolveDefaultSlackAccountId, resolveDefaultTelegramAccountId, resolveDefaultWhatsAppAccountId, resolveDiscordAccount, resolveDiscordGroupRequireMention, resolveDiscordGroupToolPolicy, resolveGoogleChatGroupRequireMention, resolveGoogleChatGroupToolPolicy, resolveIMessageAccount, resolveIMessageGroupRequireMention, resolveIMessageGroupToolPolicy, resolveLineAccount, resolveMentionGating, resolveMentionGatingWithBypass, resolveNestedAllowlistDecision, resolveSignalAccount, resolveSlackAccount, resolveSlackGroupRequireMention, resolveSlackGroupToolPolicy, resolveSlackReplyToMode, resolveTelegramAccount, resolveTelegramGroupRequireMention, resolveTelegramGroupToolPolicy, resolveToolsBySender, resolveWhatsAppAccount, resolveWhatsAppGroupRequireMention, resolveWhatsAppGroupToolPolicy, resolveWhatsAppHeartbeatRecipients, setAccountEnabledInConfigSection, shouldAckReaction, shouldAckReactionForWhatsApp, signalOnboardingAdapter, slackOnboardingAdapter, stringEnum, stripMarkdown, summarizeMapping, __exportAll as t, telegramOnboardingAdapter, toLocationContext, whatsappOnboardingAdapter };
+export { BLUEBUBBLES_ACTIONS, BLUEBUBBLES_ACTION_NAMES, BLUEBUBBLES_GROUP_ACTIONS, BlockStreamingCoalesceSchema, CHANNEL_MESSAGE_ACTION_NAMES, DEFAULT_ACCOUNT_ID, DEFAULT_GROUP_HISTORY_LIMIT, DiscordConfigSchema, DmConfigSchema, DmPolicySchema, GoogleChatConfigSchema, GroupPolicySchema, IMessageConfigSchema, LineConfigSchema, MSTeamsConfigSchema, MarkdownConfigSchema, MarkdownTableModeSchema, PAIRING_APPROVED_MESSAGE, SILENT_REPLY_TOKEN, SignalConfigSchema, SlackConfigSchema, TelegramConfigSchema, ToolPolicySchema, WhatsAppConfigSchema, addWildcardAllowFrom, applyAccountNameToChannelSection, approveDevicePairing, buildChannelConfigSchema, buildChannelKeyCandidates, buildPendingHistoryContextFromMap, buildSlackThreadingToolContext, clamp, clearHistoryEntries, clearHistoryEntriesIfEnabled, collectBlueBubblesStatusIssues, collectDiscordAuditChannelIds, collectDiscordStatusIssues, collectTelegramStatusIssues, collectWhatsAppStatusIssues, createActionCard, createActionGate, createImageCard, createInfoCard, createListCard, createReceiptCard, createReplyPrefixContext, createReplyPrefixOptions, createTypingCallbacks, deleteAccountFromConfigSection, detectMime, discordOnboardingAdapter, emitDiagnosticEvent, emptyPluginConfigSchema, escapeRegExp, extensionForMime, extractOriginalFilename, formatAllowlistMatchMeta, formatDocsLink, formatErrorMessage, formatLocationText, formatPairingApproveHint, getChatChannelMeta, getFileExtension, hasMarkdownToConvert, imessageOnboardingAdapter, isDiagnosticsEnabled, isSilentReplyText, isWhatsAppGroupJid, jsonResult, listDevicePairing, listDiscordAccountIds, listDiscordDirectoryGroupsFromConfig, listDiscordDirectoryPeersFromConfig, listEnabledSlackAccounts, listIMessageAccountIds, listLineAccountIds, listSignalAccountIds, listSlackAccountIds, listSlackDirectoryGroupsFromConfig, listSlackDirectoryPeersFromConfig, listTelegramAccountIds, listTelegramDirectoryGroupsFromConfig, listTelegramDirectoryPeersFromConfig, listWhatsAppAccountIds, listWhatsAppDirectoryGroupsFromConfig, listWhatsAppDirectoryPeersFromConfig, loadWebMedia, logAckFailure, logInboundDrop, logTypingFailure, looksLikeDiscordTargetId, looksLikeIMessageTargetId, looksLikeSignalTargetId, looksLikeSlackTargetId, looksLikeTelegramTargetId, looksLikeWhatsAppTargetId, mergeAllowlist, migrateBaseNameToDefaultAccount, missingTargetError, normalizeAccountId, normalizeAllowFrom, normalizeChannelSlug, normalizeDiscordMessagingTarget, normalizeE164, normalizeIMessageMessagingTarget, normalizeAccountId$1 as normalizeLineAccountId, normalizePluginHttpPath, normalizeSignalMessagingTarget, normalizeSlackMessagingTarget, normalizeTelegramMessagingTarget, normalizeWhatsAppMessagingTarget, normalizeWhatsAppTarget, onDiagnosticEvent, optionalStringEnum, processLineMessage, promptAccountId, promptChannelAccessConfig, readNumberParam, readReactionParams, readStringParam, recordInboundSession, recordPendingHistoryEntry, recordPendingHistoryEntryIfEnabled, registerLogTransport, registerPluginHttpRoute, rejectDevicePairing, removeAckReactionAfterReply, requireOpenAllowFrom, resolveAckReaction, resolveBlueBubblesGroupRequireMention, resolveBlueBubblesGroupToolPolicy, resolveChannelEntryMatch, resolveChannelEntryMatchWithFallback, resolveChannelMediaMaxBytes, resolveControlCommandGate, resolveDefaultDiscordAccountId, resolveDefaultIMessageAccountId, resolveDefaultLineAccountId, resolveDefaultSignalAccountId, resolveDefaultSlackAccountId, resolveDefaultTelegramAccountId, resolveDefaultWhatsAppAccountId, resolveDiscordAccount, resolveDiscordGroupRequireMention, resolveDiscordGroupToolPolicy, resolveGoogleChatGroupRequireMention, resolveGoogleChatGroupToolPolicy, resolveIMessageAccount, resolveIMessageGroupRequireMention, resolveIMessageGroupToolPolicy, resolveLineAccount, resolveMentionGating, resolveMentionGatingWithBypass, resolveNestedAllowlistDecision, resolveSignalAccount, resolveSlackAccount, resolveSlackGroupRequireMention, resolveSlackGroupToolPolicy, resolveSlackReplyToMode, resolveTelegramAccount, resolveTelegramGroupRequireMention, resolveTelegramGroupToolPolicy, resolveToolsBySender, resolveWhatsAppAccount, resolveWhatsAppGroupRequireMention, resolveWhatsAppGroupToolPolicy, resolveWhatsAppHeartbeatRecipients, safeParseJson, setAccountEnabledInConfigSection, shouldAckReaction, shouldAckReactionForWhatsApp, signalOnboardingAdapter, slackOnboardingAdapter, sleep, stringEnum, stripAnsi, stripMarkdown, summarizeMapping, __exportAll as t, telegramOnboardingAdapter, toLocationContext, whatsappOnboardingAdapter };

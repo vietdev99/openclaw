@@ -2,13 +2,15 @@ export { CHANNEL_MESSAGE_ACTION_NAMES } from "../channels/plugins/message-action
 export { BLUEBUBBLES_ACTIONS, BLUEBUBBLES_ACTION_NAMES, BLUEBUBBLES_GROUP_ACTIONS, } from "../channels/plugins/bluebubbles-actions.js";
 export type { ChannelAccountSnapshot, ChannelAccountState, ChannelAgentTool, ChannelAgentToolFactory, ChannelAuthAdapter, ChannelCapabilities, ChannelCommandAdapter, ChannelConfigAdapter, ChannelDirectoryAdapter, ChannelDirectoryEntry, ChannelDirectoryEntryKind, ChannelElevatedAdapter, ChannelGatewayAdapter, ChannelGatewayContext, ChannelGroupAdapter, ChannelGroupContext, ChannelHeartbeatAdapter, ChannelHeartbeatDeps, ChannelId, ChannelLogSink, ChannelLoginWithQrStartResult, ChannelLoginWithQrWaitResult, ChannelLogoutContext, ChannelLogoutResult, ChannelMentionAdapter, ChannelMessageActionAdapter, ChannelMessageActionContext, ChannelMessageActionName, ChannelMessagingAdapter, ChannelMeta, ChannelOutboundAdapter, ChannelOutboundContext, ChannelOutboundTargetMode, ChannelPairingAdapter, ChannelPollContext, ChannelPollResult, ChannelResolveKind, ChannelResolveResult, ChannelResolverAdapter, ChannelSecurityAdapter, ChannelSecurityContext, ChannelSecurityDmPolicy, ChannelSetupAdapter, ChannelSetupInput, ChannelStatusAdapter, ChannelStatusIssue, ChannelStreamingAdapter, ChannelThreadingAdapter, ChannelThreadingContext, ChannelThreadingToolContext, ChannelToolSend, } from "../channels/plugins/types.js";
 export type { ChannelConfigSchema, ChannelPlugin } from "../channels/plugins/types.plugin.js";
-export type { OpenClawPluginApi, OpenClawPluginService, OpenClawPluginServiceContext, } from "../plugins/types.js";
+export type { AnyAgentTool, OpenClawPluginApi, OpenClawPluginService, OpenClawPluginServiceContext, ProviderAuthContext, ProviderAuthResult, } from "../plugins/types.js";
 export type { GatewayRequestHandler, GatewayRequestHandlerOptions, RespondFn, } from "../gateway/server-methods/types.js";
-export type { PluginRuntime } from "../plugins/runtime/types.js";
+export type { PluginRuntime, RuntimeLogger } from "../plugins/runtime/types.js";
 export { normalizePluginHttpPath } from "../plugins/http-path.js";
 export { registerPluginHttpRoute } from "../plugins/http-registry.js";
 export { emptyPluginConfigSchema } from "../plugins/config-schema.js";
 export type { OpenClawConfig } from "../config/config.js";
+/** @deprecated Use OpenClawConfig instead */
+export type { OpenClawConfig as ClawdbotConfig } from "../config/config.js";
 export type { ChannelDock } from "../channels/dock.js";
 export { getChatChannelMeta } from "../channels/registry.js";
 export type { BlockStreamingCoalesceConfig, DmPolicy, DmConfig, GroupPolicy, GroupToolPolicyConfig, GroupToolPolicyBySenderConfig, MarkdownConfig, MarkdownTableMode, GoogleChatAccountConfig, GoogleChatConfig, GoogleChatDmConfig, GoogleChatGroupConfig, GoogleChatActionConfig, MSTeamsChannelConfig, MSTeamsConfig, MSTeamsReplyStyle, MSTeamsTeamConfig, } from "../config/types.js";
@@ -19,10 +21,15 @@ export { ToolPolicySchema } from "../config/zod-schema.agent-runtime.js";
 export type { RuntimeEnv } from "../runtime.js";
 export type { WizardPrompter } from "../wizard/prompts.js";
 export { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../routing/session-key.js";
+export type { ChatType } from "../channels/chat-type.js";
+/** @deprecated Use ChatType instead */
+export type { RoutePeerKind } from "../routing/resolve-route.js";
 export { resolveAckReaction } from "../agents/identity.js";
 export type { ReplyPayload } from "../auto-reply/types.js";
 export type { ChunkMode } from "../auto-reply/chunk.js";
 export { SILENT_REPLY_TOKEN, isSilentReplyText } from "../auto-reply/tokens.js";
+export { approveDevicePairing, listDevicePairing, rejectDevicePairing, } from "../infra/device-pairing.js";
+export { formatErrorMessage } from "../infra/errors.js";
 export { resolveToolsBySender } from "../config/group-policy.js";
 export { buildPendingHistoryContextFromMap, clearHistoryEntries, clearHistoryEntriesIfEnabled, DEFAULT_GROUP_HISTORY_LIMIT, recordPendingHistoryEntry, recordPendingHistoryEntryIfEnabled, } from "../auto-reply/reply/history.js";
 export type { HistoryEntry } from "../auto-reply/reply/history.js";
@@ -56,7 +63,8 @@ export { promptChannelAccessConfig } from "../channels/plugins/onboarding/channe
 export { createActionGate, jsonResult, readNumberParam, readReactionParams, readStringParam, } from "../agents/tools/common.js";
 export { formatDocsLink } from "../terminal/links.js";
 export type { HookEntry } from "../hooks/types.js";
-export { normalizeE164 } from "../utils.js";
+export { clamp, escapeRegExp, normalizeE164, safeParseJson, sleep } from "../utils.js";
+export { stripAnsi } from "../terminal/ansi.js";
 export { missingTargetError } from "../infra/outbound/target-errors.js";
 export { registerLogTransport } from "../logging/logger.js";
 export type { LogTransport, LogTransportRecord } from "../logging/logger.js";

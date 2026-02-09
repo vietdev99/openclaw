@@ -38,6 +38,7 @@ export declare function buildAgentSystemPrompt(params: {
         node?: string;
         model?: string;
         defaultModel?: string;
+        shell?: string;
         channel?: string;
         capabilities?: string[];
         repoRoot?: string;
@@ -71,5 +72,6 @@ export declare function buildRuntimeLine(runtimeInfo?: {
     node?: string;
     model?: string;
     defaultModel?: string;
+    shell?: string;
     repoRoot?: string;
 }, runtimeChannel?: string, runtimeCapabilities?: string[], defaultThinkLevel?: ThinkLevel): string;

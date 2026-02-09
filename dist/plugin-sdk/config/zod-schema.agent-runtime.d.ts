@@ -64,7 +64,7 @@ export declare const ToolPolicySchema: z.ZodOptional<z.ZodObject<{
 }, z.core.$strict>>;
 export declare const ToolsWebSearchSchema: z.ZodOptional<z.ZodObject<{
     enabled: z.ZodOptional<z.ZodBoolean>;
-    provider: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"brave">, z.ZodLiteral<"perplexity">]>>;
+    provider: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"brave">, z.ZodLiteral<"perplexity">, z.ZodLiteral<"grok">]>>;
     apiKey: z.ZodOptional<z.ZodString>;
     maxResults: z.ZodOptional<z.ZodNumber>;
     timeoutSeconds: z.ZodOptional<z.ZodNumber>;
@@ -73,6 +73,11 @@ export declare const ToolsWebSearchSchema: z.ZodOptional<z.ZodObject<{
         apiKey: z.ZodOptional<z.ZodString>;
         baseUrl: z.ZodOptional<z.ZodString>;
         model: z.ZodOptional<z.ZodString>;
+    }, z.core.$strict>>;
+    grok: z.ZodOptional<z.ZodObject<{
+        apiKey: z.ZodOptional<z.ZodString>;
+        model: z.ZodOptional<z.ZodString>;
+        inlineCitations: z.ZodOptional<z.ZodBoolean>;
     }, z.core.$strict>>;
 }, z.core.$strict>>;
 export declare const ToolsWebFetchSchema: z.ZodOptional<z.ZodObject<{
@@ -87,7 +92,7 @@ export declare const ToolsWebFetchSchema: z.ZodOptional<z.ZodObject<{
 export declare const ToolsWebSchema: z.ZodOptional<z.ZodObject<{
     search: z.ZodOptional<z.ZodObject<{
         enabled: z.ZodOptional<z.ZodBoolean>;
-        provider: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"brave">, z.ZodLiteral<"perplexity">]>>;
+        provider: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"brave">, z.ZodLiteral<"perplexity">, z.ZodLiteral<"grok">]>>;
         apiKey: z.ZodOptional<z.ZodString>;
         maxResults: z.ZodOptional<z.ZodNumber>;
         timeoutSeconds: z.ZodOptional<z.ZodNumber>;
@@ -96,6 +101,11 @@ export declare const ToolsWebSchema: z.ZodOptional<z.ZodObject<{
             apiKey: z.ZodOptional<z.ZodString>;
             baseUrl: z.ZodOptional<z.ZodString>;
             model: z.ZodOptional<z.ZodString>;
+        }, z.core.$strict>>;
+        grok: z.ZodOptional<z.ZodObject<{
+            apiKey: z.ZodOptional<z.ZodString>;
+            model: z.ZodOptional<z.ZodString>;
+            inlineCitations: z.ZodOptional<z.ZodBoolean>;
         }, z.core.$strict>>;
     }, z.core.$strict>>;
     fetch: z.ZodOptional<z.ZodObject<{
@@ -517,7 +527,7 @@ export declare const ToolsSchema: z.ZodOptional<z.ZodObject<{
     web: z.ZodOptional<z.ZodObject<{
         search: z.ZodOptional<z.ZodObject<{
             enabled: z.ZodOptional<z.ZodBoolean>;
-            provider: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"brave">, z.ZodLiteral<"perplexity">]>>;
+            provider: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"brave">, z.ZodLiteral<"perplexity">, z.ZodLiteral<"grok">]>>;
             apiKey: z.ZodOptional<z.ZodString>;
             maxResults: z.ZodOptional<z.ZodNumber>;
             timeoutSeconds: z.ZodOptional<z.ZodNumber>;
@@ -526,6 +536,11 @@ export declare const ToolsSchema: z.ZodOptional<z.ZodObject<{
                 apiKey: z.ZodOptional<z.ZodString>;
                 baseUrl: z.ZodOptional<z.ZodString>;
                 model: z.ZodOptional<z.ZodString>;
+            }, z.core.$strict>>;
+            grok: z.ZodOptional<z.ZodObject<{
+                apiKey: z.ZodOptional<z.ZodString>;
+                model: z.ZodOptional<z.ZodString>;
+                inlineCitations: z.ZodOptional<z.ZodBoolean>;
             }, z.core.$strict>>;
         }, z.core.$strict>>;
         fetch: z.ZodOptional<z.ZodObject<{
@@ -572,7 +587,7 @@ export declare const ToolsSchema: z.ZodOptional<z.ZodObject<{
                     action: z.ZodUnion<readonly [z.ZodLiteral<"allow">, z.ZodLiteral<"deny">]>;
                     match: z.ZodOptional<z.ZodObject<{
                         channel: z.ZodOptional<z.ZodString>;
-                        chatType: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"direct">, z.ZodLiteral<"group">, z.ZodLiteral<"channel">]>>;
+                        chatType: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"direct">, z.ZodLiteral<"group">, z.ZodLiteral<"channel">, z.ZodLiteral<"dm">]>>;
                         keyPrefix: z.ZodOptional<z.ZodString>;
                     }, z.core.$strict>>;
                 }, z.core.$strict>>>;
@@ -628,7 +643,7 @@ export declare const ToolsSchema: z.ZodOptional<z.ZodObject<{
                     action: z.ZodUnion<readonly [z.ZodLiteral<"allow">, z.ZodLiteral<"deny">]>;
                     match: z.ZodOptional<z.ZodObject<{
                         channel: z.ZodOptional<z.ZodString>;
-                        chatType: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"direct">, z.ZodLiteral<"group">, z.ZodLiteral<"channel">]>>;
+                        chatType: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"direct">, z.ZodLiteral<"group">, z.ZodLiteral<"channel">, z.ZodLiteral<"dm">]>>;
                         keyPrefix: z.ZodOptional<z.ZodString>;
                     }, z.core.$strict>>;
                 }, z.core.$strict>>>;
@@ -684,7 +699,7 @@ export declare const ToolsSchema: z.ZodOptional<z.ZodObject<{
                     action: z.ZodUnion<readonly [z.ZodLiteral<"allow">, z.ZodLiteral<"deny">]>;
                     match: z.ZodOptional<z.ZodObject<{
                         channel: z.ZodOptional<z.ZodString>;
-                        chatType: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"direct">, z.ZodLiteral<"group">, z.ZodLiteral<"channel">]>>;
+                        chatType: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"direct">, z.ZodLiteral<"group">, z.ZodLiteral<"channel">, z.ZodLiteral<"dm">]>>;
                         keyPrefix: z.ZodOptional<z.ZodString>;
                     }, z.core.$strict>>;
                 }, z.core.$strict>>>;
@@ -740,7 +755,7 @@ export declare const ToolsSchema: z.ZodOptional<z.ZodObject<{
                 action: z.ZodUnion<readonly [z.ZodLiteral<"allow">, z.ZodLiteral<"deny">]>;
                 match: z.ZodOptional<z.ZodObject<{
                     channel: z.ZodOptional<z.ZodString>;
-                    chatType: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"direct">, z.ZodLiteral<"group">, z.ZodLiteral<"channel">]>>;
+                    chatType: z.ZodOptional<z.ZodUnion<readonly [z.ZodLiteral<"direct">, z.ZodLiteral<"group">, z.ZodLiteral<"channel">, z.ZodLiteral<"dm">]>>;
                     keyPrefix: z.ZodOptional<z.ZodString>;
                 }, z.core.$strict>>;
             }, z.core.$strict>>>;

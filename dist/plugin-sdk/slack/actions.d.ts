@@ -46,8 +46,8 @@ export declare function readSlackMessages(channelId: string, opts?: SlackActionC
     messages: SlackMessageSummary[];
     hasMore: boolean;
 }>;
-export declare function getSlackMemberInfo(userId: string, opts?: SlackActionClientOpts): Promise<import("@slack/web-api").UsersInfoResponse>;
-export declare function listSlackEmojis(opts?: SlackActionClientOpts): Promise<import("@slack/web-api").EmojiListResponse>;
+export declare function getSlackMemberInfo(userId: string, opts?: SlackActionClientOpts): Promise<import("node_modules/@slack/web-api/dist/index.js").UsersInfoResponse>;
+export declare function listSlackEmojis(opts?: SlackActionClientOpts): Promise<import("node_modules/@slack/web-api/dist/index.js").EmojiListResponse>;
 export declare function pinSlackMessage(channelId: string, messageId: string, opts?: SlackActionClientOpts): Promise<void>;
 export declare function unpinSlackMessage(channelId: string, messageId: string, opts?: SlackActionClientOpts): Promise<void>;
 export declare function listSlackPins(channelId: string, opts?: SlackActionClientOpts): Promise<SlackPin[]>;

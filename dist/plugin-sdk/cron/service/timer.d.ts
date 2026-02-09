@@ -8,7 +8,7 @@ export declare function runDueJobs(state: CronServiceState): Promise<void>;
  * Execute a job. This version is used by the `run` command and other
  * places that need the full execution with state updates.
  */
-export declare function executeJob(state: CronServiceState, job: CronJob, nowMs: number, opts: {
+export declare function executeJob(state: CronServiceState, job: CronJob, _nowMs: number, _opts: {
     forced: boolean;
 }): Promise<void>;
 export declare function wake(state: CronServiceState, opts: {

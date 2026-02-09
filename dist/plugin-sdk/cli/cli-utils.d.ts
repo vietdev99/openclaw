@@ -1,9 +1,10 @@
 import type { Command } from "commander";
+import { formatErrorMessage } from "../infra/errors.js";
+export { formatErrorMessage };
 export type ManagerLookupResult<T> = {
     manager: T | null;
     error?: string;
 };
-export declare function formatErrorMessage(err: unknown): string;
 export declare function withManager<T>(params: {
     getManager: () => Promise<ManagerLookupResult<T>>;
     onMissing: (error?: string) => void;

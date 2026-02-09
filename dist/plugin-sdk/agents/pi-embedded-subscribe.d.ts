@@ -16,5 +16,13 @@ export declare function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSe
         meta?: string;
         error?: string;
     } | undefined;
+    getUsageTotals: () => {
+        input: number | undefined;
+        output: number | undefined;
+        cacheRead: number | undefined;
+        cacheWrite: number | undefined;
+        total: number | undefined;
+    } | undefined;
+    getCompactionCount: () => number;
     waitForCompactionRetry: () => Promise<void>;
 };

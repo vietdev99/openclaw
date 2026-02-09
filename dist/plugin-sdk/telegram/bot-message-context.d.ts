@@ -104,7 +104,7 @@ export declare const buildTelegramMessageContext: ({ primaryCtx, allMedia, store
         CommandAuthorized: boolean;
     };
     primaryCtx: TelegramContext;
-    msg: import("@grammyjs/types").Message;
+    msg: import("node_modules/@grammyjs/types/message.js").Message;
     chatId: number;
     isGroup: boolean;
     resolvedThreadId: number | undefined;

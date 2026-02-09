@@ -10,6 +10,49 @@ import { Logger } from "tslog";
 import JSON5 from "json5";
 import util from "node:util";
 
+//#region src/infra/home-dir.ts
+function normalize(value) {
+	const trimmed = value?.trim();
+	return trimmed ? trimmed : void 0;
+}
+function resolveEffectiveHomeDir(env = process.env, homedir = os.homedir) {
+	const raw = resolveRawHomeDir(env, homedir);
+	return raw ? path.resolve(raw) : void 0;
+}
+function resolveRawHomeDir(env, homedir) {
+	const explicitHome = normalize(env.OPENCLAW_HOME);
+	if (explicitHome) {
+		if (explicitHome === "~" || explicitHome.startsWith("~/") || explicitHome.startsWith("~\\")) {
+			const fallbackHome = normalize(env.HOME) ?? normalize(env.USERPROFILE) ?? normalizeSafe(homedir);
+			if (fallbackHome) return explicitHome.replace(/^~(?=$|[\\/])/, fallbackHome);
+			return;
+		}
+		return explicitHome;
+	}
+	const envHome = normalize(env.HOME);
+	if (envHome) return envHome;
+	const userProfile = normalize(env.USERPROFILE);
+	if (userProfile) return userProfile;
+	return normalizeSafe(homedir);
+}
+function normalizeSafe(homedir) {
+	try {
+		return normalize(homedir());
+	} catch {
+		return;
+	}
+}
+function resolveRequiredHomeDir(env = process.env, homedir = os.homedir) {
+	return resolveEffectiveHomeDir(env, homedir) ?? path.resolve(process.cwd());
+}
+function expandHomePrefix(input, opts) {
+	if (!input.startsWith("~")) return input;
+	const home = normalize(opts?.home) ?? resolveEffectiveHomeDir(opts?.env ?? process.env, opts?.homedir ?? os.homedir);
+	if (!home) return input;
+	return input.replace(/^~(?=$|[\\/])/, home);
+}
+
+//#endregion
 //#region src/cli/profile-utils.ts
 const PROFILE_NAME_RE = /^[a-z0-9][a-z0-9_-]{0,63}$/i;
 function isValidProfileName(value) {
@@ -98,9 +141,9 @@ function parseCliProfileArgs(argv) {
 		argv: out
 	};
 }
-function resolveProfileStateDir(profile, homedir) {
+function resolveProfileStateDir(profile, env, homedir) {
 	const suffix = profile.toLowerCase() === "default" ? "" : `-${profile}`;
-	return path.join(homedir(), `.openclaw${suffix}`);
+	return path.join(resolveRequiredHomeDir(env, homedir), `.openclaw${suffix}`);
 }
 function applyCliProfileEnv(params) {
 	const env = params.env ?? process.env;
@@ -108,7 +151,7 @@ function applyCliProfileEnv(params) {
 	const profile = params.profile.trim();
 	if (!profile) return;
 	env.OPENCLAW_PROFILE = profile;
-	const stateDir = env.OPENCLAW_STATE_DIR?.trim() || resolveProfileStateDir(profile, homedir);
+	const stateDir = env.OPENCLAW_STATE_DIR?.trim() || resolveProfileStateDir(profile, env, homedir);
 	if (!env.OPENCLAW_STATE_DIR?.trim()) env.OPENCLAW_STATE_DIR = stateDir;
 	if (!env.OPENCLAW_CONFIG_PATH?.trim()) env.OPENCLAW_CONFIG_PATH = path.join(stateDir, "openclaw.json");
 	if (profile === "dev" && !env.OPENCLAW_GATEWAY_PORT?.trim()) env.OPENCLAW_GATEWAY_PORT = "19001";
@@ -308,16 +351,23 @@ const LEGACY_CONFIG_FILENAMES = [
 	"moltbot.json",
 	"moldbot.json"
 ];
-function legacyStateDirs(homedir = os.homedir) {
+function resolveDefaultHomeDir() {
+	return resolveRequiredHomeDir(process.env, os.homedir);
+}
+/** Build a homedir thunk that respects OPENCLAW_HOME for the given env. */
+function envHomedir(env) {
+	return () => resolveRequiredHomeDir(env, os.homedir);
+}
+function legacyStateDirs(homedir = resolveDefaultHomeDir) {
 	return LEGACY_STATE_DIRNAMES.map((dir) => path.join(homedir(), dir));
 }
-function newStateDir(homedir = os.homedir) {
+function newStateDir(homedir = resolveDefaultHomeDir) {
 	return path.join(homedir(), NEW_STATE_DIRNAME);
 }
-function resolveLegacyStateDirs(homedir = os.homedir) {
+function resolveLegacyStateDirs(homedir = resolveDefaultHomeDir) {
 	return legacyStateDirs(homedir);
 }
-function resolveNewStateDir(homedir = os.homedir) {
+function resolveNewStateDir(homedir = resolveDefaultHomeDir) {
 	return newStateDir(homedir);
 }
 /**
@@ -325,11 +375,12 @@ function resolveNewStateDir(homedir = os.homedir) {
 * Can be overridden via OPENCLAW_STATE_DIR.
 * Default: ~/.openclaw
 */
-function resolveStateDir(env = process.env, homedir = os.homedir) {
+function resolveStateDir(env = process.env, homedir = envHomedir(env)) {
+	const effectiveHomedir = () => resolveRequiredHomeDir(env, homedir);
 	const override = env.OPENCLAW_STATE_DIR?.trim() || env.CLAWDBOT_STATE_DIR?.trim();
-	if (override) return resolveUserPath(override);
-	const newDir = newStateDir(homedir);
-	const legacyDirs = legacyStateDirs(homedir);
+	if (override) return resolveUserPath(override, env, effectiveHomedir);
+	const newDir = newStateDir(effectiveHomedir);
+	const legacyDirs = legacyStateDirs(effectiveHomedir);
 	if (fs.existsSync(newDir)) return newDir;
 	const existingLegacy = legacyDirs.find((dir) => {
 		try {
@@ -341,11 +392,15 @@ function resolveStateDir(env = process.env, homedir = os.homedir) {
 	if (existingLegacy) return existingLegacy;
 	return newDir;
 }
-function resolveUserPath(input) {
+function resolveUserPath(input, env = process.env, homedir = envHomedir(env)) {
 	const trimmed = input.trim();
 	if (!trimmed) return trimmed;
 	if (trimmed.startsWith("~")) {
-		const expanded = trimmed.replace(/^~(?=$|[\\/])/, os.homedir());
+		const expanded = expandHomePrefix(trimmed, {
+			home: resolveRequiredHomeDir(env, homedir),
+			env,
+			homedir
+		});
 		return path.resolve(expanded);
 	}
 	return path.resolve(trimmed);
@@ -356,16 +411,16 @@ const STATE_DIR = resolveStateDir();
 * Can be overridden via OPENCLAW_CONFIG_PATH.
 * Default: ~/.openclaw/openclaw.json (or $OPENCLAW_STATE_DIR/openclaw.json)
 */
-function resolveCanonicalConfigPath(env = process.env, stateDir = resolveStateDir(env, os.homedir)) {
+function resolveCanonicalConfigPath(env = process.env, stateDir = resolveStateDir(env, envHomedir(env))) {
 	const override = env.OPENCLAW_CONFIG_PATH?.trim() || env.CLAWDBOT_CONFIG_PATH?.trim();
-	if (override) return resolveUserPath(override);
+	if (override) return resolveUserPath(override, env, envHomedir(env));
 	return path.join(stateDir, CONFIG_FILENAME);
 }
 /**
 * Resolve the active config path by preferring existing config candidates
 * before falling back to the canonical path.
 */
-function resolveConfigPathCandidate(env = process.env, homedir = os.homedir) {
+function resolveConfigPathCandidate(env = process.env, homedir = envHomedir(env)) {
 	const existing = resolveDefaultConfigCandidates(env, homedir).find((candidate) => {
 		try {
 			return fs.existsSync(candidate);
@@ -379,9 +434,9 @@ function resolveConfigPathCandidate(env = process.env, homedir = os.homedir) {
 /**
 * Active config path (prefers existing config files).
 */
-function resolveConfigPath(env = process.env, stateDir = resolveStateDir(env, os.homedir), homedir = os.homedir) {
+function resolveConfigPath(env = process.env, stateDir = resolveStateDir(env, envHomedir(env)), homedir = envHomedir(env)) {
 	const override = env.OPENCLAW_CONFIG_PATH?.trim();
-	if (override) return resolveUserPath(override);
+	if (override) return resolveUserPath(override, env, homedir);
 	const stateOverride = env.OPENCLAW_STATE_DIR?.trim();
 	const existing = [path.join(stateDir, CONFIG_FILENAME), ...LEGACY_CONFIG_FILENAMES.map((name) => path.join(stateDir, name))].find((candidate) => {
 		try {
@@ -401,17 +456,18 @@ const CONFIG_PATH = resolveConfigPathCandidate();
 * Resolve default config path candidates across default locations.
 * Order: explicit config path → state-dir-derived paths → new default.
 */
-function resolveDefaultConfigCandidates(env = process.env, homedir = os.homedir) {
+function resolveDefaultConfigCandidates(env = process.env, homedir = envHomedir(env)) {
+	const effectiveHomedir = () => resolveRequiredHomeDir(env, homedir);
 	const explicit = env.OPENCLAW_CONFIG_PATH?.trim() || env.CLAWDBOT_CONFIG_PATH?.trim();
-	if (explicit) return [resolveUserPath(explicit)];
+	if (explicit) return [resolveUserPath(explicit, env, effectiveHomedir)];
 	const candidates = [];
 	const openclawStateDir = env.OPENCLAW_STATE_DIR?.trim() || env.CLAWDBOT_STATE_DIR?.trim();
 	if (openclawStateDir) {
-		const resolved = resolveUserPath(openclawStateDir);
+		const resolved = resolveUserPath(openclawStateDir, env, effectiveHomedir);
 		candidates.push(path.join(resolved, CONFIG_FILENAME));
 		candidates.push(...LEGACY_CONFIG_FILENAMES.map((name) => path.join(resolved, name)));
 	}
-	const defaultDirs = [newStateDir(homedir), ...legacyStateDirs(homedir)];
+	const defaultDirs = [newStateDir(effectiveHomedir), ...legacyStateDirs(effectiveHomedir)];
 	for (const dir of defaultDirs) {
 		candidates.push(path.join(dir, CONFIG_FILENAME));
 		candidates.push(...LEGACY_CONFIG_FILENAMES.map((name) => path.join(dir, name)));
@@ -437,12 +493,12 @@ const OAUTH_FILENAME = "oauth.json";
 * - `OPENCLAW_OAUTH_DIR` (explicit override)
 * - `$*_STATE_DIR/credentials` (canonical server/default)
 */
-function resolveOAuthDir(env = process.env, stateDir = resolveStateDir(env, os.homedir)) {
+function resolveOAuthDir(env = process.env, stateDir = resolveStateDir(env, envHomedir(env))) {
 	const override = env.OPENCLAW_OAUTH_DIR?.trim();
-	if (override) return resolveUserPath(override);
+	if (override) return resolveUserPath(override, env, envHomedir(env));
 	return path.join(stateDir, "credentials");
 }
-function resolveOAuthPath(env = process.env, stateDir = resolveStateDir(env, os.homedir)) {
+function resolveOAuthPath(env = process.env, stateDir = resolveStateDir(env, envHomedir(env))) {
 	return path.join(resolveOAuthDir(env, stateDir), OAUTH_FILENAME);
 }
 function resolveGatewayPort(cfg, env = process.env) {
@@ -1167,7 +1223,7 @@ function normalizeEnv() {
 }
 
 //#endregion
-//#region src/infra/warnings.ts
+//#region src/infra/warning-filter.ts
 const warningFilterKey = Symbol.for("openclaw.warning-filter");
 function shouldIgnoreWarning(warning) {
 	if (warning.code === "DEP0040" && warning.message?.includes("punycode")) return true;
@@ -1175,14 +1231,42 @@ function shouldIgnoreWarning(warning) {
 	if (warning.name === "ExperimentalWarning" && warning.message?.includes("SQLite is an experimental feature")) return true;
 	return false;
 }
+function normalizeWarningArgs(args) {
+	const warningArg = args[0];
+	const secondArg = args[1];
+	const thirdArg = args[2];
+	let name;
+	let code;
+	let message;
+	if (warningArg instanceof Error) {
+		name = warningArg.name;
+		message = warningArg.message;
+		code = warningArg.code;
+	} else if (typeof warningArg === "string") message = warningArg;
+	if (secondArg && typeof secondArg === "object" && !Array.isArray(secondArg)) {
+		const options = secondArg;
+		if (typeof options.type === "string") name = options.type;
+		if (typeof options.code === "string") code = options.code;
+	} else {
+		if (typeof secondArg === "string") name = secondArg;
+		if (typeof thirdArg === "string") code = thirdArg;
+	}
+	return {
+		name,
+		code,
+		message
+	};
+}
 function installProcessWarningFilter() {
 	const globalState = globalThis;
 	if (globalState[warningFilterKey]?.installed) return;
-	globalState[warningFilterKey] = { installed: true };
-	process.on("warning", (warning) => {
-		if (shouldIgnoreWarning(warning)) return;
-		process.stderr.write(`${warning.stack ?? warning.toString()}\n`);
+	const originalEmitWarning = process.emitWarning.bind(process);
+	const wrappedEmitWarning = ((...args) => {
+		if (shouldIgnoreWarning(normalizeWarningArgs(args))) return;
+		return Reflect.apply(originalEmitWarning, process, args);
 	});
+	process.emitWarning = wrappedEmitWarning;
+	globalState[warningFilterKey] = { installed: true };
 }
 
 //#endregion
@@ -1320,11 +1404,11 @@ if (!ensureExperimentalWarningSuppressed()) {
 		applyCliProfileEnv({ profile: parsed.profile });
 		process$1.argv = parsed.argv;
 	}
-	import("./run-main-DFoGlQRD.js").then(({ runCli }) => runCli(process$1.argv)).catch((error) => {
+	import("./run-main-CQO1hvo7.js").then(({ runCli }) => runCli(process$1.argv)).catch((error) => {
 		console.error("[openclaw] Failed to start CLI:", error instanceof Error ? error.stack ?? error.message : error);
 		process$1.exitCode = 1;
 	});
 }
 
 //#endregion
-export { DEFAULT_CHAT_CHANNEL as $, getChildLogger as A, resolveConfigPath as B, setVerbose as C, colorize as D, warn as E, CONFIG_PATH as F, resolveIsNixMode as G, resolveDefaultConfigCandidates as H, DEFAULT_GATEWAY_PORT as I, resolveOAuthDir as J, resolveLegacyStateDirs as K, STATE_DIR as L, getResolvedLoggerSettings as M, toPinoLikeLogger as N, isRich as O, normalizeLogLevel as P, CHAT_CHANNEL_ORDER as Q, isNixMode as R, logVerboseConsole as S, success as T, resolveGatewayLockDir as U, resolveConfigPathCandidate as V, resolveGatewayPort as W, resolveStateDir as X, resolveOAuthPath as Y, CHANNEL_IDS as Z, unregisterActiveProgressLine as _, parseBooleanValue as a, normalizeChannelId as at, isVerbose as b, enableConsoleCapture as c, requireActivePluginRegistry as ct, shouldLogSubsystemToConsole as d, formatChannelPrimerLine as et, visibleWidth as f, registerActiveProgressLine as g, clearActiveProgressLine as h, normalizeEnv as i, normalizeAnyChannelId as it, getLogger as j, theme as k, setConsoleSubsystemFilter as l, setActivePluginRegistry as lt, restoreTerminalState as m, isTruthyEnvValue as n, getChatChannelMeta as nt, createSubsystemLogger as o, normalizeChatChannelId as ot, defaultRuntime as p, resolveNewStateDir as q, logAcceptedEnvOption as r, listChatChannels as rt, runtimeForLogger as s, getActivePluginRegistry as st, installProcessWarningFilter as t, formatChannelSelectionLine as tt, setConsoleTimestampPrefix as u, normalizeProfileName as ut, danger as v, shouldLogVerbose as w, logVerbose as x, info as y, resolveCanonicalConfigPath as z };
+export { DEFAULT_CHAT_CHANNEL as $, getChildLogger as A, resolveConfigPath as B, setVerbose as C, colorize as D, warn as E, CONFIG_PATH as F, resolveIsNixMode as G, resolveDefaultConfigCandidates as H, DEFAULT_GATEWAY_PORT as I, resolveOAuthDir as J, resolveLegacyStateDirs as K, STATE_DIR as L, getResolvedLoggerSettings as M, toPinoLikeLogger as N, isRich as O, normalizeLogLevel as P, CHAT_CHANNEL_ORDER as Q, isNixMode as R, logVerboseConsole as S, success as T, resolveGatewayLockDir as U, resolveConfigPathCandidate as V, resolveGatewayPort as W, resolveStateDir as X, resolveOAuthPath as Y, CHANNEL_IDS as Z, unregisterActiveProgressLine as _, parseBooleanValue as a, normalizeChannelId as at, isVerbose as b, enableConsoleCapture as c, requireActivePluginRegistry as ct, shouldLogSubsystemToConsole as d, expandHomePrefix as dt, formatChannelPrimerLine as et, visibleWidth as f, resolveEffectiveHomeDir as ft, registerActiveProgressLine as g, clearActiveProgressLine as h, normalizeEnv as i, normalizeAnyChannelId as it, getLogger as j, theme as k, setConsoleSubsystemFilter as l, setActivePluginRegistry as lt, restoreTerminalState as m, isTruthyEnvValue as n, getChatChannelMeta as nt, createSubsystemLogger as o, normalizeChatChannelId as ot, defaultRuntime as p, resolveRequiredHomeDir as pt, resolveNewStateDir as q, logAcceptedEnvOption as r, listChatChannels as rt, runtimeForLogger as s, getActivePluginRegistry as st, installProcessWarningFilter as t, formatChannelSelectionLine as tt, setConsoleTimestampPrefix as u, normalizeProfileName as ut, danger as v, shouldLogVerbose as w, logVerbose as x, info as y, resolveCanonicalConfigPath as z };

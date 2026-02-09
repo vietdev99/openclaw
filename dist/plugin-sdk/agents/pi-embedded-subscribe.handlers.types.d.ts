@@ -5,6 +5,7 @@ import type { InlineCodeState } from "../markdown/code-spans.js";
 import type { EmbeddedBlockChunker } from "./pi-embedded-block-chunker.js";
 import type { MessagingToolSend } from "./pi-embedded-messaging.js";
 import type { BlockReplyChunking, SubscribeEmbeddedPiSessionParams } from "./pi-embedded-subscribe.types.js";
+import type { NormalizedUsage } from "./usage.js";
 export type EmbeddedSubscribeLogger = {
     debug: (message: string) => void;
     warn: (message: string) => void;
@@ -98,6 +99,10 @@ export type EmbeddedPiSubscribeContext = {
     noteCompactionRetry: () => void;
     resolveCompactionRetry: () => void;
     maybeResolveCompactionWait: () => void;
+    recordAssistantUsage: (usage: unknown) => void;
+    incrementCompactionCount: () => void;
+    getUsageTotals: () => NormalizedUsage | undefined;
+    getCompactionCount: () => number;
 };
 export type EmbeddedPiSubscribeEvent = AgentEvent | {
     type: string;

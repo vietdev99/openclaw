@@ -33,3 +33,12 @@ export declare function derivePromptTokens(usage?: {
     cacheRead?: number;
     cacheWrite?: number;
 }): number | undefined;
+export declare function deriveSessionTotalTokens(params: {
+    usage?: {
+        input?: number;
+        total?: number;
+        cacheRead?: number;
+        cacheWrite?: number;
+    };
+    contextTokens?: number;
+}): number | undefined;

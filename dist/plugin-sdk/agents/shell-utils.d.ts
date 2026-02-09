@@ -8,5 +8,6 @@ export declare function getShellConfig(): {
  * This prevents wasting tokens on intermediate progress states.
  */
 export declare function collapseCarriageReturns(text: string): string;
+export declare function detectRuntimeShell(): string | undefined;
 export declare function sanitizeBinaryOutput(text: string): string;
 export declare function killProcessTree(pid: number): void;

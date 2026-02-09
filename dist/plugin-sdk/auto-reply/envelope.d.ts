@@ -29,7 +29,6 @@ export type EnvelopeFormatOptions = {
     userTimezone?: string;
 };
 export declare function resolveEnvelopeFormatOptions(cfg?: OpenClawConfig): EnvelopeFormatOptions;
-export declare function formatZonedTimestamp(date: Date, timeZone?: string): string | undefined;
 export declare function formatAgentEnvelope(params: AgentEnvelopeParams): string;
 export declare function formatInboundEnvelope(params: {
     channel: string;

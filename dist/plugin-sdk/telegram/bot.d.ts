@@ -37,7 +37,7 @@ export declare function getTelegramSequentialKey(ctx: {
         };
     };
 }): string;
-export declare function createTelegramBot(opts: TelegramBotOptions): Bot<import("grammy").Context, import("grammy").Api<import("grammy").RawApi>>;
+export declare function createTelegramBot(opts: TelegramBotOptions): Bot<import("node_modules/grammy/out/context.js").Context, import("node_modules/grammy/out/mod.js").Api<import("node_modules/grammy/out/mod.js").RawApi>>;
 export declare function createTelegramWebhookCallback(bot: Bot, path?: string): {
     path: string;
     handler: (req: {

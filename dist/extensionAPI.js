@@ -1,32 +1,32 @@
-import { a as resolveOAuthDir, i as resolveGatewayPort, n as resolveConfigPath, s as resolveStateDir, t as STATE_DIR } from "./paths-VslOJiD2.js";
-import { A as classifySessionKeyShape, B as resolveThreadParentSessionKey, D as buildAgentMainSessionKey, E as DEFAULT_MAIN_KEY, F as resolveThreadSessionKeys, I as sanitizeAgentId, L as isAcpSessionKey, M as normalizeAgentId, N as normalizeMainKey, O as buildAgentPeerSessionKey, P as resolveAgentIdFromSessionKey, R as isSubagentSessionKey, S as resolveOpenClawPackageRoot, T as DEFAULT_AGENT_ID, b as filterBootstrapFilesForSession, c as resolveDefaultAgentId, f as DEFAULT_AGENT_WORKSPACE_DIR, i as resolveAgentModelFallbacksOverride, j as normalizeAccountId$3, k as buildGroupHistoryKey, l as resolveSessionAgentId, n as resolveAgentConfig, o as resolveAgentSkillsFilter, p as DEFAULT_BOOTSTRAP_FILENAME, r as resolveAgentDir, s as resolveAgentWorkspaceDir, t as listAgentIds, u as resolveSessionAgentIds, w as DEFAULT_ACCOUNT_ID$1, x as loadWorkspaceBootstrapFiles, y as ensureAgentWorkspace, z as parseAgentSessionKey } from "./agent-scope-CfzZRWcV.js";
-import { A as normalizeE164, B as danger, C as CONFIG_DIR, D as formatTerminalLink, E as ensureDir$3, F as shortenHomePath, G as success, H as logVerbose, I as sleep, J as isRich, K as warn, L as sliceUtf16Safe, M as resolveJidToE164, N as resolveUserPath, O as isSelfChatMode, P as shortenHomeInString, Q as normalizeLogLevel, R as toWhatsappJid, S as setActivePluginRegistry, U as setVerbose, V as info, W as shouldLogVerbose, X as getChildLogger, Y as theme, _ as normalizeAnyChannelId, a as logDebug, b as getActivePluginRegistry, c as logWarn, d as clearActiveProgressLine, f as registerActiveProgressLine, h as CHAT_CHANNEL_ORDER, i as spawnWithFallback, k as jidToE164, l as createSubsystemLogger, n as runExec, o as logError, p as unregisterActiveProgressLine, q as colorize, r as formatSpawnError, s as logInfo, t as runCommandWithTimeout, u as defaultRuntime, v as normalizeChannelId, w as clampInt, x as requireActivePluginRegistry, z as truncateUtf16Safe } from "./exec-B7WKla_0.js";
-import { B as resolveOpenClawAgentDir, C as getShellPathFromLoginShell, F as resolveApiKeyForProfile, H as DEFAULT_CONTEXT_TOKENS, I as listProfilesForProvider, L as markAuthProfileGood, M as isProfileInCooldown, N as markAuthProfileFailure, O as isTruthyEnvValue, P as markAuthProfileUsed, R as ensureAuthProfileStore, S as resolveModelAuthMode, T as resolveShellEnvFallbackTimeoutMs, U as DEFAULT_MODEL, V as resolveAuthProfileDisplayLabel, W as DEFAULT_PROVIDER, _ as getApiKeyForModel, a as modelKey, b as resolveApiKeyForProvider, c as resolveConfiguredModelRef, d as resolveThinkingDefault, f as normalizeGoogleModelId, i as isCliProvider, j as resolveAuthProfileOrder, k as parseBooleanValue$1, l as resolveDefaultModelForAgent, n as buildConfiguredAllowlistKeys, o as normalizeProviderId, r as buildModelAliasIndex, t as buildAllowedModelSet, u as resolveModelRefFromString, v as getCustomProviderApiKey, x as resolveEnvApiKey, y as requireApiKey, z as resolveAuthStorePathForDisplay } from "./model-selection-BLfS3yxa.js";
-import { a as saveJsonFile, i as loadJsonFile } from "./github-copilot-token-CvUIKdKY.js";
+import { a as resolveOAuthDir, i as resolveGatewayPort, n as resolveConfigPath, s as resolveStateDir, t as STATE_DIR, u as resolveRequiredHomeDir } from "./paths-Cm9HE70I.js";
+import { A as classifySessionKeyShape, B as resolveThreadParentSessionKey, D as buildAgentMainSessionKey, E as DEFAULT_MAIN_KEY, F as resolveThreadSessionKeys, I as sanitizeAgentId, L as isAcpSessionKey, M as normalizeAgentId, N as normalizeMainKey, O as buildAgentPeerSessionKey, P as resolveAgentIdFromSessionKey, R as isSubagentSessionKey, S as resolveOpenClawPackageRoot, T as DEFAULT_AGENT_ID, b as filterBootstrapFilesForSession, c as resolveDefaultAgentId, f as DEFAULT_AGENT_WORKSPACE_DIR, i as resolveAgentModelFallbacksOverride, j as normalizeAccountId$3, k as buildGroupHistoryKey, l as resolveSessionAgentId, n as resolveAgentConfig, o as resolveAgentSkillsFilter, p as DEFAULT_BOOTSTRAP_FILENAME, r as resolveAgentDir, s as resolveAgentWorkspaceDir, t as listAgentIds, u as resolveSessionAgentIds, w as DEFAULT_ACCOUNT_ID$1, x as loadWorkspaceBootstrapFiles, y as ensureAgentWorkspace, z as parseAgentSessionKey } from "./agent-scope-B5CJZmrs.js";
+import { $ as getChildLogger, A as isSelfChatMode, B as sliceUtf16Safe, C as CONFIG_DIR, D as ensureDir$3, F as resolveUserPath, G as logVerbose, H as truncateUtf16Safe, I as safeParseJson, J as success, K as setVerbose, L as shortenHomeInString, M as normalizeE164, O as escapeRegExp, P as resolveJidToE164, Q as theme, R as shortenHomePath, S as setActivePluginRegistry, T as clampInt, U as danger, V as toWhatsappJid, W as info, X as colorize, Y as warn, Z as isRich, _ as normalizeAnyChannelId, a as logDebug, b as getActivePluginRegistry, c as logWarn, d as clearActiveProgressLine, f as registerActiveProgressLine, h as CHAT_CHANNEL_ORDER, i as spawnWithFallback, j as jidToE164, k as formatTerminalLink, l as createSubsystemLogger, n as runExec, o as logError, p as unregisterActiveProgressLine, q as shouldLogVerbose, r as formatSpawnError, s as logInfo, t as runCommandWithTimeout, tt as normalizeLogLevel, u as defaultRuntime, v as normalizeChannelId, w as clamp, x as requireActivePluginRegistry, z as sleep } from "./exec-DyHiZ9CN.js";
+import { B as resolveOpenClawAgentDir, C as getShellPathFromLoginShell, F as resolveApiKeyForProfile, G as DEFAULT_PROVIDER, H as resolveAuthProfileDisplayLabel, I as listProfilesForProvider, L as markAuthProfileGood, M as isProfileInCooldown, N as markAuthProfileFailure, O as isTruthyEnvValue, P as markAuthProfileUsed, R as ensureAuthProfileStore, S as resolveModelAuthMode, T as resolveShellEnvFallbackTimeoutMs, U as DEFAULT_CONTEXT_TOKENS, V as normalizeSecretInput, W as DEFAULT_MODEL, _ as getApiKeyForModel, a as modelKey, b as resolveApiKeyForProvider, c as resolveConfiguredModelRef, d as resolveThinkingDefault, f as normalizeGoogleModelId, i as isCliProvider, j as resolveAuthProfileOrder, k as parseBooleanValue$1, l as resolveDefaultModelForAgent, n as buildConfiguredAllowlistKeys, o as normalizeProviderId, r as buildModelAliasIndex, t as buildAllowedModelSet, u as resolveModelRefFromString, v as getCustomProviderApiKey, x as resolveEnvApiKey, y as requireApiKey, z as resolveAuthStorePathForDisplay } from "./model-selection-BrkGgGrY.js";
+import { a as saveJsonFile, i as loadJsonFile } from "./github-copilot-token-CuXqqyT-.js";
 import { n as resolveCliName, t as formatCliCommand } from "./command-format-SkzzRqR1.js";
-import { C as HEARTBEAT_TOKEN, S as parseInlineDirectives$1, T as isSilentReplyText, _ as buildTargetResolverSignature, a as applyReplyThreading, b as parseReplyDirectives, c as shouldSuppressMessagingToolReplies, d as sendMessageSignal, f as sendReadReceiptSignal, g as streamSignalEvents, h as signalRpcRequest, i as applyReplyTagsToPayload, l as createReplyToModeFilterForChannel, m as signalCheck, o as filterMessagingToolDuplicates, p as sendTypingSignal, r as normalizeReplyPayloadsForDelivery, s as isRenderablePayload, t as deliverOutboundPayloads, u as resolveReplyToMode, v as normalizeChannelTargetInput, w as SILENT_REPLY_TOKEN, x as splitMediaFromOutput, y as normalizeTargetForProvider } from "./deliver-DjFgGOkr.js";
-import { B as resolveTelegramToken, C as extensionForMime, D as isGifMedia, E as isAudioFileName, F as isWhatsAppGroupJid, G as resolveSlackBotToken, H as resolveSlackAccount, I as normalizeWhatsAppTarget, J as resolveDiscordAccount, K as normalizeChatType, L as listEnabledTelegramAccounts, M as getChannelPlugin, N as listChannelPlugins, O as kindFromMime, P as normalizeChannelId$1, R as listTelegramAccountIds, S as detectMime, T as imageMimeFromFormat, V as listBindings, W as resolveSlackAppToken, Y as normalizeDiscordToken, _ as resolveGatewayMessageChannel, a as resizeToJpeg, b as GATEWAY_CLIENT_MODES, d as INTERNAL_MESSAGE_CHANNEL, f as isDeliverableMessageChannel, g as normalizeMessageChannel, h as listDeliverableMessageChannels, j as mediaKindFromMime, k as MAX_IMAGE_BYTES, m as isMarkdownCapableMessageChannel, n as getImageMetadata, o as SsrFBlockedError, p as isInternalMessageChannel, q as listEnabledDiscordAccounts, v as resolveMessageChannel, w as getFileExtension, x as GATEWAY_CLIENT_NAMES, y as GATEWAY_CLIENT_IDS, z as resolveTelegramAccount } from "./image-ops-CHacgj65.js";
-import { A as getWebAuthAgeMs, C as getConfigValueAtPath, D as resolveAgentMaxConcurrent, E as unsetConfigValueAtPath, M as logoutWeb, O as VERSION, P as readWebSelfId, R as webAuthExists, S as unsetConfigOverride, T as setConfigValueAtPath, _ as resolveEnableState, a as validateConfigObjectWithPlugins, b as resetConfigOverrides, c as resolveTelegramCustomCommands, d as validateJsonSchemaValue, f as loadPluginManifestRegistry, g as normalizePluginsConfig, i as writeConfigFile, j as logWebSelfId, k as resolveWhatsAppAccount, l as isSafeExecutableValue, n as readConfigFileSnapshot, o as TELEGRAM_COMMAND_NAME_PATTERN, p as discoverOpenClawPlugins, r as resolveConfigSnapshotHash, s as normalizeTelegramCommandName, t as loadConfig, u as parseDurationMs, v as resolveMemorySlotDecision, w as parseConfigPath, x as setConfigOverride, y as getConfigOverrides } from "./config-DxG-_fT0.js";
-import { $ as updateSessionStoreEntry, A as isCloudCodeAssistFormatError, At as buildWorkspaceSkillCommandSpecs, B as parseImageSizeError, Bt as collectExplicitAllowlist, C as BILLING_ERROR_USER_MESSAGE, Ct as resolveGroupSessionKey, D as getApiErrorPayloadFingerprint, Dt as resolveProfile, E as formatRawAssistantErrorForUi, Et as resolveBrowserConfig, F as isLikelyContextOverflowError, Ft as applySkillEnvOverrides, G as appendAssistantMessageToSessionTranscript, Gt as stripPluginOnlyAllowlist, H as ensureSandboxWorkspaceForSession, Ht as expandToolGroups, I as isRateLimitAssistantError, It as applySkillEnvOverridesFromSnapshot, J as readSessionUpdatedAt, Jt as resolveBootstrapMaxChars, Kt as buildBootstrapContextFiles, L as isRawApiErrorPayload, Lt as resolveSandboxConfigForAgent, M as isContextOverflowError, Mt as loadWorkspaceSkillEntries, N as isFailoverAssistantError, Nt as resolveSkillsPromptForRun, O as isAuthAssistantError, Ot as getMediaDir, P as isFailoverErrorMessage, Pt as resolvePluginSkillDirs, Q as updateSessionStore, R as isTimeoutErrorMessage, Rt as applyOwnerOnlyToolPolicy, S as isGoogleModelApi, St as resolveConversationLabel, T as formatAssistantErrorText, Tt as registerBrowserRoutes, U as resolveSandboxContext, Ut as normalizeToolName, V as sanitizeUserFacingText, Vt as expandPolicyWithPluginGroups, W as resolveSandboxRuntimeStatus, Wt as resolveToolProfilePolicy, X as saveSessionStore, Xt as listEnabledSignalAccounts, Y as recordSessionMetaFromInbound, Yt as sanitizeGoogleTurnOrdering, Z as updateLastRoute, Zt as resolveSignalAccount, _ as sanitizeSessionMessagesImages, _t as listChannelDocks, a as formatXHighModelHint, at as normalizeDeliveryContext, b as downgradeOpenAIReasoningBlocks, bt as resolveChannelGroupToolsPolicy, c as normalizeReasoningLevel, ct as evaluateSessionFreshness, d as normalizeVerboseLevel, dt as resolveSessionResetType, et as isCacheEnabled, f as resolveResponseUsageMode, ft as resolveThreadFlag, g as normalizeTextForComparison, gt as getChannelDock, h as isMessagingToolDuplicateNormalized, ht as deriveSessionMetaPatch, i as formatThinkingLevels, it as mergeDeliveryContext, j as isCompactionFailureError, jt as buildWorkspaceSkillSnapshot, k as isBillingAssistantError, kt as saveMediaBuffer, l as normalizeThinkLevel, lt as resolveChannelResetConfig, mt as resolveMainSessionKey, n as validateGeminiTurns, nt as deliveryContextFromSession, o as listThinkingLevels, ot as normalizeSessionDeliveryFields, p as supportsXHighThinking, pt as DEFAULT_RESET_TRIGGERS, q as loadSessionStore, qt as ensureSessionHeader, r as pickFallbackThinkingLevel, rt as deliveryContextKey, s as normalizeElevatedLevel, st as resolveSessionKey$1, t as validateAnthropicTurns, tt as resolveCacheTtlMs$1, u as normalizeUsageDisplay, ut as resolveSessionResetPolicy, v as sanitizeImageBlocks, vt as resolveChannelGroupPolicy, w as classifyFailoverReason, wt as createBrowserRouteContext, x as isAntigravityClaude, xt as resolveIMessageAccount, y as sanitizeToolResultImages, yt as resolveChannelGroupRequireMention, z as parseImageDimensionError, zt as buildPluginToolGroups } from "./pi-embedded-helpers-C0npD99M.js";
-import { A as resolveTelegramForumThreadId, B as renderMarkdownWithMarkers, C as buildTelegramThreadParams, D as extractTelegramLocation, E as expandTextLinks, F as toLocationContext, H as parseTelegramTarget, I as withTelegramApiErrorLogging, L as createDiscordRetryRunner, M as resolveTelegramStreamMode, N as resolveTelegramThreadSpec, O as hasBotMention, P as formatLocationText, R as getChannelActivity, S as buildTelegramParentPeer, T as describeReplyTarget, V as isVoiceCompatibleAudio, _ as buildGroupLabel, a as sendMessageTelegram, b as buildTelegramGroupFrom, c as resolveTelegramVoiceSend, d as isRecoverableTelegramNetworkError, f as markdownToTelegramChunks, g as splitTelegramCaption, h as resolveTelegramFetch, i as reactMessageTelegram, j as resolveTelegramReplyId, k as normalizeForwardedContext, l as wasSentByBot, m as renderTelegramHtmlText, n as deleteMessageTelegram, o as sendStickerTelegram, p as markdownToTelegramHtml, r as editMessageTelegram, t as buildInlineKeyboard, u as makeProxyFetch, v as buildSenderLabel, w as buildTypingThreadParams, x as buildTelegramGroupPeerId, y as buildSenderName, z as recordChannelActivity } from "./send-VGbInye_.js";
+import { C as parseInlineDirectives$1, E as isSilentReplyText, S as splitMediaFromOutput, T as SILENT_REPLY_TOKEN, _ as buildTargetResolverSignature, a as applyReplyThreading, b as throwIfAborted, c as shouldSuppressMessagingToolReplies, d as sendMessageSignal, f as sendReadReceiptSignal, g as streamSignalEvents, h as signalRpcRequest, i as applyReplyTagsToPayload, l as createReplyToModeFilterForChannel, m as signalCheck, o as filterMessagingToolDuplicates, p as sendTypingSignal, r as normalizeReplyPayloadsForDelivery, s as isRenderablePayload, t as deliverOutboundPayloads, u as resolveReplyToMode, v as normalizeChannelTargetInput, w as HEARTBEAT_TOKEN, x as parseReplyDirectives, y as normalizeTargetForProvider } from "./deliver-BWa6A7TX.js";
+import { B as resolveTelegramToken, C as extensionForMime, D as isGifMedia, E as isAudioFileName, F as isWhatsAppGroupJid, G as resolveSlackBotToken, H as resolveSlackAccount, I as normalizeWhatsAppTarget, J as resolveDiscordAccount, K as normalizeChatType, L as listEnabledTelegramAccounts, M as getChannelPlugin, N as listChannelPlugins, O as kindFromMime, P as normalizeChannelId$1, R as listTelegramAccountIds, S as detectMime, T as imageMimeFromFormat, V as listBindings, W as resolveSlackAppToken, Y as normalizeDiscordToken, _ as resolveGatewayMessageChannel, a as resizeToJpeg, b as GATEWAY_CLIENT_MODES, d as INTERNAL_MESSAGE_CHANNEL, f as isDeliverableMessageChannel, g as normalizeMessageChannel, h as listDeliverableMessageChannels, j as mediaKindFromMime, k as MAX_IMAGE_BYTES, m as isMarkdownCapableMessageChannel, n as getImageMetadata, o as SsrFBlockedError, p as isInternalMessageChannel, q as listEnabledDiscordAccounts, v as resolveMessageChannel, w as getFileExtension, x as GATEWAY_CLIENT_NAMES, y as GATEWAY_CLIENT_IDS, z as resolveTelegramAccount } from "./image-ops-DhIKpQmH.js";
+import { A as getWebAuthAgeMs, C as getConfigValueAtPath, D as resolveAgentMaxConcurrent, E as unsetConfigValueAtPath, M as logoutWeb, O as VERSION, P as readWebSelfId, R as webAuthExists, S as unsetConfigOverride, T as setConfigValueAtPath, _ as resolveEnableState, a as validateConfigObjectWithPlugins, b as resetConfigOverrides, c as resolveTelegramCustomCommands, d as validateJsonSchemaValue, f as loadPluginManifestRegistry, g as normalizePluginsConfig, i as writeConfigFile, j as logWebSelfId, k as resolveWhatsAppAccount, l as isSafeExecutableValue, n as readConfigFileSnapshot, o as TELEGRAM_COMMAND_NAME_PATTERN, p as discoverOpenClawPlugins, r as resolveConfigSnapshotHash, s as normalizeTelegramCommandName, t as loadConfig, u as parseDurationMs, v as resolveMemorySlotDecision, w as parseConfigPath, x as setConfigOverride, y as getConfigOverrides } from "./config-CtVSttNV.js";
+import { $ as updateSessionStoreEntry, A as isCloudCodeAssistFormatError, At as buildWorkspaceSkillCommandSpecs, B as parseImageSizeError, Bt as collectExplicitAllowlist, C as BILLING_ERROR_USER_MESSAGE, Ct as resolveGroupSessionKey, D as getApiErrorPayloadFingerprint, Dt as resolveProfile, E as formatRawAssistantErrorForUi, Et as resolveBrowserConfig, F as isLikelyContextOverflowError, Ft as applySkillEnvOverrides, G as appendAssistantMessageToSessionTranscript, Gt as stripPluginOnlyAllowlist, H as ensureSandboxWorkspaceForSession, Ht as expandToolGroups, I as isRateLimitAssistantError, It as applySkillEnvOverridesFromSnapshot, J as readSessionUpdatedAt, Jt as resolveBootstrapMaxChars, Kt as buildBootstrapContextFiles, L as isRawApiErrorPayload, Lt as resolveSandboxConfigForAgent, M as isContextOverflowError, Mt as loadWorkspaceSkillEntries, N as isFailoverAssistantError, Nt as resolveSkillsPromptForRun, O as isAuthAssistantError, Ot as getMediaDir, P as isFailoverErrorMessage, Pt as resolvePluginSkillDirs, Q as updateSessionStore, R as isTimeoutErrorMessage, Rt as applyOwnerOnlyToolPolicy, S as isGoogleModelApi, St as resolveConversationLabel, T as formatAssistantErrorText, Tt as registerBrowserRoutes, U as resolveSandboxContext, Ut as normalizeToolName, V as sanitizeUserFacingText, Vt as expandPolicyWithPluginGroups, W as resolveSandboxRuntimeStatus, Wt as resolveToolProfilePolicy, X as saveSessionStore, Xt as listEnabledSignalAccounts, Y as recordSessionMetaFromInbound, Yt as sanitizeGoogleTurnOrdering, Z as updateLastRoute, Zt as resolveSignalAccount, _ as sanitizeSessionMessagesImages, _t as listChannelDocks, a as formatXHighModelHint, at as normalizeDeliveryContext, b as downgradeOpenAIReasoningBlocks, bt as resolveChannelGroupToolsPolicy, c as normalizeReasoningLevel, ct as evaluateSessionFreshness, d as normalizeVerboseLevel, dt as resolveSessionResetType, et as isCacheEnabled, f as resolveResponseUsageMode, ft as resolveThreadFlag, g as normalizeTextForComparison, gt as getChannelDock, h as isMessagingToolDuplicateNormalized, ht as deriveSessionMetaPatch, i as formatThinkingLevels, it as mergeDeliveryContext, j as isCompactionFailureError, jt as buildWorkspaceSkillSnapshot, k as isBillingAssistantError, kt as saveMediaBuffer, l as normalizeThinkLevel, lt as resolveChannelResetConfig, mt as resolveMainSessionKey, n as validateGeminiTurns, nt as deliveryContextFromSession, o as listThinkingLevels, ot as normalizeSessionDeliveryFields, p as supportsXHighThinking, pt as DEFAULT_RESET_TRIGGERS, q as loadSessionStore, qt as ensureSessionHeader, r as pickFallbackThinkingLevel, rt as deliveryContextKey, s as normalizeElevatedLevel, st as resolveSessionKey$1, t as validateAnthropicTurns, tt as resolveCacheTtlMs$1, u as normalizeUsageDisplay, ut as resolveSessionResetPolicy, v as sanitizeImageBlocks, vt as resolveChannelGroupPolicy, w as classifyFailoverReason, wt as createBrowserRouteContext, x as isAntigravityClaude, xt as resolveIMessageAccount, y as sanitizeToolResultImages, yt as resolveChannelGroupRequireMention, z as parseImageDimensionError, zt as buildPluginToolGroups } from "./pi-embedded-helpers-DrrmjKeD.js";
+import { A as resolveTelegramForumThreadId, B as renderMarkdownWithMarkers, C as buildTelegramThreadParams, D as extractTelegramLocation, E as expandTextLinks, F as toLocationContext, H as parseTelegramTarget, I as withTelegramApiErrorLogging, L as createDiscordRetryRunner, M as resolveTelegramStreamMode, N as resolveTelegramThreadSpec, O as hasBotMention, P as formatLocationText, R as getChannelActivity, S as buildTelegramParentPeer, T as describeReplyTarget, V as isVoiceCompatibleAudio, _ as buildGroupLabel, a as sendMessageTelegram, b as buildTelegramGroupFrom, c as resolveTelegramVoiceSend, d as isRecoverableTelegramNetworkError, f as markdownToTelegramChunks, g as splitTelegramCaption, h as resolveTelegramFetch, i as reactMessageTelegram, j as resolveTelegramReplyId, k as normalizeForwardedContext, l as wasSentByBot, m as renderTelegramHtmlText, n as deleteMessageTelegram, o as sendStickerTelegram, p as markdownToTelegramHtml, r as editMessageTelegram, t as buildInlineKeyboard, u as makeProxyFetch, v as buildSenderLabel, w as buildTypingThreadParams, x as buildTelegramGroupPeerId, y as buildSenderName, z as recordChannelActivity } from "./send-9KH547YN.js";
 import { n as discoverModels, t as discoverAuthStorage } from "./pi-model-discovery-D8vaQeGV.js";
-import { _ as rawDataToString, b as DEFAULT_AI_SNAPSHOT_MAX_CHARS, h as ensureChromeExtensionRelayServer } from "./chrome-BdCbTVyZ.js";
-import { n as formatErrorMessage$1, r as formatUncaughtError } from "./errors-Bu1M2BY3.js";
-import { a as resolveStorePath, i as resolveSessionTranscriptsDirForAgent, n as resolveSessionFilePath, r as resolveSessionTranscriptPath } from "./paths-D_r3s6WX.js";
+import { _ as rawDataToString, b as DEFAULT_AI_SNAPSHOT_MAX_CHARS, h as ensureChromeExtensionRelayServer } from "./chrome-BRAa6cWj.js";
+import { n as formatErrorMessage, r as formatUncaughtError } from "./errors-Bu1M2BY3.js";
+import { a as resolveStorePath, i as resolveSessionTranscriptsDirForAgent, n as resolveSessionFilePath, r as resolveSessionTranscriptPath } from "./paths-CVMMoP8i.js";
 import { t as emitSessionTranscriptUpdate } from "./transcript-events-BHS7QoRl.js";
-import { _ as stripThinkingTagsFromText, a as decodeDataUrl, c as extractAssistantText$1, d as extractThinkingFromTaggedText, f as formatReasoningMessage, g as stripMinimaxToolCallXml, h as stripDowngradedToolCallText, i as coerceImageModelConfig, l as extractAssistantThinking, m as promoteThinkingTagsToBlocks, o as resolveProviderVisionModelFromConfig, p as inferToolMetaFromArgs, r as coerceImageAssistantText, s as minimaxUnderstandImage, t as describeImageWithModel, u as extractThinkingFromTaggedStream, v as resolveToolDisplay, y as ensureOpenClawModelsJson } from "./image-D1NqsNau.js";
-import { n as resolveMemorySearchConfig } from "./manager-D31TJA5M.js";
-import { c as listMemoryFiles, l as normalizeExtraMemoryPaths } from "./sqlite-DO-awwuf.js";
-import { n as retryAsync, t as resolveRetryConfig } from "./retry-B-r9sEns.js";
-import { S as parseFenceSpans, _ as chunkTextWithMode, a as markdownToIRWithMeta, b as findFenceSpanAt, c as MediaFetchError, d as resolveMarkdownTableMode, f as chunkByNewline, g as chunkText, h as chunkMarkdownTextWithMode, i as markdownToIR, l as fetchRemoteMedia, m as chunkMarkdownText, o as loadWebMedia, r as chunkMarkdownIR, s as loadWebMediaRaw, t as resolveFetch, u as fetchWithSsrFGuard, v as resolveChunkMode, x as isSafeFenceBreak, y as resolveTextChunkLimit } from "./fetch-ByF-CNua.js";
+import { _ as stripThinkingTagsFromText, a as decodeDataUrl, c as extractAssistantText$1, d as extractThinkingFromTaggedText, f as formatReasoningMessage, g as stripMinimaxToolCallXml, h as stripDowngradedToolCallText, i as coerceImageModelConfig, l as extractAssistantThinking, m as promoteThinkingTagsToBlocks, o as resolveProviderVisionModelFromConfig, p as inferToolMetaFromArgs, r as coerceImageAssistantText, s as minimaxUnderstandImage, t as describeImageWithModel, u as extractThinkingFromTaggedStream, v as resolveToolDisplay, y as ensureOpenClawModelsJson } from "./image-BbohNYcI.js";
+import { n as resolveMemorySearchConfig } from "./manager-D7JWxNO4.js";
+import { c as listMemoryFiles, l as normalizeExtraMemoryPaths } from "./sqlite-DAhsaWXu.js";
+import { n as retryAsync, t as resolveRetryConfig } from "./retry-dgILCXQV.js";
+import { S as parseFenceSpans, _ as chunkTextWithMode, a as markdownToIRWithMeta, b as findFenceSpanAt, c as MediaFetchError, d as resolveMarkdownTableMode, f as chunkByNewline, g as chunkText, h as chunkMarkdownTextWithMode, i as markdownToIR, l as fetchRemoteMedia, m as chunkMarkdownText, o as loadWebMedia, r as chunkMarkdownIR, s as loadWebMediaRaw, t as resolveFetch, u as fetchWithSsrFGuard, v as resolveChunkMode, x as isSafeFenceBreak, y as resolveTextChunkLimit } from "./fetch-BNZTcBFv.js";
 import "./redact-SyvnR9D3.js";
-import { a as formatError$1, i as createWaSocket, n as startWebLoginWithQr, o as getStatusCode$1, r as waitForWebLogin, s as waitForWaConnection } from "./login-qr-eV3VIoOX.js";
+import { a as formatError$1, i as createWaSocket, n as startWebLoginWithQr, o as getStatusCode$1, r as waitForWebLogin, s as waitForWaConnection } from "./login-qr-CyV-A5GJ.js";
 import { createRequire } from "node:module";
-import * as os$1 from "node:os";
-import os, { homedir, tmpdir } from "node:os";
 import * as path$1 from "node:path";
 import path from "node:path";
 import fs, { constants, existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, statSync, unlinkSync, writeFileSync } from "node:fs";
+import * as os$1 from "node:os";
+import os, { homedir, tmpdir } from "node:os";
 import * as fs$2 from "node:fs/promises";
 import fs$1 from "node:fs/promises";
 import { execFile, execSync, spawn, spawnSync } from "node:child_process";
@@ -2605,13 +2605,19 @@ async function executePluginCommand(params) {
 		logVerbose(`Plugin command /${command.name} blocked: unauthorized sender ${senderId || "<unknown>"}`);
 		return { text: "⚠️ This command requires authorization." };
 	}
+	const sanitizedArgs = sanitizeArgs(args);
 	const ctx = {
 		senderId,
 		channel,
+		channelId: params.channelId,
 		isAuthorizedSender,
-		args: sanitizeArgs(args),
+		args: sanitizedArgs,
 		commandBody,
-		config
+		config,
+		from: params.from,
+		to: params.to,
+		accountId: params.accountId,
+		messageThreadId: params.messageThreadId
 	};
 	registryLocked = true;
 	try {
@@ -3268,6 +3274,9 @@ const DEFAULT_QMD_INTERVAL = "5m";
 const DEFAULT_QMD_DEBOUNCE_MS = 15e3;
 const DEFAULT_QMD_TIMEOUT_MS = 4e3;
 const DEFAULT_QMD_EMBED_INTERVAL = "60m";
+const DEFAULT_QMD_COMMAND_TIMEOUT_MS = 3e4;
+const DEFAULT_QMD_UPDATE_TIMEOUT_MS = 12e4;
+const DEFAULT_QMD_EMBED_TIMEOUT_MS = 12e4;
 const DEFAULT_QMD_LIMITS = {
 	maxResults: 6,
 	maxSnippetChars: 700,
@@ -3323,6 +3332,10 @@ function resolveEmbedIntervalMs(raw) {
 function resolveDebounceMs(raw) {
 	if (typeof raw === "number" && Number.isFinite(raw) && raw >= 0) return Math.floor(raw);
 	return DEFAULT_QMD_DEBOUNCE_MS;
+}
+function resolveTimeoutMs$1(raw, fallback) {
+	if (typeof raw === "number" && Number.isFinite(raw) && raw > 0) return Math.floor(raw);
+	return fallback;
 }
 function resolveLimits(raw) {
 	const parsed = { ...DEFAULT_QMD_LIMITS };
@@ -3414,7 +3427,11 @@ function resolveMemoryBackendConfig(params) {
 				intervalMs: resolveIntervalMs(qmdCfg?.update?.interval),
 				debounceMs: resolveDebounceMs(qmdCfg?.update?.debounceMs),
 				onBoot: qmdCfg?.update?.onBoot !== false,
-				embedIntervalMs: resolveEmbedIntervalMs(qmdCfg?.update?.embedInterval)
+				waitForBootSync: qmdCfg?.update?.waitForBootSync === true,
+				embedIntervalMs: resolveEmbedIntervalMs(qmdCfg?.update?.embedInterval),
+				commandTimeoutMs: resolveTimeoutMs$1(qmdCfg?.update?.commandTimeoutMs, DEFAULT_QMD_COMMAND_TIMEOUT_MS),
+				updateTimeoutMs: resolveTimeoutMs$1(qmdCfg?.update?.updateTimeoutMs, DEFAULT_QMD_UPDATE_TIMEOUT_MS),
+				embedTimeoutMs: resolveTimeoutMs$1(qmdCfg?.update?.embedTimeoutMs, DEFAULT_QMD_EMBED_TIMEOUT_MS)
 			},
 			limits: resolveLimits(qmdCfg?.limits),
 			scope: qmdCfg?.scope ?? DEFAULT_QMD_SCOPE
@@ -3433,7 +3450,7 @@ async function getMemorySearchManager(params) {
 		const cached = QMD_MANAGER_CACHE.get(cacheKey);
 		if (cached) return { manager: cached };
 		try {
-			const { QmdMemoryManager } = await import("./qmd-manager-C71-P_KE.js");
+			const { QmdMemoryManager } = await import("./qmd-manager-Ig7bakC_.js");
 			const primary = await QmdMemoryManager.create({
 				cfg: params.cfg,
 				agentId: params.agentId,
@@ -3443,7 +3460,7 @@ async function getMemorySearchManager(params) {
 				const wrapper = new FallbackMemoryManager({
 					primary,
 					fallbackFactory: async () => {
-						const { MemoryIndexManager } = await import("./manager-D31TJA5M.js").then((n) => n.t);
+						const { MemoryIndexManager } = await import("./manager-D7JWxNO4.js").then((n) => n.t);
 						return await MemoryIndexManager.get(params);
 					}
 				}, () => QMD_MANAGER_CACHE.delete(cacheKey));
@@ -3456,7 +3473,7 @@ async function getMemorySearchManager(params) {
 		}
 	}
 	try {
-		const { MemoryIndexManager } = await import("./manager-D31TJA5M.js").then((n) => n.t);
+		const { MemoryIndexManager } = await import("./manager-D7JWxNO4.js").then((n) => n.t);
 		return { manager: await MemoryIndexManager.get(params) };
 	} catch (err) {
 		return {
@@ -3471,6 +3488,7 @@ var FallbackMemoryManager = class {
 		this.onClose = onClose;
 		this.fallback = null;
 		this.primaryFailed = false;
+		this.cacheEvicted = false;
 	}
 	async search(query, opts) {
 		if (!this.primaryFailed) try {
@@ -3480,6 +3498,7 @@ var FallbackMemoryManager = class {
 			this.lastError = err instanceof Error ? err.message : String(err);
 			log$9.warn(`qmd memory failed; switching to builtin index: ${this.lastError}`);
 			await this.deps.primary.close?.().catch(() => {});
+			this.evictCacheEntry();
 		}
 		const fallback = await this.ensureFallback();
 		if (fallback) return await fallback.search(query, opts);
@@ -3549,7 +3568,7 @@ var FallbackMemoryManager = class {
 	async close() {
 		await this.deps.primary.close?.();
 		await this.fallback?.close?.();
-		this.onClose?.();
+		this.evictCacheEntry();
 	}
 	async ensureFallback() {
 		if (this.fallback) return this.fallback;
@@ -3560,6 +3579,11 @@ var FallbackMemoryManager = class {
 		}
 		this.fallback = fallback;
 		return this.fallback;
+	}
+	evictCacheEntry() {
+		if (this.cacheEvicted) return;
+		this.cacheEvicted = true;
+		this.onClose?.();
 	}
 };
 function buildQmdCacheKey(agentId, config) {
@@ -5555,7 +5579,7 @@ function shouldHandleTextCommands(params) {
 
 //#endregion
 //#region src/infra/device-identity.ts
-const DEFAULT_DIR = path.join(os.homedir(), ".openclaw", "identity");
+const DEFAULT_DIR = path.join(STATE_DIR, "identity");
 const DEFAULT_FILE$1 = path.join(DEFAULT_DIR, "device.json");
 function ensureDir$2(filePath) {
 	fs.mkdirSync(path.dirname(filePath), { recursive: true });
@@ -6017,6 +6041,38 @@ const AgentsListResultSchema = Type.Object({
 	scope: Type.Union([Type.Literal("per-sender"), Type.Literal("global")]),
 	agents: Type.Array(AgentSummarySchema)
 }, { additionalProperties: false });
+const AgentsCreateParamsSchema = Type.Object({
+	name: NonEmptyString,
+	workspace: NonEmptyString,
+	emoji: Type.Optional(Type.String()),
+	avatar: Type.Optional(Type.String())
+}, { additionalProperties: false });
+const AgentsCreateResultSchema = Type.Object({
+	ok: Type.Literal(true),
+	agentId: NonEmptyString,
+	name: NonEmptyString,
+	workspace: NonEmptyString
+}, { additionalProperties: false });
+const AgentsUpdateParamsSchema = Type.Object({
+	agentId: NonEmptyString,
+	name: Type.Optional(NonEmptyString),
+	workspace: Type.Optional(NonEmptyString),
+	model: Type.Optional(NonEmptyString),
+	avatar: Type.Optional(Type.String())
+}, { additionalProperties: false });
+const AgentsUpdateResultSchema = Type.Object({
+	ok: Type.Literal(true),
+	agentId: NonEmptyString
+}, { additionalProperties: false });
+const AgentsDeleteParamsSchema = Type.Object({
+	agentId: NonEmptyString,
+	deleteFiles: Type.Optional(Type.Boolean())
+}, { additionalProperties: false });
+const AgentsDeleteResultSchema = Type.Object({
+	ok: Type.Literal(true),
+	agentId: NonEmptyString,
+	removedBindings: Type.Integer({ minimum: 0 })
+}, { additionalProperties: false });
 const AgentsFileEntrySchema = Type.Object({
 	name: NonEmptyString,
 	path: NonEmptyString,
@@ -6256,7 +6312,8 @@ const CronJobStateSchema = Type.Object({
 		Type.Literal("skipped")
 	])),
 	lastError: Type.Optional(Type.String()),
-	lastDurationMs: Type.Optional(Type.Integer({ minimum: 0 }))
+	lastDurationMs: Type.Optional(Type.Integer({ minimum: 0 })),
+	consecutiveErrors: Type.Optional(Type.Integer({ minimum: 0 }))
 }, { additionalProperties: false });
 const CronJobSchema = Type.Object({
 	id: NonEmptyString,
@@ -6884,6 +6941,9 @@ const validateAgentIdentityParams = ajv.compile(AgentIdentityParamsSchema);
 const validateAgentWaitParams = ajv.compile(AgentWaitParamsSchema);
 const validateWakeParams = ajv.compile(WakeParamsSchema);
 const validateAgentsListParams = ajv.compile(AgentsListParamsSchema);
+const validateAgentsCreateParams = ajv.compile(AgentsCreateParamsSchema);
+const validateAgentsUpdateParams = ajv.compile(AgentsUpdateParamsSchema);
+const validateAgentsDeleteParams = ajv.compile(AgentsDeleteParamsSchema);
 const validateAgentsFilesListParams = ajv.compile(AgentsFilesListParamsSchema);
 const validateAgentsFilesGetParams = ajv.compile(AgentsFilesGetParamsSchema);
 const validateAgentsFilesSetParams = ajv.compile(AgentsFilesSetParamsSchema);
@@ -7217,6 +7277,24 @@ var GatewayClient = class {
 };
 
 //#endregion
+//#region src/gateway/net.ts
+/**
+* Pick the primary non-internal IPv4 address (LAN IP).
+* Prefers common interface names (en0, eth0) then falls back to any external IPv4.
+*/
+function pickPrimaryLanIPv4() {
+	const nets = os.networkInterfaces();
+	for (const name of ["en0", "eth0"]) {
+		const entry = nets[name]?.find((n) => n.family === "IPv4" && !n.internal);
+		if (entry?.address) return entry.address;
+	}
+	for (const list of Object.values(nets)) {
+		const entry = list?.find((n) => n.family === "IPv4" && !n.internal);
+		if (entry?.address) return entry.address;
+	}
+}
+
+//#endregion
 //#region src/gateway/call.ts
 function resolveExplicitGatewayAuth(opts) {
 	return {
@@ -7244,13 +7322,15 @@ function buildGatewayConnectionDetails(options = {}) {
 	const tailnetIPv4 = pickPrimaryTailnetIPv4();
 	const bindMode = config.gateway?.bind ?? "loopback";
 	const preferTailnet = bindMode === "tailnet" && !!tailnetIPv4;
+	const preferLan = bindMode === "lan";
+	const lanIPv4 = preferLan ? pickPrimaryLanIPv4() : void 0;
 	const scheme = tlsEnabled ? "wss" : "ws";
-	const localUrl = preferTailnet && tailnetIPv4 ? `${scheme}://${tailnetIPv4}:${localPort}` : `${scheme}://127.0.0.1:${localPort}`;
+	const localUrl = preferTailnet && tailnetIPv4 ? `${scheme}://${tailnetIPv4}:${localPort}` : preferLan && lanIPv4 ? `${scheme}://${lanIPv4}:${localPort}` : `${scheme}://127.0.0.1:${localPort}`;
 	const urlOverride = typeof options.url === "string" && options.url.trim().length > 0 ? options.url.trim() : void 0;
 	const remoteUrl = typeof remote?.url === "string" && remote.url.trim().length > 0 ? remote.url.trim() : void 0;
 	const remoteMisconfigured = isRemoteMode && !urlOverride && !remoteUrl;
 	const url = urlOverride || remoteUrl || localUrl;
-	const urlSource = urlOverride ? "cli --url" : remoteUrl ? "config gateway.remote.url" : remoteMisconfigured ? "missing gateway.remote.url (fallback local)" : preferTailnet && tailnetIPv4 ? `local tailnet ${tailnetIPv4}` : "local loopback";
+	const urlSource = urlOverride ? "cli --url" : remoteUrl ? "config gateway.remote.url" : remoteMisconfigured ? "missing gateway.remote.url (fallback local)" : preferTailnet && tailnetIPv4 ? `local tailnet ${tailnetIPv4}` : preferLan && lanIPv4 ? `local lan ${lanIPv4}` : "local loopback";
 	const remoteFallbackNote = remoteMisconfigured ? "Warn: gateway.mode=remote but gateway.remote.url is missing; set gateway.remote.url or switch gateway.mode=local." : void 0;
 	const bindDetail = !urlOverride && !remoteUrl ? `Bind: ${bindMode}` : void 0;
 	return {
@@ -7268,7 +7348,8 @@ function buildGatewayConnectionDetails(options = {}) {
 	};
 }
 async function callGateway(opts) {
-	const timeoutMs = opts.timeoutMs ?? 1e4;
+	const timeoutMs = typeof opts.timeoutMs === "number" && Number.isFinite(opts.timeoutMs) ? opts.timeoutMs : 1e4;
+	const safeTimerTimeoutMs = Math.max(1, Math.min(Math.floor(timeoutMs), 2147483647));
 	const config = opts.config ?? loadConfig();
 	const isRemoteMode = config.gateway?.mode === "remote";
 	const remote = isRemoteMode ? config.gateway?.remote : void 0;
@@ -7364,7 +7445,7 @@ async function callGateway(opts) {
 			ignoreClose = true;
 			client.stop();
 			stop(new Error(formatTimeoutError()));
-		}, timeoutMs);
+		}, safeTimerTimeoutMs);
 		client.start();
 	});
 }
@@ -8908,7 +8989,7 @@ async function routeReply(params) {
 	const resolvedReplyToId = replyToId ?? (channelId === "slack" && threadId != null && threadId !== "" ? String(threadId) : void 0);
 	const resolvedThreadId = channelId === "slack" ? null : threadId ?? null;
 	try {
-		const { deliverOutboundPayloads } = await import("./deliver-DjFgGOkr.js").then((n) => n.n);
+		const { deliverOutboundPayloads } = await import("./deliver-BWa6A7TX.js").then((n) => n.n);
 		return {
 			ok: true,
 			messageId: (await deliverOutboundPayloads({
@@ -9106,6 +9187,48 @@ function resolveQueueSettings(params) {
 		cap: typeof capRaw === "number" ? Math.max(1, Math.floor(capRaw)) : void 0,
 		dropPolicy: dropRaw
 	};
+}
+
+//#endregion
+//#region src/infra/format-time/format-duration.ts
+function formatDurationSeconds(ms, options = {}) {
+	if (!Number.isFinite(ms)) return "unknown";
+	const decimals = options.decimals ?? 1;
+	const unit = options.unit ?? "s";
+	const trimmed = (Math.max(0, ms) / 1e3).toFixed(Math.max(0, decimals)).replace(/\.0+$/, "").replace(/(\.\d*[1-9])0+$/, "$1");
+	return unit === "seconds" ? `${trimmed} seconds` : `${trimmed}s`;
+}
+/** Precise decimal-seconds output: "500ms" or "1.23s". Input is milliseconds. */
+function formatDurationPrecise(ms, options = {}) {
+	if (!Number.isFinite(ms)) return "unknown";
+	if (ms < 1e3) return `${ms}ms`;
+	return formatDurationSeconds(ms, {
+		decimals: options.decimals ?? 2,
+		unit: options.unit ?? "s"
+	});
+}
+/**
+* Compact compound duration: "500ms", "45s", "2m5s", "1h30m".
+* With `spaced`: "45s", "2m 5s", "1h 30m".
+* Omits trailing zero components: "1m" not "1m 0s", "2h" not "2h 0m".
+* Returns undefined for null/undefined/non-finite/non-positive input.
+*/
+function formatDurationCompact(ms, options) {
+	if (ms == null || !Number.isFinite(ms) || ms <= 0) return;
+	if (ms < 1e3) return `${Math.round(ms)}ms`;
+	const sep = options?.spaced ? " " : "";
+	const totalSeconds = Math.round(ms / 1e3);
+	const hours = Math.floor(totalSeconds / 3600);
+	const minutes = Math.floor(totalSeconds % 3600 / 60);
+	const seconds = totalSeconds % 60;
+	if (hours >= 24) {
+		const days = Math.floor(hours / 24);
+		const remainingHours = hours % 24;
+		return remainingHours > 0 ? `${days}d${sep}${remainingHours}h` : `${days}d`;
+	}
+	if (hours > 0) return minutes > 0 ? `${hours}h${sep}${minutes}m` : `${hours}h`;
+	if (minutes > 0) return seconds > 0 ? `${minutes}m${sep}${seconds}s` : `${minutes}m`;
+	return `${seconds}s`;
 }
 
 //#endregion
@@ -9494,16 +9617,6 @@ async function runAgentStep(params) {
 
 //#endregion
 //#region src/agents/subagent-announce.ts
-function formatDurationShort$1(valueMs) {
-	if (!valueMs || !Number.isFinite(valueMs) || valueMs <= 0) return;
-	const totalSeconds = Math.round(valueMs / 1e3);
-	const hours = Math.floor(totalSeconds / 3600);
-	const minutes = Math.floor(totalSeconds % 3600 / 60);
-	const seconds = totalSeconds % 60;
-	if (hours > 0) return `${hours}h${minutes}m`;
-	if (minutes > 0) return `${minutes}m${seconds}s`;
-	return `${seconds}s`;
-}
 function formatTokenCount$2(value) {
 	if (!value || !Number.isFinite(value)) return "0";
 	if (value >= 1e6) return `${(value / 1e6).toFixed(1)}m`;
@@ -9638,7 +9751,7 @@ async function buildSubagentStatsLine(params) {
 	});
 	const cost = costConfig && typeof input === "number" && typeof output === "number" ? (input * costConfig.input + output * costConfig.output) / 1e6 : void 0;
 	const parts = [];
-	const runtime = formatDurationShort$1(runtimeMs);
+	const runtime = formatDurationCompact(runtimeMs);
 	parts.push(`runtime ${runtime ?? "n/a"}`);
 	if (typeof total === "number") {
 		const inputText = typeof input === "number" ? formatTokenCount$2(input) : "n/a";
@@ -9652,6 +9765,22 @@ async function buildSubagentStatsLine(params) {
 	if (sessionId) parts.push(`sessionId ${sessionId}`);
 	if (transcriptPath) parts.push(`transcript ${transcriptPath}`);
 	return `Stats: ${parts.join(" • ")}`;
+}
+function loadSessionEntryByKey(sessionKey) {
+	const cfg = loadConfig();
+	const agentId = resolveAgentIdFromSessionKey(sessionKey);
+	return loadSessionStore(resolveStorePath(cfg.session?.store, { agentId }))[sessionKey];
+}
+async function readLatestAssistantReplyWithRetry(params) {
+	let reply = params.initialReply?.trim() ? params.initialReply : void 0;
+	if (reply) return reply;
+	const deadline = Date.now() + Math.max(0, Math.min(params.maxWaitMs, 15e3));
+	while (Date.now() < deadline) {
+		await new Promise((resolve) => setTimeout(resolve, 300));
+		const latest = await readLatestAssistantReply({ sessionKey: params.sessionKey });
+		if (latest?.trim()) return latest;
+	}
+	return reply;
 }
 function buildSubagentSystemPrompt(params) {
 	return [
@@ -9693,12 +9822,24 @@ function buildSubagentSystemPrompt(params) {
 }
 async function runSubagentAnnounceFlow(params) {
 	let didAnnounce = false;
+	let shouldDeleteChildSession = params.cleanup === "delete";
 	try {
 		const requesterOrigin = normalizeDeliveryContext(params.requesterOrigin);
+		const childSessionId = (() => {
+			const entry = loadSessionEntryByKey(params.childSessionKey);
+			return typeof entry?.sessionId === "string" && entry.sessionId.trim() ? entry.sessionId.trim() : void 0;
+		})();
+		const settleTimeoutMs = Math.min(Math.max(params.timeoutMs, 1), 12e4);
 		let reply = params.roundOneReply;
 		let outcome = params.outcome;
+		if (childSessionId && isEmbeddedPiRunActive(childSessionId)) {
+			if (!await waitForEmbeddedPiRunEnd(childSessionId, settleTimeoutMs) && isEmbeddedPiRunActive(childSessionId)) {
+				shouldDeleteChildSession = false;
+				return false;
+			}
+		}
 		if (!reply && params.waitForCompletion !== false) {
-			const waitMs = Math.min(params.timeoutMs, 6e4);
+			const waitMs = settleTimeoutMs;
 			const wait = await callGateway({
 				method: "agent.wait",
 				params: {
@@ -9722,6 +9863,15 @@ async function runSubagentAnnounceFlow(params) {
 			reply = await readLatestAssistantReply({ sessionKey: params.childSessionKey });
 		}
 		if (!reply) reply = await readLatestAssistantReply({ sessionKey: params.childSessionKey });
+		if (!reply?.trim()) reply = await readLatestAssistantReplyWithRetry({
+			sessionKey: params.childSessionKey,
+			initialReply: reply,
+			maxWaitMs: params.timeoutMs
+		});
+		if (!reply?.trim() && childSessionId && isEmbeddedPiRunActive(childSessionId)) {
+			shouldDeleteChildSession = false;
+			return false;
+		}
 		if (!outcome) outcome = { status: "unknown" };
 		const statsLine = await buildSubagentStatsLine({
 			sessionKey: params.childSessionKey,
@@ -9729,9 +9879,10 @@ async function runSubagentAnnounceFlow(params) {
 			endedAt: params.endedAt
 		});
 		const statusLabel = outcome.status === "ok" ? "completed successfully" : outcome.status === "timeout" ? "timed out" : outcome.status === "error" ? `failed: ${outcome.error || "unknown error"}` : "finished with unknown status";
-		const taskLabel = params.label || params.task || "background task";
+		const announceType = params.announceType ?? "subagent task";
+		const taskLabel = params.label || params.task || "task";
 		const triggerMessage = [
-			`A background task "${taskLabel}" just ${statusLabel}.`,
+			`A ${announceType} "${taskLabel}" just ${statusLabel}.`,
 			"",
 			"Findings:",
 			reply || "(no output)",
@@ -9739,7 +9890,7 @@ async function runSubagentAnnounceFlow(params) {
 			statsLine,
 			"",
 			"Summarize this naturally for the user. Keep it brief (1-2 sentences). Flow it into the conversation naturally.",
-			"Do not mention technical details like tokens, stats, or that this was a background task.",
+			`Do not mention technical details like tokens, stats, or that this was a ${announceType}.`,
 			"You can respond with NO_REPLY if no announcement is needed (e.g., internal task with no user-facing result)."
 		].join("\n");
 		const queued = await maybeQueueSubagentAnnounce({
@@ -9790,7 +9941,7 @@ async function runSubagentAnnounceFlow(params) {
 				timeoutMs: 1e4
 			});
 		} catch {}
-		if (params.cleanup === "delete") try {
+		if (shouldDeleteChildSession) try {
 			await callGateway({
 				method: "sessions.delete",
 				params: {
@@ -9823,6 +9974,7 @@ function saveSubagentRegistryToDisk(runs) {
 //#endregion
 //#region src/agents/timeout.ts
 const DEFAULT_AGENT_TIMEOUT_SECONDS = 600;
+const MAX_SAFE_TIMEOUT_MS = 2147e6;
 const normalizeNumber = (value) => typeof value === "number" && Number.isFinite(value) ? Math.floor(value) : void 0;
 function resolveAgentTimeoutSeconds(cfg) {
 	const seconds = normalizeNumber(cfg?.agents?.defaults?.timeoutSeconds) ?? DEFAULT_AGENT_TIMEOUT_SECONDS;
@@ -9830,21 +9982,22 @@ function resolveAgentTimeoutSeconds(cfg) {
 }
 function resolveAgentTimeoutMs(opts) {
 	const minMs = Math.max(normalizeNumber(opts.minMs) ?? 1, 1);
-	const defaultMs = resolveAgentTimeoutSeconds(opts.cfg) * 1e3;
-	const NO_TIMEOUT_MS = 720 * 60 * 60 * 1e3;
+	const clampTimeoutMs = (valueMs) => Math.min(Math.max(valueMs, minMs), MAX_SAFE_TIMEOUT_MS);
+	const defaultMs = clampTimeoutMs(resolveAgentTimeoutSeconds(opts.cfg) * 1e3);
+	const NO_TIMEOUT_MS = MAX_SAFE_TIMEOUT_MS;
 	const overrideMs = normalizeNumber(opts.overrideMs);
 	if (overrideMs !== void 0) {
 		if (overrideMs === 0) return NO_TIMEOUT_MS;
 		if (overrideMs < 0) return defaultMs;
-		return Math.max(overrideMs, minMs);
+		return clampTimeoutMs(overrideMs);
 	}
 	const overrideSeconds = normalizeNumber(opts.overrideSeconds);
 	if (overrideSeconds !== void 0) {
 		if (overrideSeconds === 0) return NO_TIMEOUT_MS;
 		if (overrideSeconds < 0) return defaultMs;
-		return Math.max(overrideSeconds * 1e3, minMs);
+		return clampTimeoutMs(overrideSeconds * 1e3);
 	}
-	return Math.max(defaultMs, minMs);
+	return defaultMs;
 }
 
 //#endregion
@@ -9853,6 +10006,7 @@ const subagentRuns = /* @__PURE__ */ new Map();
 let sweeper$1 = null;
 let listenerStarted = false;
 let listenerStop = null;
+const SUBAGENT_ANNOUNCE_TIMEOUT_MS = 12e4;
 function persistSubagentRuns() {
 	try {
 		saveSubagentRegistryToDisk(subagentRuns);
@@ -9935,7 +10089,7 @@ function ensureListener() {
 			requesterOrigin,
 			requesterDisplayKey: entry.requesterDisplayKey,
 			task: entry.task,
-			timeoutMs: 3e4,
+			timeoutMs: SUBAGENT_ANNOUNCE_TIMEOUT_MS,
 			cleanup: entry.cleanup,
 			waitForCompletion: false,
 			startedAt: entry.startedAt,
@@ -9950,13 +10104,13 @@ function ensureListener() {
 function finalizeSubagentCleanup(runId, cleanup, didAnnounce) {
 	const entry = subagentRuns.get(runId);
 	if (!entry) return;
-	if (cleanup === "delete") {
-		subagentRuns.delete(runId);
+	if (!didAnnounce) {
+		entry.cleanupHandled = false;
 		persistSubagentRuns();
 		return;
 	}
-	if (!didAnnounce) {
-		entry.cleanupHandled = false;
+	if (cleanup === "delete") {
+		subagentRuns.delete(runId);
 		persistSubagentRuns();
 		return;
 	}
@@ -10041,7 +10195,7 @@ async function waitForSubagentCompletion(runId, waitTimeoutMs) {
 			requesterOrigin,
 			requesterDisplayKey: entry.requesterDisplayKey,
 			task: entry.task,
-			timeoutMs: 3e4,
+			timeoutMs: SUBAGENT_ANNOUNCE_TIMEOUT_MS,
 			cleanup: entry.cleanup,
 			waitForCompletion: false,
 			startedAt: entry.startedAt,
@@ -10226,19 +10380,16 @@ function resolveCommandAuthorization(params) {
 
 //#endregion
 //#region src/auto-reply/reply/mentions.ts
-function escapeRegExp$4(text) {
-	return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
 function deriveMentionPatterns(identity) {
 	const patterns = [];
 	const name = identity?.name?.trim();
 	if (name) {
-		const parts = name.split(/\s+/).filter(Boolean).map(escapeRegExp$4);
-		const re = parts.length ? parts.join(String.raw`\s+`) : escapeRegExp$4(name);
+		const parts = name.split(/\s+/).filter(Boolean).map(escapeRegExp);
+		const re = parts.length ? parts.join(String.raw`\s+`) : escapeRegExp(name);
 		patterns.push(String.raw`\b@?${re}\b`);
 	}
 	const emoji = identity?.emoji?.trim();
-	if (emoji) patterns.push(escapeRegExp$4(emoji));
+	if (emoji) patterns.push(escapeRegExp(emoji));
 	return patterns;
 }
 const BACKSPACE_CHAR = "\b";
@@ -10535,6 +10686,99 @@ function listSenderLabelCandidates(params) {
 }
 
 //#endregion
+//#region src/infra/format-time/format-datetime.ts
+/**
+* Centralized date/time formatting utilities.
+*
+* All formatters are timezone-aware, using Intl.DateTimeFormat.
+* Consolidates duplicated formatUtcTimestamp / formatZonedTimestamp / resolveExplicitTimezone
+* that previously lived in envelope.ts and session-updates.ts.
+*/
+/**
+* Validate an IANA timezone string. Returns the string if valid, undefined otherwise.
+*/
+function resolveTimezone(value) {
+	try {
+		new Intl.DateTimeFormat("en-US", { timeZone: value }).format(/* @__PURE__ */ new Date());
+		return value;
+	} catch {
+		return;
+	}
+}
+/**
+* Format a Date as a UTC timestamp string.
+*
+* Without seconds: `2024-01-15T14:30Z`
+* With seconds:    `2024-01-15T14:30:05Z`
+*/
+function formatUtcTimestamp(date, options) {
+	const yyyy = String(date.getUTCFullYear()).padStart(4, "0");
+	const mm = String(date.getUTCMonth() + 1).padStart(2, "0");
+	const dd = String(date.getUTCDate()).padStart(2, "0");
+	const hh = String(date.getUTCHours()).padStart(2, "0");
+	const min = String(date.getUTCMinutes()).padStart(2, "0");
+	if (!options?.displaySeconds) return `${yyyy}-${mm}-${dd}T${hh}:${min}Z`;
+	return `${yyyy}-${mm}-${dd}T${hh}:${min}:${String(date.getUTCSeconds()).padStart(2, "0")}Z`;
+}
+/**
+* Format a Date with timezone display using Intl.DateTimeFormat.
+*
+* Without seconds: `2024-01-15 14:30 EST`
+* With seconds:    `2024-01-15 14:30:05 EST`
+*
+* Returns undefined if Intl formatting fails.
+*/
+function formatZonedTimestamp(date, options) {
+	const intlOptions = {
+		timeZone: options?.timeZone,
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+		hour: "2-digit",
+		minute: "2-digit",
+		hourCycle: "h23",
+		timeZoneName: "short"
+	};
+	if (options?.displaySeconds) intlOptions.second = "2-digit";
+	const parts = new Intl.DateTimeFormat("en-US", intlOptions).formatToParts(date);
+	const pick = (type) => parts.find((part) => part.type === type)?.value;
+	const yyyy = pick("year");
+	const mm = pick("month");
+	const dd = pick("day");
+	const hh = pick("hour");
+	const min = pick("minute");
+	const sec = options?.displaySeconds ? pick("second") : void 0;
+	const tz = [...parts].toReversed().find((part) => part.type === "timeZoneName")?.value?.trim();
+	if (!yyyy || !mm || !dd || !hh || !min) return;
+	if (options?.displaySeconds && sec) return `${yyyy}-${mm}-${dd} ${hh}:${min}:${sec}${tz ? ` ${tz}` : ""}`;
+	return `${yyyy}-${mm}-${dd} ${hh}:${min}${tz ? ` ${tz}` : ""}`;
+}
+
+//#endregion
+//#region src/infra/format-time/format-relative.ts
+/**
+* Format a duration (in ms) as a human-readable relative time.
+*
+* Input: how many milliseconds ago something happened.
+*
+* With suffix (default):  "just now", "5m ago", "3h ago", "2d ago"
+* Without suffix:         "0s", "5m", "3h", "2d"
+*/
+function formatTimeAgo(durationMs, options) {
+	const suffix = options?.suffix !== false;
+	const fallback = options?.fallback ?? "unknown";
+	if (durationMs == null || !Number.isFinite(durationMs) || durationMs < 0) return fallback;
+	const totalSeconds = Math.round(durationMs / 1e3);
+	const minutes = Math.round(totalSeconds / 60);
+	if (minutes < 1) return suffix ? "just now" : `${totalSeconds}s`;
+	if (minutes < 60) return suffix ? `${minutes}m ago` : `${minutes}m`;
+	const hours = Math.round(minutes / 60);
+	if (hours < 48) return suffix ? `${hours}h ago` : `${hours}h`;
+	const days = Math.round(hours / 24);
+	return suffix ? `${days}d ago` : `${days}d`;
+}
+
+//#endregion
 //#region src/auto-reply/envelope.ts
 function resolveEnvelopeFormatOptions(cfg) {
 	const defaults = cfg?.agents?.defaults;
@@ -10555,14 +10799,6 @@ function normalizeEnvelopeOptions(options) {
 		userTimezone: options?.userTimezone
 	};
 }
-function resolveExplicitTimezone(value) {
-	try {
-		new Intl.DateTimeFormat("en-US", { timeZone: value }).format(/* @__PURE__ */ new Date());
-		return value;
-	} catch {
-		return;
-	}
-}
 function resolveEnvelopeTimezone(options) {
 	const trimmed = options.timezone?.trim();
 	if (!trimmed) return { mode: "local" };
@@ -10573,35 +10809,11 @@ function resolveEnvelopeTimezone(options) {
 		mode: "iana",
 		timeZone: resolveUserTimezone(options.userTimezone)
 	};
-	const explicit = resolveExplicitTimezone(trimmed);
+	const explicit = resolveTimezone(trimmed);
 	return explicit ? {
 		mode: "iana",
 		timeZone: explicit
 	} : { mode: "utc" };
-}
-function formatUtcTimestamp(date) {
-	return `${String(date.getUTCFullYear()).padStart(4, "0")}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}T${String(date.getUTCHours()).padStart(2, "0")}:${String(date.getUTCMinutes()).padStart(2, "0")}Z`;
-}
-function formatZonedTimestamp(date, timeZone) {
-	const parts = new Intl.DateTimeFormat("en-US", {
-		timeZone,
-		year: "numeric",
-		month: "2-digit",
-		day: "2-digit",
-		hour: "2-digit",
-		minute: "2-digit",
-		hourCycle: "h23",
-		timeZoneName: "short"
-	}).formatToParts(date);
-	const pick = (type) => parts.find((part) => part.type === type)?.value;
-	const yyyy = pick("year");
-	const mm = pick("month");
-	const dd = pick("day");
-	const hh = pick("hour");
-	const min = pick("minute");
-	const tz = [...parts].toReversed().find((part) => part.type === "timeZoneName")?.value?.trim();
-	if (!yyyy || !mm || !dd || !hh || !min) return;
-	return `${yyyy}-${mm}-${dd} ${hh}:${min}${tz ? ` ${tz}` : ""}`;
 }
 function formatTimestamp$1(ts, options) {
 	if (!ts) return;
@@ -10610,25 +10822,33 @@ function formatTimestamp$1(ts, options) {
 	const date = ts instanceof Date ? ts : new Date(ts);
 	if (Number.isNaN(date.getTime())) return;
 	const zone = resolveEnvelopeTimezone(resolved);
-	if (zone.mode === "utc") return formatUtcTimestamp(date);
-	if (zone.mode === "local") return formatZonedTimestamp(date);
-	return formatZonedTimestamp(date, zone.timeZone);
-}
-function formatElapsedTime(currentMs, previousMs) {
-	const elapsedMs = currentMs - previousMs;
-	if (!Number.isFinite(elapsedMs) || elapsedMs < 0) return;
-	const seconds = Math.floor(elapsedMs / 1e3);
-	if (seconds < 60) return `${seconds}s`;
-	const minutes = Math.floor(seconds / 60);
-	if (minutes < 60) return `${minutes}m`;
-	const hours = Math.floor(minutes / 60);
-	if (hours < 24) return `${hours}h`;
-	return `${Math.floor(hours / 24)}d`;
+	const weekday = (() => {
+		try {
+			if (zone.mode === "utc") return new Intl.DateTimeFormat("en-US", {
+				timeZone: "UTC",
+				weekday: "short"
+			}).format(date);
+			if (zone.mode === "local") return new Intl.DateTimeFormat("en-US", { weekday: "short" }).format(date);
+			return new Intl.DateTimeFormat("en-US", {
+				timeZone: zone.timeZone,
+				weekday: "short"
+			}).format(date);
+		} catch {
+			return;
+		}
+	})();
+	const formatted = zone.mode === "utc" ? formatUtcTimestamp(date) : zone.mode === "local" ? formatZonedTimestamp(date) : formatZonedTimestamp(date, { timeZone: zone.timeZone });
+	if (!formatted) return;
+	return weekday ? `${weekday} ${formatted}` : formatted;
 }
 function formatAgentEnvelope(params) {
 	const parts = [params.channel?.trim() || "Channel"];
 	const resolved = normalizeEnvelopeOptions(params.envelope);
-	const elapsed = resolved.includeElapsed && params.timestamp && params.previousTimestamp ? formatElapsedTime(params.timestamp instanceof Date ? params.timestamp.getTime() : params.timestamp, params.previousTimestamp instanceof Date ? params.previousTimestamp.getTime() : params.previousTimestamp) : void 0;
+	let elapsed;
+	if (resolved.includeElapsed && params.timestamp && params.previousTimestamp) {
+		const elapsedMs = (params.timestamp instanceof Date ? params.timestamp.getTime() : params.timestamp) - (params.previousTimestamp instanceof Date ? params.previousTimestamp.getTime() : params.previousTimestamp);
+		elapsed = Number.isFinite(elapsedMs) && elapsedMs >= 0 ? formatTimeAgo(elapsedMs, { suffix: false }) : void 0;
+	}
 	if (params.from?.trim()) {
 		const from = params.from.trim();
 		parts.push(elapsed ? `${from} +${elapsed}` : from);
@@ -10908,9 +11128,8 @@ function extractExecDirective(body) {
 
 //#endregion
 //#region src/auto-reply/reply/directives.ts
-const escapeRegExp$3 = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const matchLevelDirective = (body, names) => {
-	const namePattern = names.map(escapeRegExp$3).join("|");
+	const namePattern = names.map(escapeRegExp).join("|");
 	const match = body.match(new RegExp(`(?:^|\\s)\\/(?:${namePattern})(?=$|\\s|:)`, "i"));
 	if (!match || match.index === void 0) return null;
 	const start = match.index;
@@ -10947,7 +11166,7 @@ const extractLevelDirective = (body, names, normalize) => {
 	};
 };
 const extractSimpleDirective = (body, names) => {
-	const namePattern = names.map(escapeRegExp$3).join("|");
+	const namePattern = names.map(escapeRegExp).join("|");
 	const match = body.match(new RegExp(`(?:^|\\s)\\/(?:${namePattern})(?=$|\\s|:)(?:\\s*:\\s*)?`, "i"));
 	return {
 		cleaned: match ? body.replace(match[0], " ").replace(/\s+/g, " ").trim() : body.trim(),
@@ -11047,12 +11266,9 @@ function hasSenderMetaLine(body, ctx) {
 	});
 	if (candidates.length === 0) return false;
 	return candidates.some((candidate) => {
-		const escaped = escapeRegExp$2(candidate);
+		const escaped = escapeRegExp(candidate);
 		return new RegExp(`(^|\\n|\\]\\s*)${escaped}:\\s`, "i").test(body);
 	});
-}
-function escapeRegExp$2(value) {
-	return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 //#endregion
@@ -13813,7 +14029,7 @@ async function deleteChannelMessage(params) {
 	const { channelType, channelId, messageId, cfg } = params;
 	try {
 		if (channelType === "telegram") {
-			const { deleteMessageTelegram } = await import("./send-VGbInye_.js").then((n) => n.s);
+			const { deleteMessageTelegram } = await import("./send-9KH547YN.js").then((n) => n.s);
 			const { token } = resolveTelegramToken(cfg, {});
 			if (!token) return {
 				ok: false,
@@ -15029,7 +15245,7 @@ async function createModelSelectionState(params) {
 		}
 	}
 	if (sessionEntry && sessionStore && sessionKey && sessionEntry.authProfileOverride) {
-		const { ensureAuthProfileStore } = await import("./model-selection-BLfS3yxa.js").then((n) => n.A);
+		const { ensureAuthProfileStore } = await import("./model-selection-BrkGgGrY.js").then((n) => n.A);
 		const profile = ensureAuthProfileStore(void 0, { allowKeychainPrompt: false }).profiles[sessionEntry.authProfileOverride];
 		const providerKey = normalizeProviderId(provider);
 		if (!profile || normalizeProviderId(profile.provider) !== providerKey) await clearSessionAuthProfileOverride({
@@ -15673,9 +15889,6 @@ async function handleDirectiveOnly(params) {
 
 //#endregion
 //#region src/auto-reply/model.ts
-function escapeRegExp$1(value) {
-	return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
 function extractModelDirective(body, options) {
 	if (!body) return {
 		cleaned: "",
@@ -15683,7 +15896,7 @@ function extractModelDirective(body, options) {
 	};
 	const modelMatch = body.match(/(?:^|\s)\/model(?=$|\s|:)\s*:?\s*([A-Za-z0-9_.:@-]+(?:\/[A-Za-z0-9_.:@-]+)*)?/i);
 	const aliases = (options?.aliases ?? []).map((alias) => alias.trim()).filter(Boolean);
-	const aliasMatch = modelMatch || aliases.length === 0 ? null : body.match(new RegExp(`(?:^|\\s)\\/(${aliases.map(escapeRegExp$1).join("|")})(?=$|\\s|:)(?:\\s*:\\s*)?`, "i"));
+	const aliasMatch = modelMatch || aliases.length === 0 ? null : body.match(new RegExp(`(?:^|\\s)\\/(${aliases.map(escapeRegExp).join("|")})(?=$|\\s|:)(?:\\s*:\\s*)?`, "i"));
 	const match = modelMatch ?? aliasMatch;
 	const raw = modelMatch ? modelMatch?.[1]?.trim() : aliasMatch?.[1]?.trim();
 	let rawModel = raw;
@@ -15979,7 +16192,14 @@ let globalVersion = 0;
 const DEFAULT_SKILLS_WATCH_IGNORED = [
 	/(^|[\\/])\.git([\\/]|$)/,
 	/(^|[\\/])node_modules([\\/]|$)/,
-	/(^|[\\/])dist([\\/]|$)/
+	/(^|[\\/])dist([\\/]|$)/,
+	/(^|[\\/])\.venv([\\/]|$)/,
+	/(^|[\\/])venv([\\/]|$)/,
+	/(^|[\\/])__pycache__([\\/]|$)/,
+	/(^|[\\/])\.mypy_cache([\\/]|$)/,
+	/(^|[\\/])\.pytest_cache([\\/]|$)/,
+	/(^|[\\/])build([\\/]|$)/,
+	/(^|[\\/])\.cache([\\/]|$)/
 ];
 function bumpVersion(current) {
 	const now = Date.now();
@@ -16149,9 +16369,13 @@ function listSkillCommandsForAgents(params) {
 	const used = resolveReservedCommandNames();
 	const entries = [];
 	const agentIds = params.agentIds ?? listAgentIds(params.cfg);
+	const visitedDirs = /* @__PURE__ */ new Set();
 	for (const agentId of agentIds) {
 		const workspaceDir = resolveAgentWorkspaceDir(params.cfg, agentId);
 		if (!fs.existsSync(workspaceDir)) continue;
+		const canonicalDir = fs.realpathSync(workspaceDir);
+		if (visitedDirs.has(canonicalDir)) continue;
+		visitedDirs.add(canonicalDir);
 		const commands = buildWorkspaceSkillCommandSpecs(workspaceDir, {
 			config: params.cfg,
 			eligibility: { remote: getRemoteSkillEligibility() },
@@ -16811,7 +17035,7 @@ const PAIRING_STORE_LOCK_OPTIONS = {
 	stale: 3e4
 };
 function resolveCredentialsDir(env = process.env) {
-	return resolveOAuthDir(env, resolveStateDir(env, os.homedir));
+	return resolveOAuthDir(env, resolveStateDir(env, () => resolveRequiredHomeDir(env, os.homedir)));
 }
 /** Sanitize channel ID for use in filenames (prevent path traversal). */
 function safeChannelKey(channel) {
@@ -16826,13 +17050,6 @@ function resolvePairingPath(channel, env = process.env) {
 }
 function resolveAllowFromPath(channel, env = process.env) {
 	return path.join(resolveCredentialsDir(env), `${safeChannelKey(channel)}-allowFrom.json`);
-}
-function safeParseJson(raw) {
-	try {
-		return JSON.parse(raw);
-	} catch {
-		return null;
-	}
 }
 async function readJsonFile(filePath, fallback) {
 	try {
@@ -19716,6 +19933,33 @@ function collapseCarriageReturns(text) {
 	}
 	return result.join("\n");
 }
+function normalizeShellName(value) {
+	const trimmed = value.trim();
+	if (!trimmed) return "";
+	return path.basename(trimmed).replace(/\.(exe|cmd|bat)$/i, "").replace(/[^a-zA-Z0-9_-]/g, "");
+}
+function detectRuntimeShell() {
+	const overrideShell = process.env.CLAWDBOT_SHELL?.trim();
+	if (overrideShell) {
+		const name = normalizeShellName(overrideShell);
+		if (name) return name;
+	}
+	if (process.platform === "win32") {
+		if (process.env.POWERSHELL_DISTRIBUTION_CHANNEL) return "pwsh";
+		return "powershell";
+	}
+	const envShell = process.env.SHELL?.trim();
+	if (envShell) {
+		const name = normalizeShellName(envShell);
+		if (name) return name;
+	}
+	if (process.env.POWERSHELL_DISTRIBUTION_CHANNEL) return "pwsh";
+	if (process.env.BASH_VERSION) return "bash";
+	if (process.env.ZSH_VERSION) return "zsh";
+	if (process.env.FISH_VERSION) return "fish";
+	if (process.env.KSH_VERSION) return "ksh";
+	if (process.env.NU_VERSION || process.env.NUSHELL_VERSION) return "nu";
+}
 function sanitizeBinaryOutput(text) {
 	const scrubbed = text.replace(/[\p{Format}\p{Surrogate}]/gu, "");
 	if (!scrubbed) return scrubbed;
@@ -19828,7 +20072,10 @@ function safeCwd() {
 		return null;
 	}
 }
-function clampNumber(value, defaultValue, min, max) {
+/**
+* Clamp a number within min/max bounds, using defaultValue if undefined or NaN.
+*/
+function clampWithDefault(value, defaultValue, min, max) {
 	if (value === void 0 || Number.isNaN(value)) return defaultValue;
 	return Math.min(Math.max(value, min), max);
 }
@@ -19887,12 +20134,6 @@ function stripQuotes(value) {
 	const trimmed = value.trim();
 	if (trimmed.startsWith("\"") && trimmed.endsWith("\"") || trimmed.startsWith("'") && trimmed.endsWith("'")) return trimmed.slice(1, -1);
 	return trimmed;
-}
-function formatDuration(ms) {
-	if (ms < 1e3) return `${ms}ms`;
-	const seconds = Math.floor(ms / 1e3);
-	if (seconds < 60) return `${seconds}s`;
-	return `${Math.floor(seconds / 60)}m${(seconds % 60).toString().padStart(2, "0")}s`;
 }
 function pad(str, width) {
 	if (str.length >= width) return str;
@@ -20041,8 +20282,8 @@ function validateHostEnv(env) {
 		if (upperKey === "PATH") throw new Error("Security Violation: Custom 'PATH' variable is forbidden during host execution.");
 	}
 }
-const DEFAULT_MAX_OUTPUT = clampNumber(readEnvInt("PI_BASH_MAX_OUTPUT_CHARS"), 2e5, 1e3, 2e5);
-const DEFAULT_PENDING_MAX_OUTPUT = clampNumber(readEnvInt("OPENCLAW_BASH_PENDING_MAX_OUTPUT_CHARS"), 2e5, 1e3, 2e5);
+const DEFAULT_MAX_OUTPUT = clampWithDefault(readEnvInt("PI_BASH_MAX_OUTPUT_CHARS"), 2e5, 1e3, 2e5);
+const DEFAULT_PENDING_MAX_OUTPUT = clampWithDefault(readEnvInt("OPENCLAW_BASH_PENDING_MAX_OUTPUT_CHARS"), 2e5, 1e3, 2e5);
 const DEFAULT_PATH = process.env.PATH ?? "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
 const DEFAULT_NOTIFY_TAIL_CHARS = 400;
 const DEFAULT_APPROVAL_TIMEOUT_MS = 12e4;
@@ -20535,7 +20776,7 @@ async function runExecProcess(opts) {
 	};
 }
 function createExecTool(defaults) {
-	const defaultBackgroundMs = clampNumber(defaults?.backgroundMs ?? readEnvInt("PI_BASH_YIELD_MS"), 1e4, 10, 12e4);
+	const defaultBackgroundMs = clampWithDefault(defaults?.backgroundMs ?? readEnvInt("PI_BASH_YIELD_MS"), 1e4, 10, 12e4);
 	const allowBackground = defaults?.allowBackground ?? true;
 	const defaultTimeoutSec = typeof defaults?.timeoutSec === "number" && defaults.timeoutSec > 0 ? defaults.timeoutSec : 1800;
 	const defaultPathPrepend = normalizePathPrepend(defaults?.pathPrepend);
@@ -20559,7 +20800,7 @@ function createExecTool(defaults) {
 			const backgroundRequested = params.background === true;
 			const yieldRequested = typeof params.yieldMs === "number";
 			if (!allowBackground && (backgroundRequested || yieldRequested)) warnings.push("Warning: background execution is disabled; running synchronously.");
-			const yieldWindow = allowBackground ? backgroundRequested ? 0 : clampNumber(params.yieldMs ?? defaultBackgroundMs, defaultBackgroundMs, 10, 12e4) : null;
+			const yieldWindow = allowBackground ? backgroundRequested ? 0 : clampWithDefault(params.yieldMs ?? defaultBackgroundMs, defaultBackgroundMs, 10, 12e4) : null;
 			const elevatedDefaults = defaults?.elevated;
 			const elevatedAllowed = Boolean(elevatedDefaults?.enabled && elevatedDefaults.allowed);
 			const elevatedDefaultMode = elevatedDefaults?.defaultLevel === "full" ? "full" : elevatedDefaults?.defaultLevel === "ask" ? "ask" : elevatedDefaults?.defaultLevel === "on" ? "ask" : "off";
@@ -21110,9 +21351,6 @@ const TAB = "	";
 const BACKSPACE = "";
 const BRACKETED_PASTE_START = `${ESC}[200~`;
 const BRACKETED_PASTE_END = `${ESC}[201~`;
-function escapeRegExp(value) {
-	return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
 const namedKeyMap = new Map([
 	["enter", CR],
 	["return", CR],
@@ -21368,7 +21606,7 @@ function createProcessTool(defaults) {
 						type: "text",
 						text: [...running, ...finished].toSorted((a, b) => b.startedAt - a.startedAt).map((s) => {
 							const label = s.name ? truncateMiddle(s.name, 80) : truncateMiddle(s.command, 120);
-							return `${s.sessionId} ${pad(s.status, 9)} ${formatDuration(s.runtimeMs)} :: ${label}`;
+							return `${s.sessionId} ${pad(s.status, 9)} ${formatDurationCompact(s.runtimeMs) ?? "n/a"} :: ${label}`;
 						}).join("\n") || "No running or recent sessions."
 					}],
 					details: {
@@ -22072,6 +22310,20 @@ function derivePromptTokens(usage) {
 	const sum = input + cacheRead + cacheWrite;
 	return sum > 0 ? sum : void 0;
 }
+function deriveSessionTotalTokens(params) {
+	const usage = params.usage;
+	if (!usage) return;
+	const input = usage.input ?? 0;
+	let total = derivePromptTokens({
+		input: usage.input,
+		cacheRead: usage.cacheRead,
+		cacheWrite: usage.cacheWrite
+	}) ?? usage.total ?? input;
+	if (!(total > 0)) return;
+	const contextTokens = params.contextTokens;
+	if (typeof contextTokens === "number" && Number.isFinite(contextTokens) && contextTokens > 0) total = Math.min(total, contextTokens);
+	return total;
+}
 
 //#endregion
 //#region src/infra/git-commit.ts
@@ -22234,15 +22486,6 @@ const formatTokens = (total, contextTokens) => {
 	return `${formatTokenCount(total)}/${ctx ? formatTokenCount(ctx) : "?"}${pct !== null ? ` (${pct}%)` : ""}`;
 };
 const formatContextUsageShort = (total, contextTokens) => `Context ${formatTokens(total, contextTokens ?? null)}`;
-const formatAge$1 = (ms) => {
-	if (!ms || ms < 0) return "unknown";
-	const minutes = Math.round(ms / 6e4);
-	if (minutes < 1) return "just now";
-	if (minutes < 60) return `${minutes}m ago`;
-	const hours = Math.round(minutes / 60);
-	if (hours < 48) return `${hours}h ago`;
-	return `${Math.round(hours / 24)}d ago`;
-};
 const formatQueueDetails = (queue) => {
 	if (!queue) return "";
 	const depth = typeof queue.depth === "number" ? `depth ${queue.depth}` : null;
@@ -22368,7 +22611,7 @@ function buildStatusMessage(args) {
 	const elevatedLevel = args.resolvedElevated ?? args.sessionEntry?.elevatedLevel ?? args.agent?.elevatedDefault ?? "on";
 	const runtime = { label: resolveRuntimeLabel(args) };
 	const updatedAt = entry?.updatedAt;
-	const sessionLine = [`Session: ${args.sessionKey ?? "unknown"}`, typeof updatedAt === "number" ? `updated ${formatAge$1(now - updatedAt)}` : "no activity"].filter(Boolean).join(" • ");
+	const sessionLine = [`Session: ${args.sessionKey ?? "unknown"}`, typeof updatedAt === "number" ? `updated ${formatTimeAgo(now - updatedAt)}` : "no activity"].filter(Boolean).join(" • ");
 	const groupActivationValue = entry?.chatType === "group" || entry?.chatType === "channel" || Boolean(args.sessionKey?.includes(":group:")) || Boolean(args.sessionKey?.includes(":channel:")) ? args.groupActivation ?? entry?.groupActivation ?? "mention" : void 0;
 	const contextLine = [`Context: ${formatTokens(totalTokens, contextTokens ?? null)}`, `🧹 Compactions: ${entry?.compactionCount ?? 0}`].filter(Boolean).join(" · ");
 	const queueMode = args.queue?.mode ?? "unknown";
@@ -22668,7 +22911,7 @@ async function buildChannelSummary(cfg, options) {
 		const authAgeMs = summaryRecord && typeof summaryRecord.authAgeMs === "number" ? summaryRecord.authAgeMs : null;
 		const self = summaryRecord?.self;
 		if (self?.e164) line += ` ${self.e164}`;
-		if (authAgeMs != null && authAgeMs >= 0) line += ` auth ${formatAge(authAgeMs)}`;
+		if (authAgeMs != null && authAgeMs >= 0) line += ` auth ${formatTimeAgo(authAgeMs)}`;
 		lines.push(tint(line, statusColor));
 		if (configuredEntries.length > 0) for (const entry of configuredEntries) {
 			const details = buildAccountDetails({
@@ -22685,15 +22928,6 @@ async function buildChannelSummary(cfg, options) {
 	}
 	return lines;
 }
-function formatAge(ms) {
-	if (ms < 0) return "unknown";
-	const minutes = Math.round(ms / 6e4);
-	if (minutes < 1) return "just now";
-	if (minutes < 60) return `${minutes}m ago`;
-	const hours = Math.round(minutes / 60);
-	if (hours < 48) return `${hours}h ago`;
-	return `${Math.round(hours / 24)}d ago`;
-}
 
 //#endregion
 //#region src/auto-reply/reply/session-updates.ts
@@ -22708,14 +22942,6 @@ async function prependSystemEvents(params) {
 		if (trimmed.startsWith("Node:")) return trimmed.replace(/ · last input [^·]+/i, "").trim();
 		return trimmed;
 	};
-	const resolveExplicitTimezone = (value) => {
-		try {
-			new Intl.DateTimeFormat("en-US", { timeZone: value }).format(/* @__PURE__ */ new Date());
-			return value;
-		} catch {
-			return;
-		}
-	};
 	const resolveSystemEventTimezone = (cfg) => {
 		const raw = cfg.agents?.defaults?.envelopeTimezone?.trim();
 		if (!raw) return { mode: "local" };
@@ -22726,45 +22952,22 @@ async function prependSystemEvents(params) {
 			mode: "iana",
 			timeZone: resolveUserTimezone(cfg.agents?.defaults?.userTimezone)
 		};
-		const explicit = resolveExplicitTimezone(raw);
+		const explicit = resolveTimezone(raw);
 		return explicit ? {
 			mode: "iana",
 			timeZone: explicit
 		} : { mode: "local" };
 	};
-	const formatUtcTimestamp = (date) => {
-		return `${String(date.getUTCFullYear()).padStart(4, "0")}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}T${String(date.getUTCHours()).padStart(2, "0")}:${String(date.getUTCMinutes()).padStart(2, "0")}:${String(date.getUTCSeconds()).padStart(2, "0")}Z`;
-	};
-	const formatZonedTimestamp = (date, timeZone) => {
-		const parts = new Intl.DateTimeFormat("en-US", {
-			timeZone,
-			year: "numeric",
-			month: "2-digit",
-			day: "2-digit",
-			hour: "2-digit",
-			minute: "2-digit",
-			second: "2-digit",
-			hourCycle: "h23",
-			timeZoneName: "short"
-		}).formatToParts(date);
-		const pick = (type) => parts.find((part) => part.type === type)?.value;
-		const yyyy = pick("year");
-		const mm = pick("month");
-		const dd = pick("day");
-		const hh = pick("hour");
-		const min = pick("minute");
-		const sec = pick("second");
-		const tz = [...parts].toReversed().find((part) => part.type === "timeZoneName")?.value?.trim();
-		if (!yyyy || !mm || !dd || !hh || !min || !sec) return;
-		return `${yyyy}-${mm}-${dd} ${hh}:${min}:${sec}${tz ? ` ${tz}` : ""}`;
-	};
 	const formatSystemEventTimestamp = (ts, cfg) => {
 		const date = new Date(ts);
 		if (Number.isNaN(date.getTime())) return "unknown-time";
 		const zone = resolveSystemEventTimezone(cfg);
-		if (zone.mode === "utc") return formatUtcTimestamp(date);
-		if (zone.mode === "local") return formatZonedTimestamp(date) ?? "unknown-time";
-		return formatZonedTimestamp(date, zone.timeZone) ?? "unknown-time";
+		if (zone.mode === "utc") return formatUtcTimestamp(date, { displaySeconds: true });
+		if (zone.mode === "local") return formatZonedTimestamp(date, { displaySeconds: true }) ?? "unknown-time";
+		return formatZonedTimestamp(date, {
+			timeZone: zone.timeZone,
+			displaySeconds: true
+		}) ?? "unknown-time";
 	};
 	const systemLines = [];
 	const queued = drainSystemEventEntries(params.sessionKey);
@@ -23826,6 +24029,7 @@ function buildRuntimeLine(runtimeInfo, runtimeChannel, runtimeCapabilities = [],
 		runtimeInfo?.node ? `node=${runtimeInfo.node}` : "",
 		runtimeInfo?.model ? `model=${runtimeInfo.model}` : "",
 		runtimeInfo?.defaultModel ? `default_model=${runtimeInfo.defaultModel}` : "",
+		runtimeInfo?.shell ? `shell=${runtimeInfo.shell}` : "",
 		runtimeChannel ? `channel=${runtimeChannel}` : "",
 		runtimeChannel ? `capabilities=${runtimeCapabilities.length > 0 ? runtimeCapabilities.join(",") : "none"}` : "",
 		`thinking=${defaultThinkLevel ?? "off"}`
@@ -24202,7 +24406,7 @@ function parseGoogleToken(apiKey) {
 	return null;
 }
 function resolveZaiApiKey() {
-	const envDirect = process.env.ZAI_API_KEY?.trim() || process.env.Z_AI_API_KEY?.trim();
+	const envDirect = normalizeSecretInput(process.env.ZAI_API_KEY) || normalizeSecretInput(process.env.Z_AI_API_KEY);
 	if (envDirect) return envDirect;
 	const envResolved = resolveEnvApiKey("zai");
 	if (envResolved?.apiKey) return envResolved.apiKey;
@@ -24213,7 +24417,7 @@ function resolveZaiApiKey() {
 	const apiProfile = [...listProfilesForProvider(store, "zai"), ...listProfilesForProvider(store, "z-ai")].find((id) => store.profiles[id]?.type === "api_key");
 	if (apiProfile) {
 		const cred = store.profiles[apiProfile];
-		if (cred?.type === "api_key" && cred.key?.trim()) return cred.key.trim();
+		if (cred?.type === "api_key" && normalizeSecretInput(cred.key)) return normalizeSecretInput(cred.key);
 	}
 	try {
 		const authPath = path.join(os.homedir(), ".pi", "agent", "auth.json");
@@ -24225,7 +24429,7 @@ function resolveZaiApiKey() {
 	}
 }
 function resolveMinimaxApiKey() {
-	const envDirect = process.env.MINIMAX_CODE_PLAN_KEY?.trim() || process.env.MINIMAX_API_KEY?.trim();
+	const envDirect = normalizeSecretInput(process.env.MINIMAX_CODE_PLAN_KEY) || normalizeSecretInput(process.env.MINIMAX_API_KEY);
 	if (envDirect) return envDirect;
 	const envResolved = resolveEnvApiKey("minimax");
 	if (envResolved?.apiKey) return envResolved.apiKey;
@@ -24238,11 +24442,11 @@ function resolveMinimaxApiKey() {
 	});
 	if (!apiProfile) return;
 	const cred = store.profiles[apiProfile];
-	if (cred?.type === "api_key" && cred.key?.trim()) return cred.key.trim();
-	if (cred?.type === "token" && cred.token?.trim()) return cred.token.trim();
+	if (cred?.type === "api_key" && normalizeSecretInput(cred.key)) return normalizeSecretInput(cred.key);
+	if (cred?.type === "token" && normalizeSecretInput(cred.token)) return normalizeSecretInput(cred.token);
 }
 function resolveXiaomiApiKey() {
-	const envDirect = process.env.XIAOMI_API_KEY?.trim();
+	const envDirect = normalizeSecretInput(process.env.XIAOMI_API_KEY);
 	if (envDirect) return envDirect;
 	const envResolved = resolveEnvApiKey("xiaomi");
 	if (envResolved?.apiKey) return envResolved.apiKey;
@@ -24255,8 +24459,8 @@ function resolveXiaomiApiKey() {
 	});
 	if (!apiProfile) return;
 	const cred = store.profiles[apiProfile];
-	if (cred?.type === "api_key" && cred.key?.trim()) return cred.key.trim();
-	if (cred?.type === "token" && cred.token?.trim()) return cred.token.trim();
+	if (cred?.type === "api_key" && normalizeSecretInput(cred.key)) return normalizeSecretInput(cred.key);
+	if (cred?.type === "token" && normalizeSecretInput(cred.token)) return normalizeSecretInput(cred.token);
 }
 async function resolveOAuthToken(params) {
 	const cfg = loadConfig();
@@ -25224,25 +25428,6 @@ function parseActivationCommand(raw) {
 
 //#endregion
 //#region src/auto-reply/reply/subagents-utils.ts
-function formatDurationShort(valueMs) {
-	if (!valueMs || !Number.isFinite(valueMs) || valueMs <= 0) return "n/a";
-	const totalSeconds = Math.round(valueMs / 1e3);
-	const hours = Math.floor(totalSeconds / 3600);
-	const minutes = Math.floor(totalSeconds % 3600 / 60);
-	const seconds = totalSeconds % 60;
-	if (hours > 0) return `${hours}h${minutes}m`;
-	if (minutes > 0) return `${minutes}m${seconds}s`;
-	return `${seconds}s`;
-}
-function formatAgeShort(valueMs) {
-	if (!valueMs || !Number.isFinite(valueMs) || valueMs <= 0) return "n/a";
-	const minutes = Math.round(valueMs / 6e4);
-	if (minutes < 1) return "just now";
-	if (minutes < 60) return `${minutes}m ago`;
-	const hours = Math.round(minutes / 60);
-	if (hours < 48) return `${hours}h ago`;
-	return `${Math.round(hours / 24)}d ago`;
-}
 function resolveSubagentLabel(entry, fallback = "subagent") {
 	return entry.label?.trim() || entry.task?.trim() || fallback;
 }
@@ -25556,9 +25741,14 @@ const handlePluginCommand = async (params, allowTextCommands) => {
 			args: match.args,
 			senderId: command.senderId,
 			channel: command.channel,
+			channelId: command.channelId,
 			isAuthorizedSender: command.isAuthorizedSender,
 			commandBody: command.commandBodyNormalized,
-			config: cfg
+			config: cfg,
+			from: command.from,
+			to: command.to,
+			accountId: params.ctx.AccountId ?? void 0,
+			messageThreadId: typeof params.ctx.MessageThreadId === "number" ? params.ctx.MessageThreadId : void 0
 		})
 	};
 };
@@ -26443,7 +26633,7 @@ function formatTimestamp(valueMs) {
 }
 function formatTimestampWithAge(valueMs) {
 	if (!valueMs || !Number.isFinite(valueMs) || valueMs <= 0) return "n/a";
-	return `${formatTimestamp(valueMs)} (${formatAgeShort(Date.now() - valueMs)})`;
+	return `${formatTimestamp(valueMs)} (${formatTimeAgo(Date.now() - valueMs, { fallback: "n/a" })})`;
 }
 function resolveRequesterSessionKey(params) {
 	const raw = params.sessionKey?.trim() || params.ctx.CommandTargetSessionKey?.trim();
@@ -26574,7 +26764,7 @@ const handleSubagentsCommand = async (params, allowTextCommands) => {
 		sorted.forEach((entry, index) => {
 			const status = formatRunStatus(entry);
 			const label = formatRunLabel(entry);
-			const runtime = entry.endedAt && entry.startedAt ? formatDurationShort(entry.endedAt - entry.startedAt) : formatAgeShort(Date.now() - (entry.startedAt ?? entry.createdAt));
+			const runtime = entry.endedAt && entry.startedAt ? formatDurationCompact(entry.endedAt - entry.startedAt) ?? "n/a" : formatTimeAgo(Date.now() - (entry.startedAt ?? entry.createdAt), { fallback: "n/a" });
 			const runId = entry.runId.slice(0, 8);
 			lines.push(`${index + 1}) ${status} · ${label} · ${runtime} · run ${runId} · ${entry.childSessionKey}`);
 		});
@@ -26640,7 +26830,7 @@ const handleSubagentsCommand = async (params, allowTextCommands) => {
 		};
 		const run = resolved.entry;
 		const { entry: sessionEntry } = loadSubagentSessionEntry(params, run.childSessionKey);
-		const runtime = run.startedAt && Number.isFinite(run.startedAt) ? formatDurationShort((run.endedAt ?? Date.now()) - run.startedAt) : "n/a";
+		const runtime = run.startedAt && Number.isFinite(run.startedAt) ? formatDurationCompact((run.endedAt ?? Date.now()) - run.startedAt) ?? "n/a" : "n/a";
 		const outcome = run.outcome ? `${run.outcome.status}${run.outcome.error ? ` (${run.outcome.error})` : ""}` : "n/a";
 		return {
 			shouldContinue: false,
@@ -27867,9 +28057,6 @@ async function startBrowserControlServiceFromConfig() {
 
 //#endregion
 //#region src/browser/routes/dispatcher.ts
-function escapeRegex$1(value) {
-	return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
 function compileRoute(path) {
 	const paramNames = [];
 	const parts = path.split("/").map((part) => {
@@ -27878,7 +28065,7 @@ function compileRoute(path) {
 			paramNames.push(name);
 			return "([^/]+)";
 		}
-		return escapeRegex$1(part);
+		return escapeRegExp(part);
 	});
 	return {
 		regex: new RegExp(`^${parts.join("/")}$`),
@@ -29548,7 +29735,7 @@ function inferDeliveryFromSessionKey(agentSessionKey) {
 	if (parts.length === 0) return null;
 	const head = parts[0]?.trim().toLowerCase();
 	if (!head || head === "main" || head === "subagent" || head === "acp") return null;
-	const markerIndex = parts.findIndex((part) => part === "dm" || part === "group" || part === "channel");
+	const markerIndex = parts.findIndex((part) => part === "direct" || part === "dm" || part === "group" || part === "channel");
 	if (markerIndex === -1) return null;
 	const peerId = parts.slice(markerIndex + 1).join(":").trim();
 	if (!peerId) return null;
@@ -29631,6 +29818,33 @@ Use jobId as the canonical identifier; id is accepted for compatibility. Use con
 				case "status": return jsonResult(await callGatewayTool("cron.status", gatewayOpts, {}));
 				case "list": return jsonResult(await callGatewayTool("cron.list", gatewayOpts, { includeDisabled: Boolean(params.includeDisabled) }));
 				case "add": {
+					if (!params.job || typeof params.job === "object" && params.job !== null && Object.keys(params.job).length === 0) {
+						const JOB_KEYS = new Set([
+							"name",
+							"schedule",
+							"sessionTarget",
+							"wakeMode",
+							"payload",
+							"delivery",
+							"enabled",
+							"description",
+							"deleteAfterRun",
+							"agentId",
+							"message",
+							"text",
+							"model",
+							"thinking",
+							"timeoutSeconds",
+							"allowUnsafeExternalContent"
+						]);
+						const synthetic = {};
+						let found = false;
+						for (const key of Object.keys(params)) if (JOB_KEYS.has(key) && params[key] !== void 0) {
+							synthetic[key] = params[key];
+							found = true;
+						}
+						if (found && (synthetic.schedule !== void 0 || synthetic.payload !== void 0 || synthetic.message !== void 0 || synthetic.text !== void 0)) params.job = synthetic;
+					}
 					if (!params.job || typeof params.job !== "object") throw new Error("job required");
 					const job = normalizeCronJobCreate(params.job) ?? params.job;
 					if (job && typeof job === "object" && !("agentId" in job)) {
@@ -29969,6 +30183,7 @@ function resolveFailoverReasonFromError(err) {
 	if (status === 429) return "rate_limit";
 	if (status === 401 || status === 403) return "auth";
 	if (status === 408) return "timeout";
+	if (status === 400) return "format";
 	const code = (getErrorCode(err) ?? "").toUpperCase();
 	if ([
 		"ETIMEDOUT",
@@ -31342,15 +31557,8 @@ function extractToolPayload$1(result) {
 	}
 	return result.content ?? result;
 }
-function throwIfAborted$1(abortSignal) {
-	if (abortSignal?.aborted) {
-		const err = /* @__PURE__ */ new Error("Message send aborted");
-		err.name = "AbortError";
-		throw err;
-	}
-}
 async function executeSendAction(params) {
-	throwIfAborted$1(params.ctx.abortSignal);
+	throwIfAborted(params.ctx.abortSignal);
 	if (!params.ctx.dryRun) {
 		const handled = await dispatchChannelMessageAction({
 			channel: params.ctx.channel,
@@ -31380,7 +31588,7 @@ async function executeSendAction(params) {
 			};
 		}
 	}
-	throwIfAborted$1(params.ctx.abortSignal);
+	throwIfAborted(params.ctx.abortSignal);
 	const result = await sendMessage({
 		cfg: params.ctx.cfg,
 		to: params.to,
@@ -31787,7 +31995,7 @@ function buildAgentSessionKey(params) {
 		mainKey: DEFAULT_MAIN_KEY,
 		channel,
 		accountId: params.accountId,
-		peerKind: peer?.kind ?? "dm",
+		peerKind: peer?.kind ?? "direct",
 		peerId: peer ? normalizeId(peer.id) || "unknown" : null,
 		dmScope: params.dmScope,
 		identityLinks: params.identityLinks
@@ -31815,7 +32023,7 @@ function matchesChannel(match, channel) {
 function matchesPeer(match, peer) {
 	const m = match?.peer;
 	if (!m) return false;
-	const kind = normalizeToken(m.kind);
+	const kind = normalizeChatType(m.kind);
 	const id = normalizeId(m.id);
 	if (!kind || !id) return false;
 	return kind === peer.kind && id === peer.id;
@@ -32075,7 +32283,7 @@ function stripKindPrefix(raw) {
 }
 function inferPeerKind(params) {
 	const resolvedKind = params.resolvedTarget?.kind;
-	if (resolvedKind === "user") return "dm";
+	if (resolvedKind === "user") return "direct";
 	if (resolvedKind === "channel") return "channel";
 	if (resolvedKind === "group") {
 		const chatTypes = getChannelPlugin(params.channel)?.capabilities?.chatTypes ?? [];
@@ -32084,7 +32292,7 @@ function inferPeerKind(params) {
 		if (supportsChannel && !supportsGroup) return "channel";
 		return "group";
 	}
-	return "dm";
+	return "direct";
 }
 function buildBaseSessionKey(params) {
 	return buildAgentSessionKey({
@@ -32137,7 +32345,7 @@ async function resolveSlackSession(params) {
 	const parsed = parseSlackTarget(params.target, { defaultKind: "channel" });
 	if (!parsed) return null;
 	const isDm = parsed.kind === "user";
-	let peerKind = isDm ? "dm" : "channel";
+	let peerKind = isDm ? "direct" : "channel";
 	if (!isDm && /^G/i.test(parsed.id)) {
 		const channelType = await resolveSlackChannelType({
 			cfg: params.cfg,
@@ -32145,7 +32353,7 @@ async function resolveSlackSession(params) {
 			channelId: parsed.id
 		});
 		if (channelType === "group") peerKind = "group";
-		if (channelType === "dm") peerKind = "dm";
+		if (channelType === "dm") peerKind = "direct";
 	}
 	const peer = {
 		kind: peerKind,
@@ -32166,9 +32374,9 @@ async function resolveSlackSession(params) {
 		}).sessionKey,
 		baseSessionKey,
 		peer,
-		chatType: peerKind === "dm" ? "direct" : "channel",
-		from: peerKind === "dm" ? `slack:${parsed.id}` : peerKind === "group" ? `slack:group:${parsed.id}` : `slack:channel:${parsed.id}`,
-		to: peerKind === "dm" ? `user:${parsed.id}` : `channel:${parsed.id}`,
+		chatType: peerKind === "direct" ? "direct" : "channel",
+		from: peerKind === "direct" ? `slack:${parsed.id}` : peerKind === "group" ? `slack:group:${parsed.id}` : `slack:channel:${parsed.id}`,
+		to: peerKind === "direct" ? `user:${parsed.id}` : `channel:${parsed.id}`,
 		threadId
 	};
 }
@@ -32177,7 +32385,7 @@ function resolveDiscordSession(params) {
 	if (!parsed) return null;
 	const isDm = parsed.kind === "user";
 	const peer = {
-		kind: isDm ? "dm" : "channel",
+		kind: isDm ? "direct" : "channel",
 		id: parsed.id
 	};
 	const baseSessionKey = buildBaseSessionKey({
@@ -32213,7 +32421,7 @@ function resolveTelegramSession(params) {
 	const isGroup = chatType === "group" || chatType === "unknown" && params.resolvedTarget?.kind && params.resolvedTarget.kind !== "user";
 	const peerId = isGroup ? buildTelegramGroupPeerId(chatId, resolvedThreadId) : chatId;
 	const peer = {
-		kind: isGroup ? "group" : "dm",
+		kind: isGroup ? "group" : "direct",
 		id: peerId
 	};
 	const baseSessionKey = buildBaseSessionKey({
@@ -32238,7 +32446,7 @@ function resolveWhatsAppSession(params) {
 	if (!normalized) return null;
 	const isGroup = isWhatsAppGroupJid(normalized);
 	const peer = {
-		kind: isGroup ? "group" : "dm",
+		kind: isGroup ? "group" : "direct",
 		id: normalized
 	};
 	const baseSessionKey = buildBaseSessionKey({
@@ -32295,7 +32503,7 @@ function resolveSignalSession(params) {
 	const peerId = sender ? resolveSignalPeerId(sender) : recipient;
 	const displayRecipient = sender ? resolveSignalRecipient(sender) : recipient;
 	const peer = {
-		kind: "dm",
+		kind: "direct",
 		id: peerId
 	};
 	const baseSessionKey = buildBaseSessionKey({
@@ -32320,7 +32528,7 @@ function resolveIMessageSession(params) {
 		const handle = normalizeIMessageHandle(parsed.to);
 		if (!handle) return null;
 		const peer = {
-			kind: "dm",
+			kind: "direct",
 			id: handle
 		};
 		const baseSessionKey = buildBaseSessionKey({
@@ -32368,7 +32576,7 @@ function resolveMatrixSession(params) {
 	const rawId = stripKindPrefix(stripped);
 	if (!rawId) return null;
 	const peer = {
-		kind: isUser ? "dm" : "channel",
+		kind: isUser ? "direct" : "channel",
 		id: rawId
 	};
 	const baseSessionKey = buildBaseSessionKey({
@@ -32397,7 +32605,7 @@ function resolveMSTeamsSession(params) {
 	const conversationId = rawId.split(";")[0] ?? rawId;
 	const isChannel = !isUser && /@thread\.tacv2/i.test(conversationId);
 	const peer = {
-		kind: isUser ? "dm" : isChannel ? "channel" : "group",
+		kind: isUser ? "direct" : isChannel ? "channel" : "group",
 		id: conversationId
 	};
 	const baseSessionKey = buildBaseSessionKey({
@@ -32425,7 +32633,7 @@ function resolveMattermostSession(params) {
 	const rawId = stripKindPrefix(trimmed);
 	if (!rawId) return null;
 	const peer = {
-		kind: isUser ? "dm" : "channel",
+		kind: isUser ? "direct" : "channel",
 		id: rawId
 	};
 	const baseSessionKey = buildBaseSessionKey({
@@ -32457,7 +32665,7 @@ function resolveBlueBubblesSession(params) {
 	const peerId = isGroup ? rawPeerId.replace(/^(chat_id|chat_guid|chat_identifier):/i, "") : rawPeerId;
 	if (!peerId) return null;
 	const peer = {
-		kind: isGroup ? "group" : "dm",
+		kind: isGroup ? "group" : "direct",
 		id: peerId
 	};
 	const baseSessionKey = buildBaseSessionKey({
@@ -32508,7 +32716,7 @@ function resolveZaloSession(params) {
 	const isGroup = trimmed.toLowerCase().startsWith("group:");
 	const peerId = stripKindPrefix(trimmed);
 	const peer = {
-		kind: isGroup ? "group" : "dm",
+		kind: isGroup ? "group" : "direct",
 		id: peerId
 	};
 	const baseSessionKey = buildBaseSessionKey({
@@ -32533,7 +32741,7 @@ function resolveZalouserSession(params) {
 	const isGroup = trimmed.toLowerCase().startsWith("group:");
 	const peerId = stripKindPrefix(trimmed);
 	const peer = {
-		kind: isGroup ? "group" : "dm",
+		kind: isGroup ? "group" : "direct",
 		id: peerId
 	};
 	const baseSessionKey = buildBaseSessionKey({
@@ -32556,7 +32764,7 @@ function resolveNostrSession(params) {
 	const trimmed = stripProviderPrefix(params.target, "nostr").trim();
 	if (!trimmed) return null;
 	const peer = {
-		kind: "dm",
+		kind: "direct",
 		id: trimmed
 	};
 	const baseSessionKey = buildBaseSessionKey({
@@ -32608,7 +32816,7 @@ function resolveTlonSession(params) {
 		}
 	} else peerId = normalizeTlonShip(trimmed);
 	const peer = {
-		kind: isGroup ? "group" : "dm",
+		kind: isGroup ? "group" : "direct",
 		id: peerId
 	};
 	const baseSessionKey = buildBaseSessionKey({
@@ -32651,7 +32859,7 @@ function resolveFeishuSession(params) {
 	if (idLower.startsWith("oc_")) isGroup = true;
 	else if (idLower.startsWith("ou_") || idLower.startsWith("on_")) isGroup = false;
 	const peer = {
-		kind: isGroup ? "group" : "dm",
+		kind: isGroup ? "group" : "direct",
 		id: trimmed
 	};
 	const baseSessionKey = buildBaseSessionKey({
@@ -32693,9 +32901,9 @@ function resolveFallbackSession(params) {
 		sessionKey: baseSessionKey,
 		baseSessionKey,
 		peer,
-		chatType: peerKind === "dm" ? "direct" : peerKind === "channel" ? "channel" : "group",
-		from: peerKind === "dm" ? `${params.channel}:${peerId}` : `${params.channel}:${peerKind}:${peerId}`,
-		to: `${peerKind === "dm" ? "user" : "channel"}:${peerId}`
+		chatType: peerKind === "direct" ? "direct" : peerKind === "channel" ? "channel" : "group",
+		from: peerKind === "direct" ? `${params.channel}:${peerId}` : `${params.channel}:${peerKind}:${peerId}`,
+		to: `${peerKind === "direct" ? "user" : "channel"}:${peerId}`
 	};
 }
 async function resolveOutboundSessionRoute(params) {
@@ -32875,10 +33083,8 @@ function resolveTelegramAutoThreadId(params) {
 	return context.currentThreadTs;
 }
 function resolveAttachmentMaxBytes(params) {
-	const fallback = params.cfg.agents?.defaults?.mediaMaxMb;
-	if (params.channel !== "bluebubbles") return typeof fallback === "number" ? fallback * 1024 * 1024 : void 0;
 	const accountId = typeof params.accountId === "string" ? params.accountId.trim() : "";
-	const channelCfg = params.cfg.channels?.bluebubbles;
+	const channelCfg = params.cfg.channels?.[params.channel];
 	const channelObj = channelCfg && typeof channelCfg === "object" ? channelCfg : void 0;
 	const channelMediaMax = typeof channelObj?.mediaMaxMb === "number" ? channelObj.mediaMaxMb : void 0;
 	const accountsObj = channelObj?.accounts && typeof channelObj.accounts === "object" ? channelObj.accounts : void 0;
@@ -33159,13 +33365,6 @@ async function handleBroadcastAction(input, params) {
 		payload: { results },
 		dryRun: Boolean(input.dryRun)
 	};
-}
-function throwIfAborted(abortSignal) {
-	if (abortSignal?.aborted) {
-		const err = /* @__PURE__ */ new Error("Message send aborted");
-		err.name = "AbortError";
-		throw err;
-	}
 }
 async function handleSendAction(ctx) {
 	const { cfg, params, channel, accountId, dryRun, gateway, input, agentId, resolvedTarget, abortSignal } = ctx;
@@ -35167,13 +35366,13 @@ async function runSessionsSendA2AFlow(params) {
 				runId: runContextId,
 				channel: announceTarget.channel,
 				to: announceTarget.to,
-				error: formatErrorMessage$1(err)
+				error: formatErrorMessage(err)
 			});
 		}
 	} catch (err) {
 		log$6.warn("sessions_send announce flow failed", {
 			runId: runContextId,
-			error: formatErrorMessage$1(err)
+			error: formatErrorMessage(err)
 		});
 	}
 }
@@ -36048,8 +36247,8 @@ function resolveFirecrawlConfig(fetch) {
 	return firecrawl;
 }
 function resolveFirecrawlApiKey(firecrawl) {
-	const fromConfig = firecrawl && "apiKey" in firecrawl && typeof firecrawl.apiKey === "string" ? firecrawl.apiKey.trim() : "";
-	const fromEnv = (process.env.FIRECRAWL_API_KEY ?? "").trim();
+	const fromConfig = firecrawl && "apiKey" in firecrawl && typeof firecrawl.apiKey === "string" ? normalizeSecretInput(firecrawl.apiKey) : "";
+	const fromEnv = normalizeSecretInput(process.env.FIRECRAWL_API_KEY);
 	return fromConfig || fromEnv || void 0;
 }
 function resolveFirecrawlEnabled(params) {
@@ -36460,6 +36659,8 @@ const PERPLEXITY_DIRECT_BASE_URL = "https://api.perplexity.ai";
 const DEFAULT_PERPLEXITY_MODEL = "perplexity/sonar-pro";
 const PERPLEXITY_KEY_PREFIXES = ["pplx-"];
 const OPENROUTER_KEY_PREFIXES = ["sk-or-"];
+const XAI_API_ENDPOINT = "https://api.x.ai/v1/responses";
+const DEFAULT_GROK_MODEL = "grok-4-1-fast";
 const SEARCH_CACHE = /* @__PURE__ */ new Map();
 const BRAVE_FRESHNESS_SHORTCUTS = new Set([
 	"pd",
@@ -36491,14 +36692,19 @@ function resolveSearchEnabled(params) {
 	return true;
 }
 function resolveSearchApiKey(search) {
-	const fromConfig = search && "apiKey" in search && typeof search.apiKey === "string" ? search.apiKey.trim() : "";
-	const fromEnv = (process.env.BRAVE_API_KEY ?? "").trim();
+	const fromConfig = search && "apiKey" in search && typeof search.apiKey === "string" ? normalizeSecretInput(search.apiKey) : "";
+	const fromEnv = normalizeSecretInput(process.env.BRAVE_API_KEY);
 	return fromConfig || fromEnv || void 0;
 }
 function missingSearchKeyPayload(provider) {
 	if (provider === "perplexity") return {
 		error: "missing_perplexity_api_key",
 		message: "web_search (perplexity) needs an API key. Set PERPLEXITY_API_KEY or OPENROUTER_API_KEY in the Gateway environment, or configure tools.web.search.perplexity.apiKey.",
+		docs: "https://docs.openclaw.ai/tools/web"
+	};
+	if (provider === "grok") return {
+		error: "missing_xai_api_key",
+		message: "web_search (grok) needs an xAI API key. Set XAI_API_KEY in the Gateway environment, or configure tools.web.search.grok.apiKey.",
 		docs: "https://docs.openclaw.ai/tools/web"
 	};
 	return {
@@ -36510,6 +36716,7 @@ function missingSearchKeyPayload(provider) {
 function resolveSearchProvider(search) {
 	const raw = search && "provider" in search && typeof search.provider === "string" ? search.provider.trim().toLowerCase() : "";
 	if (raw === "perplexity") return "perplexity";
+	if (raw === "grok") return "grok";
 	if (raw === "brave") return "brave";
 	return "brave";
 }
@@ -36541,7 +36748,7 @@ function resolvePerplexityApiKey(perplexity) {
 	};
 }
 function normalizeApiKey(key) {
-	return typeof key === "string" ? key.trim() : "";
+	return normalizeSecretInput(key);
 }
 function inferPerplexityBaseUrlFromApiKey(apiKey) {
 	if (!apiKey) return;
@@ -36563,6 +36770,36 @@ function resolvePerplexityBaseUrl(perplexity, apiKeySource = "none", apiKey) {
 }
 function resolvePerplexityModel(perplexity) {
 	return (perplexity && "model" in perplexity && typeof perplexity.model === "string" ? perplexity.model.trim() : "") || DEFAULT_PERPLEXITY_MODEL;
+}
+function isDirectPerplexityBaseUrl(baseUrl) {
+	const trimmed = baseUrl.trim();
+	if (!trimmed) return false;
+	try {
+		return new URL(trimmed).hostname.toLowerCase() === "api.perplexity.ai";
+	} catch {
+		return false;
+	}
+}
+function resolvePerplexityRequestModel(baseUrl, model) {
+	if (!isDirectPerplexityBaseUrl(baseUrl)) return model;
+	return model.startsWith("perplexity/") ? model.slice(11) : model;
+}
+function resolveGrokConfig(search) {
+	if (!search || typeof search !== "object") return {};
+	const grok = "grok" in search ? search.grok : void 0;
+	if (!grok || typeof grok !== "object") return {};
+	return grok;
+}
+function resolveGrokApiKey(grok) {
+	const fromConfig = normalizeApiKey(grok?.apiKey);
+	if (fromConfig) return fromConfig;
+	return normalizeApiKey(process.env.XAI_API_KEY) || void 0;
+}
+function resolveGrokModel(grok) {
+	return (grok && "model" in grok && typeof grok.model === "string" ? grok.model.trim() : "") || DEFAULT_GROK_MODEL;
+}
+function resolveGrokInlineCitations(grok) {
+	return grok?.inlineCitations === true;
 }
 function resolveSearchCount(value, fallback) {
 	const parsed = typeof value === "number" && Number.isFinite(value) ? value : fallback;
@@ -36597,7 +36834,9 @@ function resolveSiteName(url) {
 	}
 }
 async function runPerplexitySearch(params) {
-	const endpoint = `${params.baseUrl.replace(/\/$/, "")}/chat/completions`;
+	const baseUrl = params.baseUrl.trim().replace(/\/$/, "");
+	const endpoint = `${baseUrl}/chat/completions`;
+	const model = resolvePerplexityRequestModel(baseUrl, params.model);
 	const res = await fetch(endpoint, {
 		method: "POST",
 		headers: {
@@ -36607,7 +36846,7 @@ async function runPerplexitySearch(params) {
 			"X-Title": "OpenClaw Web Search"
 		},
 		body: JSON.stringify({
-			model: params.model,
+			model,
 			messages: [{
 				role: "user",
 				content: params.query
@@ -36625,8 +36864,38 @@ async function runPerplexitySearch(params) {
 		citations: data.citations ?? []
 	};
 }
+async function runGrokSearch(params) {
+	const body = {
+		model: params.model,
+		input: [{
+			role: "user",
+			content: params.query
+		}],
+		tools: [{ type: "web_search" }]
+	};
+	if (params.inlineCitations) body.include = ["inline_citations"];
+	const res = await fetch(XAI_API_ENDPOINT, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${params.apiKey}`
+		},
+		body: JSON.stringify(body),
+		signal: withTimeout$3(void 0, params.timeoutSeconds * 1e3)
+	});
+	if (!res.ok) {
+		const detail = await readResponseText(res);
+		throw new Error(`xAI API error (${res.status}): ${detail || res.statusText}`);
+	}
+	const data = await res.json();
+	return {
+		content: data.output_text ?? "No response",
+		citations: data.citations ?? [],
+		inlineCitations: data.inline_citations
+	};
+}
 async function runWebSearch(params) {
-	const cacheKey = normalizeCacheKey(params.provider === "brave" ? `${params.provider}:${params.query}:${params.count}:${params.country || "default"}:${params.search_lang || "default"}:${params.ui_lang || "default"}:${params.freshness || "default"}` : `${params.provider}:${params.query}:${params.count}:${params.country || "default"}:${params.search_lang || "default"}:${params.ui_lang || "default"}`);
+	const cacheKey = normalizeCacheKey(params.provider === "brave" ? `${params.provider}:${params.query}:${params.count}:${params.country || "default"}:${params.search_lang || "default"}:${params.ui_lang || "default"}:${params.freshness || "default"}` : params.provider === "perplexity" ? `${params.provider}:${params.query}:${params.perplexityBaseUrl ?? DEFAULT_PERPLEXITY_BASE_URL}:${params.perplexityModel ?? DEFAULT_PERPLEXITY_MODEL}` : `${params.provider}:${params.query}:${params.grokModel ?? DEFAULT_GROK_MODEL}:${String(params.grokInlineCitations ?? false)}`);
 	const cached = readCache(SEARCH_CACHE, cacheKey);
 	if (cached) return {
 		...cached.value,
@@ -36648,6 +36917,26 @@ async function runWebSearch(params) {
 			tookMs: Date.now() - start,
 			content: wrapWebContent(content),
 			citations
+		};
+		writeCache(SEARCH_CACHE, cacheKey, payload, params.cacheTtlMs);
+		return payload;
+	}
+	if (params.provider === "grok") {
+		const { content, citations, inlineCitations } = await runGrokSearch({
+			query: params.query,
+			apiKey: params.apiKey,
+			model: params.grokModel ?? DEFAULT_GROK_MODEL,
+			timeoutSeconds: params.timeoutSeconds,
+			inlineCitations: params.grokInlineCitations ?? false
+		});
+		const payload = {
+			query: params.query,
+			provider: params.provider,
+			model: params.grokModel ?? DEFAULT_GROK_MODEL,
+			tookMs: Date.now() - start,
+			content,
+			citations,
+			inlineCitations
 		};
 		writeCache(SEARCH_CACHE, cacheKey, payload, params.cacheTtlMs);
 		return payload;
@@ -36704,14 +36993,15 @@ function createWebSearchTool(options) {
 	})) return null;
 	const provider = resolveSearchProvider(search);
 	const perplexityConfig = resolvePerplexityConfig(search);
+	const grokConfig = resolveGrokConfig(search);
 	return {
 		label: "Web Search",
 		name: "web_search",
-		description: provider === "perplexity" ? "Search the web using Perplexity Sonar (direct or via OpenRouter). Returns AI-synthesized answers with citations from real-time web search." : "Search the web using Brave Search API. Supports region-specific and localized search via country and language parameters. Returns titles, URLs, and snippets for fast research.",
+		description: provider === "perplexity" ? "Search the web using Perplexity Sonar (direct or via OpenRouter). Returns AI-synthesized answers with citations from real-time web search." : provider === "grok" ? "Search the web using xAI Grok. Returns AI-synthesized answers with citations from real-time web search." : "Search the web using Brave Search API. Supports region-specific and localized search via country and language parameters. Returns titles, URLs, and snippets for fast research.",
 		parameters: WebSearchSchema,
 		execute: async (_toolCallId, args) => {
 			const perplexityAuth = provider === "perplexity" ? resolvePerplexityApiKey(perplexityConfig) : void 0;
-			const apiKey = provider === "perplexity" ? perplexityAuth?.apiKey : resolveSearchApiKey(search);
+			const apiKey = provider === "perplexity" ? perplexityAuth?.apiKey : provider === "grok" ? resolveGrokApiKey(grokConfig) : resolveSearchApiKey(search);
 			if (!apiKey) return jsonResult(missingSearchKeyPayload(provider));
 			const params = args;
 			const query = readStringParam(params, "query", { required: true });
@@ -36743,7 +37033,9 @@ function createWebSearchTool(options) {
 				ui_lang,
 				freshness,
 				perplexityBaseUrl: resolvePerplexityBaseUrl(perplexityConfig, perplexityAuth?.source, perplexityAuth?.apiKey),
-				perplexityModel: resolvePerplexityModel(perplexityConfig)
+				perplexityModel: resolvePerplexityModel(perplexityConfig),
+				grokModel: resolveGrokModel(grokConfig),
+				grokInlineCitations: resolveGrokInlineCitations(grokConfig)
 			}));
 		}
 	};
@@ -37288,9 +37580,6 @@ function resolveCliBackendConfig(provider, cfg) {
 //#endregion
 //#region src/agents/cli-runner/helpers.ts
 const CLI_RUN_QUEUE = /* @__PURE__ */ new Map();
-function escapeRegex(value) {
-	return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
 async function cleanupResumeProcesses(backend, sessionId) {
 	if (process.platform === "win32") return;
 	const resumeArgs = backend.resumeArgs ?? [];
@@ -37298,7 +37587,7 @@ async function cleanupResumeProcesses(backend, sessionId) {
 	if (!resumeArgs.some((arg) => arg.includes("{sessionId}"))) return;
 	const commandToken = path.basename(backend.command ?? "").trim();
 	if (!commandToken) return;
-	const pattern = [commandToken, ...resumeArgs.map((arg) => arg.replaceAll("{sessionId}", sessionId))].filter(Boolean).map((token) => escapeRegex(token)).join(".*");
+	const pattern = [commandToken, ...resumeArgs.map((arg) => arg.replaceAll("{sessionId}", sessionId))].filter(Boolean).map((token) => escapeRegExp(token)).join(".*");
 	if (!pattern) return;
 	try {
 		await runExec("pkill", ["-f", pattern]);
@@ -37325,8 +37614,8 @@ function buildSessionMatchers(backend) {
 	return matchers;
 }
 function tokenToRegex(token) {
-	if (!token.includes("{sessionId}")) return escapeRegex(token);
-	return token.split("{sessionId}").map((part) => escapeRegex(part)).join("\\S+");
+	if (!token.includes("{sessionId}")) return escapeRegExp(token);
+	return token.split("{sessionId}").map((part) => escapeRegExp(part)).join("\\S+");
 }
 /**
 * Cleanup suspended OpenClaw CLI processes that have accumulated.
@@ -37399,7 +37688,8 @@ function buildSystemPrompt(params) {
 			arch: os.arch(),
 			node: process.version,
 			model: params.modelDisplay,
-			defaultModel: defaultModelLabel
+			defaultModel: defaultModelLabel,
+			shell: detectRuntimeShell()
 		}
 	});
 	const ttsHint = params.config ? buildTtsSystemPromptHint(params.config) : void 0;
@@ -38895,14 +39185,17 @@ async function persistSessionUsageUpdate(params) {
 				update: async (entry) => {
 					const input = params.usage?.input ?? 0;
 					const output = params.usage?.output ?? 0;
-					const promptTokens = input + (params.usage?.cacheRead ?? 0) + (params.usage?.cacheWrite ?? 0);
+					const resolvedContextTokens = params.contextTokensUsed ?? entry.contextTokens;
 					const patch = {
 						inputTokens: input,
 						outputTokens: output,
-						totalTokens: promptTokens > 0 ? promptTokens : params.usage?.total ?? input,
+						totalTokens: deriveSessionTotalTokens({
+							usage: params.usage,
+							contextTokens: resolvedContextTokens
+						}) ?? input,
 						modelProvider: params.providerUsed ?? entry.modelProvider,
 						model: params.modelUsed ?? entry.model,
-						contextTokens: params.contextTokensUsed ?? entry.contextTokens,
+						contextTokens: resolvedContextTokens,
 						systemPromptReport: params.systemPromptReport ?? entry.systemPromptReport,
 						updatedAt: Date.now()
 					};
@@ -40300,7 +40593,7 @@ async function scpFile(remoteHost, remotePath, localPath) {
 //#endregion
 //#region src/auto-reply/reply/typing.ts
 function createTypingController(params) {
-	const { onReplyStart, typingIntervalSeconds = 6, typingTtlMs = 2 * 6e4, silentToken = SILENT_REPLY_TOKEN, log } = params;
+	const { onReplyStart, onCleanup, typingIntervalSeconds = 6, typingTtlMs = 2 * 6e4, silentToken = SILENT_REPLY_TOKEN, log } = params;
 	let started = false;
 	let active = false;
 	let runComplete = false;
@@ -40329,6 +40622,7 @@ function createTypingController(params) {
 			clearInterval(typingTimer);
 			typingTimer = void 0;
 		}
+		if (active) onCleanup?.();
 		resetCycle();
 		sealed = true;
 	};
@@ -40458,6 +40752,7 @@ async function getReplyFromConfig(ctx, opts, configOverride) {
 	const typingIntervalSeconds = typeof configuredTypingSeconds === "number" ? configuredTypingSeconds : 6;
 	const typing = createTypingController({
 		onReplyStart: opts?.onReplyStart,
+		onCleanup: opts?.onTypingCleanup,
 		typingIntervalSeconds,
 		silentToken: SILENT_REPLY_TOKEN,
 		log: defaultRuntime.log
@@ -41134,7 +41429,7 @@ function createReplyDispatcher(options) {
 	};
 }
 function createReplyDispatcherWithTyping(options) {
-	const { onReplyStart, onIdle, ...dispatcherOptions } = options;
+	const { onReplyStart, onIdle, onCleanup, ...dispatcherOptions } = options;
 	let typingController;
 	return {
 		dispatcher: createReplyDispatcher({
@@ -41146,6 +41441,7 @@ function createReplyDispatcherWithTyping(options) {
 		}),
 		replyOptions: {
 			onReplyStart,
+			onTypingCleanup: onCleanup,
 			onTypingController: (typing) => {
 				typingController = typing;
 			}
@@ -41290,7 +41586,9 @@ function resolveControlCommandGate(params) {
 /**
 * In-memory cache of Discord user presence data.
 * Populated by PRESENCE_UPDATE gateway events when the GuildPresences intent is enabled.
+* Per-account maps are capped to prevent unbounded growth (#4948).
 */
+const MAX_PRESENCE_PER_ACCOUNT = 5e3;
 const presenceCache = /* @__PURE__ */ new Map();
 function resolveAccountKey$1(accountId) {
 	return accountId ?? "default";
@@ -41304,6 +41602,10 @@ function setPresence(accountId, userId, data) {
 		presenceCache.set(accountKey, accountCache);
 	}
 	accountCache.set(userId, data);
+	if (accountCache.size > MAX_PRESENCE_PER_ACCOUNT) {
+		const oldest = accountCache.keys().next().value;
+		if (oldest !== void 0) accountCache.delete(oldest);
+	}
 }
 /** Get cached presence for a user. Returns undefined if not cached. */
 function getPresence(accountId, userId) {
@@ -41966,7 +42268,14 @@ async function createThreadDiscord(channelId, payload, opts = {}) {
 	const rest = resolveDiscordRest(opts);
 	const body = { name: payload.name };
 	if (payload.autoArchiveMinutes) body.auto_archive_duration = payload.autoArchiveMinutes;
-	const route = Routes.threads(channelId, payload.messageId);
+	let channelType;
+	if (!payload.messageId) try {
+		channelType = (await rest.get(Routes.channel(channelId)))?.type;
+	} catch {
+		channelType = void 0;
+	}
+	if (channelType === ChannelType$1.GuildForum || channelType === ChannelType$1.GuildMedia) body.message = { content: payload.content?.trim() ? payload.content : payload.name };
+	const route = payload.messageId ? Routes.threads(channelId, payload.messageId) : Routes.threads(channelId);
 	return await rest.post(route, { body });
 }
 async function listThreadsDiscord(payload, opts = {}) {
@@ -42646,6 +42955,7 @@ async function handleDiscordMessagingAction(action, params, isActionEnabled) {
 			const channelId = resolveChannelId();
 			const name = readStringParam(params, "name", { required: true });
 			const messageId = readStringParam(params, "messageId");
+			const content = readStringParam(params, "content");
 			const autoArchiveMinutesRaw = params.autoArchiveMinutes;
 			const autoArchiveMinutes = typeof autoArchiveMinutesRaw === "number" && Number.isFinite(autoArchiveMinutesRaw) ? autoArchiveMinutesRaw : void 0;
 			return jsonResult({
@@ -42653,11 +42963,13 @@ async function handleDiscordMessagingAction(action, params, isActionEnabled) {
 				thread: accountId ? await createThreadDiscord(channelId, {
 					name,
 					messageId,
-					autoArchiveMinutes
+					autoArchiveMinutes,
+					content
 				}, { accountId }) : await createThreadDiscord(channelId, {
 					name,
 					messageId,
-					autoArchiveMinutes
+					autoArchiveMinutes,
+					content
 				})
 			});
 		}
@@ -43403,6 +43715,7 @@ async function handleDiscordMessageAction(ctx) {
 	if (action === "thread-create") {
 		const name = readStringParam(params, "threadName", { required: true });
 		const messageId = readStringParam(params, "messageId");
+		const content = readStringParam(params, "message");
 		const autoArchiveMinutes = readNumberParam(params, "autoArchiveMin", { integer: true });
 		return await handleDiscordAction({
 			action: "threadCreate",
@@ -43410,6 +43723,7 @@ async function handleDiscordMessageAction(ctx) {
 			channelId: resolveChannelId(),
 			name,
 			messageId,
+			content,
 			autoArchiveMinutes
 		}, cfg);
 	}
@@ -43889,7 +44203,7 @@ async function describeStickerImage(params) {
 	logVerbose(`telegram: describing sticker with ${provider}/${model}`);
 	try {
 		const buffer = await fs$1.readFile(imagePath);
-		const { describeImageWithModel } = await import("./image-D1NqsNau.js").then((n) => n.n);
+		const { describeImageWithModel } = await import("./image-BbohNYcI.js").then((n) => n.n);
 		return (await describeImageWithModel({
 			buffer,
 			fileName: "sticker.webp",
@@ -44246,7 +44560,7 @@ function createWhatsAppLoginTool() {
 			force: Type.Optional(Type.Boolean())
 		}),
 		execute: async (_toolCallId, args) => {
-			const { startWebLoginWithQr, waitForWebLogin } = await import("./login-qr-eV3VIoOX.js").then((n) => n.t);
+			const { startWebLoginWithQr, waitForWebLogin } = await import("./login-qr-CyV-A5GJ.js").then((n) => n.t);
 			if ((args?.action ?? "start") === "wait") {
 				const result = await waitForWebLogin({ timeoutMs: typeof args.timeoutMs === "number" ? args.timeoutMs : void 0 });
 				return {
@@ -44343,7 +44657,6 @@ const DEFAULT_RECONNECT_POLICY$1 = {
 	jitter: .25,
 	maxAttempts: 12
 };
-const clamp = (val, min, max) => Math.max(min, Math.min(max, val));
 function resolveHeartbeatSeconds(cfg, overrideSeconds) {
 	const candidate = overrideSeconds ?? cfg.web?.heartbeatSeconds;
 	if (typeof candidate === "number" && candidate > 0) return candidate;
@@ -44495,24 +44808,6 @@ function buildHistoryContextFromEntries(params) {
 function waitForever() {
 	setInterval(() => {}, 1e6).unref();
 	return new Promise(() => {});
-}
-
-//#endregion
-//#region src/infra/format-duration.ts
-function formatDurationSeconds(ms, options = {}) {
-	if (!Number.isFinite(ms)) return "unknown";
-	const decimals = options.decimals ?? 1;
-	const unit = options.unit ?? "s";
-	const trimmed = (Math.max(0, ms) / 1e3).toFixed(Math.max(0, decimals)).replace(/\.0+$/, "").replace(/(\.\d*[1-9])0+$/, "$1");
-	return unit === "seconds" ? `${trimmed} seconds` : `${trimmed}s`;
-}
-function formatDurationMs(ms, options = {}) {
-	if (!Number.isFinite(ms)) return "unknown";
-	if (ms < 1e3) return `${ms}ms`;
-	return formatDurationSeconds(ms, {
-		decimals: options.decimals ?? 2,
-		unit: options.unit ?? "s"
-	});
 }
 
 //#endregion
@@ -45422,7 +45717,7 @@ async function maybeBroadcastMessage(params) {
 				channel: "whatsapp",
 				accountId: params.route.accountId,
 				peer: {
-					kind: params.msg.chatType === "group" ? "group" : "dm",
+					kind: params.msg.chatType === "group" ? "group" : "direct",
 					id: params.peerId
 				},
 				dmScope: params.cfg.session?.dmScope,
@@ -46177,11 +46472,11 @@ function createWebOnMessageHandler(params) {
 		const conversationId = msg.conversationId ?? msg.from;
 		const peerId = resolvePeerId(msg);
 		const route = resolveAgentRoute({
-			cfg: params.cfg,
+			cfg: loadConfig(),
 			channel: "whatsapp",
 			accountId: msg.accountId,
 			peer: {
-				kind: msg.chatType === "group" ? "group" : "dm",
+				kind: msg.chatType === "group" ? "group" : "direct",
 				id: peerId
 			}
 		});
@@ -46541,7 +46836,7 @@ async function monitorWebChannel(verbose, listenerFactory = monitorWebInbox, kee
 			maxAttempts: reconnectPolicy.maxAttempts || "unlimited",
 			delayMs: delay
 		}, "web reconnect: scheduling retry");
-		runtime.error(`WhatsApp Web connection closed (status ${statusCode}). Retry ${reconnectAttempts}/${reconnectPolicy.maxAttempts || "∞"} in ${formatDurationMs(delay)}… (${errorStr})`);
+		runtime.error(`WhatsApp Web connection closed (status ${statusCode}). Retry ${reconnectAttempts}/${reconnectPolicy.maxAttempts || "∞"} in ${formatDurationPrecise(delay)}… (${errorStr})`);
 		await closeListener();
 		try {
 			await sleep(delay, abortSignal);
@@ -46620,9 +46915,6 @@ function formatDocsLink(path, label, opts) {
 
 //#endregion
 //#region src/cli/cli-utils.ts
-function formatErrorMessage(err) {
-	return err instanceof Error ? err.message : String(err);
-}
 async function withManager(params) {
 	const { manager, error } = await params.getManager();
 	if (!manager) {
@@ -48053,12 +48345,12 @@ async function preflightDiscordMessage(params) {
 		earlyThreadParentType = parentInfo.type;
 	}
 	const route = resolveAgentRoute({
-		cfg: params.cfg,
+		cfg: loadConfig(),
 		channel: "discord",
 		accountId: params.accountId,
 		guildId: params.data.guild_id ?? void 0,
 		peer: {
-			kind: isDirectMessage ? "dm" : isGroupDm ? "group" : "channel",
+			kind: isDirectMessage ? "direct" : isGroupDm ? "group" : "channel",
 			id: isDirectMessage ? author.id : message.channelId
 		},
 		parentPeer: earlyThreadParentId ? {
@@ -48333,11 +48625,13 @@ function createTypingCallbacks(params) {
 			params.onStartError(err);
 		}
 	};
+	const fireStop = stop ? () => {
+		stop().catch((err) => (params.onStopError ?? params.onStartError)(err));
+	} : void 0;
 	return {
 		onReplyStart,
-		onIdle: stop ? () => {
-			stop().catch((err) => (params.onStopError ?? params.onStartError)(err));
-		} : void 0
+		onIdle: fireStop,
+		onCleanup: fireStop
 	};
 }
 
@@ -49329,7 +49623,7 @@ async function dispatchDiscordCommandInteraction(params) {
 		accountId,
 		guildId: interaction.guild?.id ?? void 0,
 		peer: {
-			kind: isDirectMessage ? "dm" : isGroupDm ? "group" : "channel",
+			kind: isDirectMessage ? "direct" : isGroupDm ? "group" : "channel",
 			id: isDirectMessage ? user.id : channelId
 		},
 		parentPeer: threadParentId ? {
@@ -50317,7 +50611,7 @@ async function deployDiscordCommands(params) {
 		await runWithRetry(() => params.client.handleDeployRequest(), "command deploy");
 	} catch (err) {
 		const details = formatDiscordDeployErrorDetails(err);
-		params.runtime.error?.(danger(`discord: failed to deploy native commands: ${formatErrorMessage$1(err)}${details}`));
+		params.runtime.error?.(danger(`discord: failed to deploy native commands: ${formatErrorMessage(err)}${details}`));
 	}
 }
 function formatDiscordDeployErrorDetails(err) {
@@ -50465,7 +50759,7 @@ async function monitorDiscordProvider(opts = {}) {
 				summarizeMapping("discord channels", mapping, unresolved, runtime);
 			}
 		} catch (err) {
-			runtime.log?.(`discord channel resolve failed; using config entries. ${formatErrorMessage$1(err)}`);
+			runtime.log?.(`discord channel resolve failed; using config entries. ${formatErrorMessage(err)}`);
 		}
 		const allowEntries = allowFrom?.filter((entry) => String(entry).trim() && String(entry).trim() !== "*") ?? [];
 		if (allowEntries.length > 0) try {
@@ -50486,7 +50780,7 @@ async function monitorDiscordProvider(opts = {}) {
 			});
 			summarizeMapping("discord users", mapping, unresolved, runtime);
 		} catch (err) {
-			runtime.log?.(`discord user resolve failed; using config entries. ${formatErrorMessage$1(err)}`);
+			runtime.log?.(`discord user resolve failed; using config entries. ${formatErrorMessage(err)}`);
 		}
 		if (guildEntries && Object.keys(guildEntries).length > 0) {
 			const userEntries = /* @__PURE__ */ new Set();
@@ -50561,7 +50855,7 @@ async function monitorDiscordProvider(opts = {}) {
 				guildEntries = nextGuilds;
 				summarizeMapping("discord channel users", mapping, unresolved, runtime);
 			} catch (err) {
-				runtime.log?.(`discord channel user resolve failed; using config entries. ${formatErrorMessage$1(err)}`);
+				runtime.log?.(`discord channel user resolve failed; using config entries. ${formatErrorMessage(err)}`);
 			}
 		}
 	}
@@ -51393,7 +51687,7 @@ async function monitorIMessageProvider(opts = {}) {
 			channel: "imessage",
 			accountId: accountInfo.accountId,
 			peer: {
-				kind: isGroup ? "group" : "dm",
+				kind: isGroup ? "group" : "direct",
 				id: isGroup ? String(chatId ?? "unknown") : normalizeIMessageHandle(sender)
 			}
 		});
@@ -52019,7 +52313,7 @@ async function buildLineMessageContext(params) {
 		channel: "line",
 		accountId: account.accountId,
 		peer: {
-			kind: isGroup ? "group" : "dm",
+			kind: isGroup ? "group" : "direct",
 			id: peerId
 		}
 	});
@@ -52138,7 +52432,7 @@ async function buildLinePostbackContext(params) {
 		channel: "line",
 		accountId: account.accountId,
 		peer: {
-			kind: isGroup ? "group" : "dm",
+			kind: isGroup ? "group" : "direct",
 			id: peerId
 		}
 	});
@@ -53676,7 +53970,7 @@ function createSignalEventHandler(deps) {
 			channel: "signal",
 			accountId: deps.accountId,
 			peer: {
-				kind: entry.isGroup ? "group" : "dm",
+				kind: entry.isGroup ? "group" : "direct",
 				id: entry.isGroup ? entry.groupId ?? "unknown" : entry.senderPeerId
 			}
 		});
@@ -53906,7 +54200,7 @@ function createSignalEventHandler(deps) {
 				channel: "signal",
 				accountId: deps.accountId,
 				peer: {
-					kind: isGroup ? "group" : "dm",
+					kind: isGroup ? "group" : "direct",
 					id: isGroup ? groupId ?? "unknown" : senderPeerId
 				}
 			});
@@ -55801,7 +56095,7 @@ async function prepareSlackMessage(params) {
 		accountId: account.accountId,
 		teamId: ctx.teamId || void 0,
 		peer: {
-			kind: isDirectMessage ? "dm" : isRoom ? "channel" : "group",
+			kind: isDirectMessage ? "direct" : isRoom ? "channel" : "group",
 			id: isDirectMessage ? message.user ?? "unknown" : message.channel
 		}
 	});
@@ -56524,7 +56818,7 @@ function registerSlackMonitorSlashCommands(params) {
 				accountId: account.accountId,
 				teamId: ctx.teamId || void 0,
 				peer: {
-					kind: isDirectMessage ? "dm" : isRoom ? "channel" : "group",
+					kind: isDirectMessage ? "direct" : isRoom ? "channel" : "group",
 					id: isDirectMessage ? command.user_id : command.channel_id
 				}
 			});
@@ -57289,7 +57583,6 @@ async function deliverReplies(params) {
 				...shouldAttachButtonsToMedia ? { reply_markup: replyMarkup } : {},
 				...buildTelegramSendParams({
 					replyToMessageId,
-					replyQuoteText,
 					thread
 				})
 			};
@@ -57487,7 +57780,7 @@ async function resolveMedia(ctx, maxBytes, token, proxyFetch) {
 }
 function isVoiceMessagesForbidden(err) {
 	if (err instanceof GrammyError) return VOICE_FORBIDDEN_RE.test(err.description);
-	return VOICE_FORBIDDEN_RE.test(formatErrorMessage$1(err));
+	return VOICE_FORBIDDEN_RE.test(formatErrorMessage(err));
 }
 async function sendTelegramVoiceFallbackText(opts) {
 	const chunks = opts.chunkText(opts.text);
@@ -57510,19 +57803,13 @@ async function sendTelegramVoiceFallbackText(opts) {
 function buildTelegramSendParams(opts) {
 	const threadParams = buildTelegramThreadParams(opts?.thread);
 	const params = {};
-	const quoteText = opts?.replyQuoteText?.trim();
-	if (opts?.replyToMessageId) if (quoteText) params.reply_parameters = {
-		message_id: Math.trunc(opts.replyToMessageId),
-		quote: quoteText
-	};
-	else params.reply_to_message_id = opts.replyToMessageId;
+	if (opts?.replyToMessageId) params.reply_to_message_id = opts.replyToMessageId;
 	if (threadParams) params.message_thread_id = threadParams.message_thread_id;
 	return params;
 }
 async function sendTelegramText(bot, chatId, text, runtime, opts) {
 	const baseParams = buildTelegramSendParams({
 		replyToMessageId: opts?.replyToMessageId,
-		replyQuoteText: opts?.replyQuoteText,
 		thread: opts?.thread
 	});
 	const linkPreviewOptions = opts?.linkPreview ?? true ? void 0 : { is_disabled: true };
@@ -57531,7 +57818,7 @@ async function sendTelegramText(bot, chatId, text, runtime, opts) {
 		return (await withTelegramApiErrorLogging({
 			operation: "sendMessage",
 			runtime,
-			shouldLog: (err) => !PARSE_ERR_RE.test(formatErrorMessage$1(err)),
+			shouldLog: (err) => !PARSE_ERR_RE.test(formatErrorMessage(err)),
 			fn: () => bot.api.sendMessage(chatId, htmlText, {
 				parse_mode: "HTML",
 				...linkPreviewOptions ? { link_preview_options: linkPreviewOptions } : {},
@@ -57540,7 +57827,7 @@ async function sendTelegramText(bot, chatId, text, runtime, opts) {
 			})
 		})).message_id;
 	} catch (err) {
-		const errText = formatErrorMessage$1(err);
+		const errText = formatErrorMessage(err);
 		if (PARSE_ERR_RE.test(errText)) {
 			runtime.log?.(`telegram HTML parse failed; retrying without formatting: ${errText}`);
 			const fallbackText = opts?.plainText ?? text;
@@ -57694,7 +57981,7 @@ const registerTelegramHandlers = ({ cfg, accountId, bot, opts, runtime, mediaMax
 			channel: "telegram",
 			accountId,
 			peer: {
-				kind: params.isGroup ? "group" : "dm",
+				kind: params.isGroup ? "group" : "direct",
 				id: peerId
 			},
 			parentPeer
@@ -58294,11 +58581,11 @@ const buildTelegramMessageContext = async ({ primaryCtx, allMedia, storeAllowFro
 		chatId
 	});
 	const route = resolveAgentRoute({
-		cfg,
+		cfg: loadConfig(),
 		channel: "telegram",
 		accountId: account.accountId,
 		peer: {
-			kind: isGroup ? "group" : "dm",
+			kind: isGroup ? "group" : "direct",
 			id: peerId
 		},
 		parentPeer
@@ -58347,11 +58634,13 @@ const buildTelegramMessageContext = async ({ primaryCtx, allMedia, storeAllowFro
 	if (!isGroup) {
 		if (dmPolicy === "disabled") return null;
 		if (dmPolicy !== "open") {
-			const candidate = String(chatId);
+			const senderUsername = msg.from?.username ?? "";
+			const senderUserId = msg.from?.id != null ? String(msg.from.id) : null;
+			const candidate = senderUserId ?? String(chatId);
 			const allowMatch = resolveSenderAllowMatch({
 				allow: effectiveDmAllow,
 				senderId: candidate,
-				senderUsername: msg.from?.username ?? ""
+				senderUsername
 			});
 			const allowMatchMeta = `matchKey=${allowMatch.matchKey ?? "none"} matchSource=${allowMatch.matchSource ?? "none"}`;
 			if (!(effectiveDmAllow.hasWildcard || effectiveDmAllow.hasEntries && allowMatch.allowed)) {
@@ -58369,7 +58658,8 @@ const buildTelegramMessageContext = async ({ primaryCtx, allMedia, storeAllowFro
 					});
 					if (created) {
 						logger.info({
-							chatId: candidate,
+							chatId: String(chatId),
+							senderUserId: senderUserId ?? void 0,
 							username: from?.username,
 							firstName: from?.first_name,
 							lastName: from?.last_name,
@@ -59454,7 +59744,7 @@ const registerTelegramNativeCommands = ({ bot, cfg, runtime, accountId, telegram
 			description
 		});
 	}
-	const allCommands = [
+	const allCommandsFull = [
 		...nativeCommands.map((command) => ({
 			command: command.name,
 			description: command.description
@@ -59462,256 +59752,272 @@ const registerTelegramNativeCommands = ({ bot, cfg, runtime, accountId, telegram
 		...pluginCommands,
 		...customCommands
 	];
-	if (allCommands.length > 0) {
-		withTelegramApiErrorLogging({
+	const TELEGRAM_MAX_COMMANDS = 100;
+	if (allCommandsFull.length > TELEGRAM_MAX_COMMANDS) runtime.log?.(`telegram: truncating ${allCommandsFull.length} commands to ${TELEGRAM_MAX_COMMANDS} (Telegram Bot API limit)`);
+	const allCommands = allCommandsFull.slice(0, TELEGRAM_MAX_COMMANDS);
+	const registerCommands = () => {
+		if (allCommands.length > 0) withTelegramApiErrorLogging({
 			operation: "setMyCommands",
 			runtime,
 			fn: () => bot.api.setMyCommands(allCommands)
 		}).catch(() => {});
-		if (typeof bot.command !== "function") logVerbose("telegram: bot.command unavailable; skipping native handlers");
-		else {
-			for (const command of nativeCommands) bot.command(command.name, async (ctx) => {
-				const msg = ctx.message;
-				if (!msg) return;
-				if (shouldSkipUpdate(ctx)) return;
-				const auth = await resolveTelegramCommandAuth({
-					msg,
-					bot,
-					cfg,
-					telegramCfg,
-					allowFrom,
-					groupAllowFrom,
-					useAccessGroups,
-					resolveGroupPolicy,
-					resolveTelegramGroupConfig,
-					requireAuth: true
-				});
-				if (!auth) return;
-				const { chatId, isGroup, isForum, resolvedThreadId, senderId, senderUsername, groupConfig, topicConfig, commandAuthorized } = auth;
-				const messageThreadId = msg.message_thread_id;
-				const threadSpec = resolveTelegramThreadSpec({
-					isGroup,
-					isForum,
-					messageThreadId
-				});
-				const threadParams = buildTelegramThreadParams(threadSpec) ?? {};
-				const commandDefinition = findCommandByNativeName(command.name, "telegram");
-				const rawText = ctx.match?.trim() ?? "";
-				const commandArgs = commandDefinition ? parseCommandArgs(commandDefinition, rawText) : rawText ? { raw: rawText } : void 0;
-				const prompt = commandDefinition ? buildCommandTextFromArgs(commandDefinition, commandArgs) : rawText ? `/${command.name} ${rawText}` : `/${command.name}`;
-				const menu = commandDefinition ? resolveCommandArgMenu({
-					command: commandDefinition,
-					args: commandArgs,
-					cfg
-				}) : null;
-				if (menu && commandDefinition) {
-					const title = menu.title ?? `Choose ${menu.arg.description || menu.arg.name} for /${commandDefinition.nativeName ?? commandDefinition.key}.`;
-					const rows = [];
-					for (let i = 0; i < menu.choices.length; i += 2) {
-						const slice = menu.choices.slice(i, i + 2);
-						rows.push(slice.map((choice) => {
-							const args = { values: { [menu.arg.name]: choice.value } };
-							return {
-								text: choice.label,
-								callback_data: buildCommandTextFromArgs(commandDefinition, args)
-							};
-						}));
-					}
-					const replyMarkup = buildInlineKeyboard(rows);
-					await withTelegramApiErrorLogging({
-						operation: "sendMessage",
-						runtime,
-						fn: () => bot.api.sendMessage(chatId, title, {
-							...replyMarkup ? { reply_markup: replyMarkup } : {},
-							...threadParams
-						})
-					});
-					return;
-				}
-				const parentPeer = buildTelegramParentPeer({
-					isGroup,
-					resolvedThreadId,
-					chatId
-				});
-				const route = resolveAgentRoute({
-					cfg,
-					channel: "telegram",
-					accountId,
-					peer: {
-						kind: isGroup ? "group" : "dm",
-						id: isGroup ? buildTelegramGroupPeerId(chatId, resolvedThreadId) : String(chatId)
-					},
-					parentPeer
-				});
-				const baseSessionKey = route.sessionKey;
-				const dmThreadId = threadSpec.scope === "dm" ? threadSpec.id : void 0;
-				const sessionKey = (dmThreadId != null ? resolveThreadSessionKeys({
-					baseSessionKey,
-					threadId: String(dmThreadId)
-				}) : null)?.sessionKey ?? baseSessionKey;
-				const tableMode = resolveMarkdownTableMode({
-					cfg,
-					channel: "telegram",
-					accountId: route.accountId
-				});
-				const skillFilter = firstDefined(topicConfig?.skills, groupConfig?.skills);
-				const systemPromptParts = [groupConfig?.systemPrompt?.trim() || null, topicConfig?.systemPrompt?.trim() || null].filter((entry) => Boolean(entry));
-				const groupSystemPrompt = systemPromptParts.length > 0 ? systemPromptParts.join("\n\n") : void 0;
-				const conversationLabel = isGroup ? msg.chat.title ? `${msg.chat.title} id:${chatId}` : `group:${chatId}` : buildSenderName(msg) ?? String(senderId || chatId);
-				const ctxPayload = finalizeInboundContext({
-					Body: prompt,
-					RawBody: prompt,
-					CommandBody: prompt,
-					CommandArgs: commandArgs,
-					From: isGroup ? buildTelegramGroupFrom(chatId, resolvedThreadId) : `telegram:${chatId}`,
-					To: `slash:${senderId || chatId}`,
-					ChatType: isGroup ? "group" : "direct",
-					ConversationLabel: conversationLabel,
-					GroupSubject: isGroup ? msg.chat.title ?? void 0 : void 0,
-					GroupSystemPrompt: isGroup ? groupSystemPrompt : void 0,
-					SenderName: buildSenderName(msg),
-					SenderId: senderId || void 0,
-					SenderUsername: senderUsername || void 0,
-					Surface: "telegram",
-					MessageSid: String(msg.message_id),
-					Timestamp: msg.date ? msg.date * 1e3 : void 0,
-					WasMentioned: true,
-					CommandAuthorized: commandAuthorized,
-					CommandSource: "native",
-					SessionKey: `telegram:slash:${senderId || chatId}`,
-					AccountId: route.accountId,
-					CommandTargetSessionKey: sessionKey,
-					MessageThreadId: threadSpec.id,
-					IsForum: isForum,
-					OriginatingChannel: "telegram",
-					OriginatingTo: `telegram:${chatId}`
-				});
-				const disableBlockStreaming = typeof telegramCfg.blockStreaming === "boolean" ? !telegramCfg.blockStreaming : void 0;
-				const chunkMode = resolveChunkMode(cfg, "telegram", route.accountId);
-				const deliveryState = {
-					delivered: false,
-					skippedNonSilent: 0
-				};
-				const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
-					cfg,
-					agentId: route.agentId,
-					channel: "telegram",
-					accountId: route.accountId
-				});
-				await dispatchReplyWithBufferedBlockDispatcher({
-					ctx: ctxPayload,
-					cfg,
-					dispatcherOptions: {
-						...prefixOptions,
-						deliver: async (payload, _info) => {
-							if ((await deliverReplies({
-								replies: [payload],
-								chatId: String(chatId),
-								token: opts.token,
-								runtime,
-								bot,
-								replyToMode,
-								textLimit,
-								thread: threadSpec,
-								tableMode,
-								chunkMode,
-								linkPreview: telegramCfg.linkPreview
-							})).delivered) deliveryState.delivered = true;
-						},
-						onSkip: (_payload, info) => {
-							if (info.reason !== "silent") deliveryState.skippedNonSilent += 1;
-						},
-						onError: (err, info) => {
-							runtime.error?.(danger(`telegram slash ${info.kind} reply failed: ${String(err)}`));
-						}
-					},
-					replyOptions: {
-						skillFilter,
-						disableBlockStreaming,
-						onModelSelected
-					}
-				});
-				if (!deliveryState.delivered && deliveryState.skippedNonSilent > 0) await deliverReplies({
-					replies: [{ text: EMPTY_RESPONSE_FALLBACK }],
-					chatId: String(chatId),
-					token: opts.token,
-					runtime,
-					bot,
-					replyToMode,
-					textLimit,
-					thread: threadSpec,
-					tableMode,
-					chunkMode,
-					linkPreview: telegramCfg.linkPreview
-				});
+	};
+	if (typeof bot.api.deleteMyCommands === "function") withTelegramApiErrorLogging({
+		operation: "deleteMyCommands",
+		runtime,
+		fn: () => bot.api.deleteMyCommands()
+	}).catch(() => {}).then(registerCommands).catch(() => {});
+	else registerCommands();
+	if (allCommands.length > 0) if (typeof bot.command !== "function") logVerbose("telegram: bot.command unavailable; skipping native handlers");
+	else {
+		for (const command of nativeCommands) bot.command(command.name, async (ctx) => {
+			const msg = ctx.message;
+			if (!msg) return;
+			if (shouldSkipUpdate(ctx)) return;
+			const auth = await resolveTelegramCommandAuth({
+				msg,
+				bot,
+				cfg,
+				telegramCfg,
+				allowFrom,
+				groupAllowFrom,
+				useAccessGroups,
+				resolveGroupPolicy,
+				resolveTelegramGroupConfig,
+				requireAuth: true
 			});
-			for (const pluginCommand of pluginCommands) bot.command(pluginCommand.command, async (ctx) => {
-				const msg = ctx.message;
-				if (!msg) return;
-				if (shouldSkipUpdate(ctx)) return;
-				const chatId = msg.chat.id;
-				const rawText = ctx.match?.trim() ?? "";
-				const commandBody = `/${pluginCommand.command}${rawText ? ` ${rawText}` : ""}`;
-				const match = matchPluginCommand(commandBody);
-				if (!match) {
-					await withTelegramApiErrorLogging({
-						operation: "sendMessage",
-						runtime,
-						fn: () => bot.api.sendMessage(chatId, "Command not found.")
-					});
-					return;
-				}
-				const auth = await resolveTelegramCommandAuth({
-					msg,
-					bot,
-					cfg,
-					telegramCfg,
-					allowFrom,
-					groupAllowFrom,
-					useAccessGroups,
-					resolveGroupPolicy,
-					resolveTelegramGroupConfig,
-					requireAuth: match.command.requireAuth !== false
-				});
-				if (!auth) return;
-				const { senderId, commandAuthorized, isGroup, isForum } = auth;
-				const messageThreadId = msg.message_thread_id;
-				const threadSpec = resolveTelegramThreadSpec({
-					isGroup,
-					isForum,
-					messageThreadId
-				});
-				const result = await executePluginCommand({
-					command: match.command,
-					args: match.args,
-					senderId,
-					channel: "telegram",
-					isAuthorizedSender: commandAuthorized,
-					commandBody,
-					config: cfg
-				});
-				const tableMode = resolveMarkdownTableMode({
-					cfg,
-					channel: "telegram",
-					accountId
-				});
-				const chunkMode = resolveChunkMode(cfg, "telegram", accountId);
-				await deliverReplies({
-					replies: [result],
-					chatId: String(chatId),
-					token: opts.token,
-					runtime,
-					bot,
-					replyToMode,
-					textLimit,
-					thread: threadSpec,
-					tableMode,
-					chunkMode,
-					linkPreview: telegramCfg.linkPreview
-				});
+			if (!auth) return;
+			const { chatId, isGroup, isForum, resolvedThreadId, senderId, senderUsername, groupConfig, topicConfig, commandAuthorized } = auth;
+			const messageThreadId = msg.message_thread_id;
+			const threadSpec = resolveTelegramThreadSpec({
+				isGroup,
+				isForum,
+				messageThreadId
 			});
-		}
-	} else if (nativeDisabledExplicit) withTelegramApiErrorLogging({
+			const threadParams = buildTelegramThreadParams(threadSpec) ?? {};
+			const commandDefinition = findCommandByNativeName(command.name, "telegram");
+			const rawText = ctx.match?.trim() ?? "";
+			const commandArgs = commandDefinition ? parseCommandArgs(commandDefinition, rawText) : rawText ? { raw: rawText } : void 0;
+			const prompt = commandDefinition ? buildCommandTextFromArgs(commandDefinition, commandArgs) : rawText ? `/${command.name} ${rawText}` : `/${command.name}`;
+			const menu = commandDefinition ? resolveCommandArgMenu({
+				command: commandDefinition,
+				args: commandArgs,
+				cfg
+			}) : null;
+			if (menu && commandDefinition) {
+				const title = menu.title ?? `Choose ${menu.arg.description || menu.arg.name} for /${commandDefinition.nativeName ?? commandDefinition.key}.`;
+				const rows = [];
+				for (let i = 0; i < menu.choices.length; i += 2) {
+					const slice = menu.choices.slice(i, i + 2);
+					rows.push(slice.map((choice) => {
+						const args = { values: { [menu.arg.name]: choice.value } };
+						return {
+							text: choice.label,
+							callback_data: buildCommandTextFromArgs(commandDefinition, args)
+						};
+					}));
+				}
+				const replyMarkup = buildInlineKeyboard(rows);
+				await withTelegramApiErrorLogging({
+					operation: "sendMessage",
+					runtime,
+					fn: () => bot.api.sendMessage(chatId, title, {
+						...replyMarkup ? { reply_markup: replyMarkup } : {},
+						...threadParams
+					})
+				});
+				return;
+			}
+			const parentPeer = buildTelegramParentPeer({
+				isGroup,
+				resolvedThreadId,
+				chatId
+			});
+			const route = resolveAgentRoute({
+				cfg,
+				channel: "telegram",
+				accountId,
+				peer: {
+					kind: isGroup ? "group" : "direct",
+					id: isGroup ? buildTelegramGroupPeerId(chatId, resolvedThreadId) : String(chatId)
+				},
+				parentPeer
+			});
+			const baseSessionKey = route.sessionKey;
+			const dmThreadId = threadSpec.scope === "dm" ? threadSpec.id : void 0;
+			const sessionKey = (dmThreadId != null ? resolveThreadSessionKeys({
+				baseSessionKey,
+				threadId: String(dmThreadId)
+			}) : null)?.sessionKey ?? baseSessionKey;
+			const tableMode = resolveMarkdownTableMode({
+				cfg,
+				channel: "telegram",
+				accountId: route.accountId
+			});
+			const skillFilter = firstDefined(topicConfig?.skills, groupConfig?.skills);
+			const systemPromptParts = [groupConfig?.systemPrompt?.trim() || null, topicConfig?.systemPrompt?.trim() || null].filter((entry) => Boolean(entry));
+			const groupSystemPrompt = systemPromptParts.length > 0 ? systemPromptParts.join("\n\n") : void 0;
+			const conversationLabel = isGroup ? msg.chat.title ? `${msg.chat.title} id:${chatId}` : `group:${chatId}` : buildSenderName(msg) ?? String(senderId || chatId);
+			const ctxPayload = finalizeInboundContext({
+				Body: prompt,
+				RawBody: prompt,
+				CommandBody: prompt,
+				CommandArgs: commandArgs,
+				From: isGroup ? buildTelegramGroupFrom(chatId, resolvedThreadId) : `telegram:${chatId}`,
+				To: `slash:${senderId || chatId}`,
+				ChatType: isGroup ? "group" : "direct",
+				ConversationLabel: conversationLabel,
+				GroupSubject: isGroup ? msg.chat.title ?? void 0 : void 0,
+				GroupSystemPrompt: isGroup ? groupSystemPrompt : void 0,
+				SenderName: buildSenderName(msg),
+				SenderId: senderId || void 0,
+				SenderUsername: senderUsername || void 0,
+				Surface: "telegram",
+				MessageSid: String(msg.message_id),
+				Timestamp: msg.date ? msg.date * 1e3 : void 0,
+				WasMentioned: true,
+				CommandAuthorized: commandAuthorized,
+				CommandSource: "native",
+				SessionKey: `telegram:slash:${senderId || chatId}`,
+				AccountId: route.accountId,
+				CommandTargetSessionKey: sessionKey,
+				MessageThreadId: threadSpec.id,
+				IsForum: isForum,
+				OriginatingChannel: "telegram",
+				OriginatingTo: `telegram:${chatId}`
+			});
+			const disableBlockStreaming = typeof telegramCfg.blockStreaming === "boolean" ? !telegramCfg.blockStreaming : void 0;
+			const chunkMode = resolveChunkMode(cfg, "telegram", route.accountId);
+			const deliveryState = {
+				delivered: false,
+				skippedNonSilent: 0
+			};
+			const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
+				cfg,
+				agentId: route.agentId,
+				channel: "telegram",
+				accountId: route.accountId
+			});
+			await dispatchReplyWithBufferedBlockDispatcher({
+				ctx: ctxPayload,
+				cfg,
+				dispatcherOptions: {
+					...prefixOptions,
+					deliver: async (payload, _info) => {
+						if ((await deliverReplies({
+							replies: [payload],
+							chatId: String(chatId),
+							token: opts.token,
+							runtime,
+							bot,
+							replyToMode,
+							textLimit,
+							thread: threadSpec,
+							tableMode,
+							chunkMode,
+							linkPreview: telegramCfg.linkPreview
+						})).delivered) deliveryState.delivered = true;
+					},
+					onSkip: (_payload, info) => {
+						if (info.reason !== "silent") deliveryState.skippedNonSilent += 1;
+					},
+					onError: (err, info) => {
+						runtime.error?.(danger(`telegram slash ${info.kind} reply failed: ${String(err)}`));
+					}
+				},
+				replyOptions: {
+					skillFilter,
+					disableBlockStreaming,
+					onModelSelected
+				}
+			});
+			if (!deliveryState.delivered && deliveryState.skippedNonSilent > 0) await deliverReplies({
+				replies: [{ text: EMPTY_RESPONSE_FALLBACK }],
+				chatId: String(chatId),
+				token: opts.token,
+				runtime,
+				bot,
+				replyToMode,
+				textLimit,
+				thread: threadSpec,
+				tableMode,
+				chunkMode,
+				linkPreview: telegramCfg.linkPreview
+			});
+		});
+		for (const pluginCommand of pluginCommands) bot.command(pluginCommand.command, async (ctx) => {
+			const msg = ctx.message;
+			if (!msg) return;
+			if (shouldSkipUpdate(ctx)) return;
+			const chatId = msg.chat.id;
+			const rawText = ctx.match?.trim() ?? "";
+			const commandBody = `/${pluginCommand.command}${rawText ? ` ${rawText}` : ""}`;
+			const match = matchPluginCommand(commandBody);
+			if (!match) {
+				await withTelegramApiErrorLogging({
+					operation: "sendMessage",
+					runtime,
+					fn: () => bot.api.sendMessage(chatId, "Command not found.")
+				});
+				return;
+			}
+			const auth = await resolveTelegramCommandAuth({
+				msg,
+				bot,
+				cfg,
+				telegramCfg,
+				allowFrom,
+				groupAllowFrom,
+				useAccessGroups,
+				resolveGroupPolicy,
+				resolveTelegramGroupConfig,
+				requireAuth: match.command.requireAuth !== false
+			});
+			if (!auth) return;
+			const { senderId, commandAuthorized, isGroup, isForum } = auth;
+			const messageThreadId = msg.message_thread_id;
+			const threadSpec = resolveTelegramThreadSpec({
+				isGroup,
+				isForum,
+				messageThreadId
+			});
+			const from = isGroup ? buildTelegramGroupFrom(chatId, threadSpec.id) : `telegram:${chatId}`;
+			const to = `telegram:${chatId}`;
+			const result = await executePluginCommand({
+				command: match.command,
+				args: match.args,
+				senderId,
+				channel: "telegram",
+				isAuthorizedSender: commandAuthorized,
+				commandBody,
+				config: cfg,
+				from,
+				to,
+				accountId,
+				messageThreadId: threadSpec.id
+			});
+			const tableMode = resolveMarkdownTableMode({
+				cfg,
+				channel: "telegram",
+				accountId
+			});
+			const chunkMode = resolveChunkMode(cfg, "telegram", accountId);
+			await deliverReplies({
+				replies: [result],
+				chatId: String(chatId),
+				token: opts.token,
+				runtime,
+				bot,
+				replyToMode,
+				textLimit,
+				thread: threadSpec,
+				tableMode,
+				chunkMode,
+				linkPreview: telegramCfg.linkPreview
+			});
+		});
+	}
+	else if (nativeDisabledExplicit) withTelegramApiErrorLogging({
 		operation: "setMyCommands",
 		runtime,
 		fn: () => bot.api.setMyCommands([])
@@ -59979,11 +60285,11 @@ function createTelegramBot(opts) {
 				chatId
 			});
 			const sessionKey = resolveAgentRoute({
-				cfg,
+				cfg: loadConfig(),
 				channel: "telegram",
 				accountId: account.accountId,
 				peer: {
-					kind: isGroup ? "group" : "dm",
+					kind: isGroup ? "group" : "direct",
 					id: peerId
 				},
 				parentPeer
@@ -60110,7 +60416,7 @@ async function startTelegramWebhook(opts) {
 				durationMs: Date.now() - startTime
 			});
 		}).catch((err) => {
-			const errMsg = formatErrorMessage$1(err);
+			const errMsg = formatErrorMessage(err);
 			if (diagnosticsEnabled) logWebhookError({
 				channel: "telegram",
 				updateType: "telegram-post",
@@ -60186,7 +60492,7 @@ async function monitorTelegramProvider(opts = {}) {
 	const log = opts.runtime?.error ?? console.error;
 	const unregisterHandler = registerUnhandledRejectionHandler((err) => {
 		if (isGrammyHttpError(err) && isRecoverableTelegramNetworkError(err, { context: "polling" })) {
-			log(`[telegram] Suppressed network error: ${formatErrorMessage$1(err)}`);
+			log(`[telegram] Suppressed network error: ${formatErrorMessage(err)}`);
 			return true;
 		}
 		return false;
@@ -60257,8 +60563,8 @@ async function monitorTelegramProvider(opts = {}) {
 				restartAttempts += 1;
 				const delayMs = computeBackoff(TELEGRAM_POLL_RESTART_POLICY, restartAttempts);
 				const reason = isConflict ? "getUpdates conflict" : "network error";
-				const errMsg = formatErrorMessage$1(err);
-				(opts.runtime?.error ?? console.error)(`Telegram ${reason}: ${errMsg}; retrying in ${formatDurationMs(delayMs)}.`);
+				const errMsg = formatErrorMessage(err);
+				(opts.runtime?.error ?? console.error)(`Telegram ${reason}: ${errMsg}; retrying in ${formatDurationPrecise(delayMs)}.`);
 				try {
 					await sleepWithAbort(delayMs, opts.abortSignal);
 				} catch (sleepErr) {
@@ -62507,6 +62813,193 @@ async function repairSessionFileIfNeeded(params) {
 }
 
 //#endregion
+//#region src/agents/pi-embedded-runner/logger.ts
+const log$2 = createSubsystemLogger("agent/embedded");
+
+//#endregion
+//#region src/agents/pi-embedded-runner/tool-result-truncation.ts
+/**
+* Maximum share of the context window a single tool result should occupy.
+* This is intentionally conservative – a single tool result should not
+* consume more than 30% of the context window even without other messages.
+*/
+const MAX_TOOL_RESULT_CONTEXT_SHARE = .3;
+/**
+* Hard character limit for a single tool result text block.
+* Even for the largest context windows (~2M tokens), a single tool result
+* should not exceed ~400K characters (~100K tokens).
+* This acts as a safety net when we don't know the context window size.
+*/
+const HARD_MAX_TOOL_RESULT_CHARS = 4e5;
+/**
+* Minimum characters to keep when truncating.
+* We always keep at least the first portion so the model understands
+* what was in the content.
+*/
+const MIN_KEEP_CHARS = 2e3;
+/**
+* Suffix appended to truncated tool results.
+*/
+const TRUNCATION_SUFFIX = "\n\n⚠️ [Content truncated — original was too large for the model's context window. The content above is a partial view. If you need more, request specific sections or use offset/limit parameters to read smaller chunks.]";
+/**
+* Truncate a single text string to fit within maxChars, preserving the beginning.
+*/
+function truncateToolResultText(text, maxChars) {
+	if (text.length <= maxChars) return text;
+	const keepChars = Math.max(MIN_KEEP_CHARS, maxChars - 217);
+	let cutPoint = keepChars;
+	const lastNewline = text.lastIndexOf("\n", keepChars);
+	if (lastNewline > keepChars * .8) cutPoint = lastNewline;
+	return text.slice(0, cutPoint) + TRUNCATION_SUFFIX;
+}
+/**
+* Calculate the maximum allowed characters for a single tool result
+* based on the model's context window tokens.
+*
+* Uses a rough 4 chars ≈ 1 token heuristic (conservative for English text;
+* actual ratio varies by tokenizer).
+*/
+function calculateMaxToolResultChars(contextWindowTokens) {
+	const maxChars = Math.floor(contextWindowTokens * MAX_TOOL_RESULT_CONTEXT_SHARE) * 4;
+	return Math.min(maxChars, HARD_MAX_TOOL_RESULT_CHARS);
+}
+/**
+* Get the total character count of text content blocks in a tool result message.
+*/
+function getToolResultTextLength(msg) {
+	if (!msg || msg.role !== "toolResult") return 0;
+	const content = msg.content;
+	if (!Array.isArray(content)) return 0;
+	let totalLength = 0;
+	for (const block of content) if (block && typeof block === "object" && block.type === "text") {
+		const text = block.text;
+		if (typeof text === "string") totalLength += text.length;
+	}
+	return totalLength;
+}
+/**
+* Truncate a tool result message's text content blocks to fit within maxChars.
+* Returns a new message (does not mutate the original).
+*/
+function truncateToolResultMessage(msg, maxChars) {
+	const content = msg.content;
+	if (!Array.isArray(content)) return msg;
+	const totalTextChars = getToolResultTextLength(msg);
+	if (totalTextChars <= maxChars) return msg;
+	const newContent = content.map((block) => {
+		if (!block || typeof block !== "object" || block.type !== "text") return block;
+		const textBlock = block;
+		if (typeof textBlock.text !== "string") return block;
+		const blockShare = textBlock.text.length / totalTextChars;
+		const blockBudget = Math.max(MIN_KEEP_CHARS, Math.floor(maxChars * blockShare));
+		return {
+			...textBlock,
+			text: truncateToolResultText(textBlock.text, blockBudget)
+		};
+	});
+	return {
+		...msg,
+		content: newContent
+	};
+}
+/**
+* Find oversized tool result entries in a session and truncate them.
+*
+* This operates on the session file by:
+* 1. Opening the session manager
+* 2. Walking the current branch to find oversized tool results
+* 3. Branching from before the first oversized tool result
+* 4. Re-appending all entries from that point with truncated tool results
+*
+* @returns Object indicating whether any truncation was performed
+*/
+async function truncateOversizedToolResultsInSession(params) {
+	const { sessionFile, contextWindowTokens } = params;
+	const maxChars = calculateMaxToolResultChars(contextWindowTokens);
+	try {
+		const sessionManager = SessionManager.open(sessionFile);
+		const branch = sessionManager.getBranch();
+		if (branch.length === 0) return {
+			truncated: false,
+			truncatedCount: 0,
+			reason: "empty session"
+		};
+		const oversizedIndices = [];
+		for (let i = 0; i < branch.length; i++) {
+			const entry = branch[i];
+			if (entry.type !== "message") continue;
+			const msg = entry.message;
+			if (msg.role !== "toolResult") continue;
+			const textLength = getToolResultTextLength(msg);
+			if (textLength > maxChars) {
+				oversizedIndices.push(i);
+				log$2.info(`[tool-result-truncation] Found oversized tool result: entry=${entry.id} chars=${textLength} maxChars=${maxChars} sessionKey=${params.sessionKey ?? params.sessionId ?? "unknown"}`);
+			}
+		}
+		if (oversizedIndices.length === 0) return {
+			truncated: false,
+			truncatedCount: 0,
+			reason: "no oversized tool results"
+		};
+		const firstOversizedIdx = oversizedIndices[0];
+		const branchFromId = branch[firstOversizedIdx].parentId;
+		if (!branchFromId) sessionManager.resetLeaf();
+		else sessionManager.branch(branchFromId);
+		const oversizedSet = new Set(oversizedIndices);
+		let truncatedCount = 0;
+		for (let i = firstOversizedIdx; i < branch.length; i++) {
+			const entry = branch[i];
+			if (entry.type === "message") {
+				let message = entry.message;
+				if (oversizedSet.has(i)) {
+					message = truncateToolResultMessage(message, maxChars);
+					truncatedCount++;
+					const newLength = getToolResultTextLength(message);
+					log$2.info(`[tool-result-truncation] Truncated tool result: originalEntry=${entry.id} newChars=${newLength} sessionKey=${params.sessionKey ?? params.sessionId ?? "unknown"}`);
+				}
+				sessionManager.appendMessage(message);
+			} else if (entry.type === "compaction") sessionManager.appendCompaction(entry.summary, entry.firstKeptEntryId, entry.tokensBefore, entry.details, entry.fromHook);
+			else if (entry.type === "thinking_level_change") sessionManager.appendThinkingLevelChange(entry.thinkingLevel);
+			else if (entry.type === "model_change") sessionManager.appendModelChange(entry.provider, entry.modelId);
+			else if (entry.type === "custom") sessionManager.appendCustomEntry(entry.customType, entry.data);
+			else if (entry.type === "custom_message") sessionManager.appendCustomMessageEntry(entry.customType, entry.content, entry.display, entry.details);
+			else if (entry.type === "branch_summary") continue;
+			else if (entry.type === "label") continue;
+			else if (entry.type === "session_info") {
+				if (entry.name) sessionManager.appendSessionInfo(entry.name);
+			}
+		}
+		log$2.info(`[tool-result-truncation] Truncated ${truncatedCount} tool result(s) in session (contextWindow=${contextWindowTokens} maxChars=${maxChars}) sessionKey=${params.sessionKey ?? params.sessionId ?? "unknown"}`);
+		return {
+			truncated: true,
+			truncatedCount
+		};
+	} catch (err) {
+		const errMsg = err instanceof Error ? err.message : String(err);
+		log$2.warn(`[tool-result-truncation] Failed to truncate: ${errMsg}`);
+		return {
+			truncated: false,
+			truncatedCount: 0,
+			reason: errMsg
+		};
+	}
+}
+/**
+* Estimate whether the session likely has oversized tool results that caused
+* a context overflow. Used as a heuristic to decide whether to attempt
+* tool result truncation before giving up.
+*/
+function sessionLikelyHasOversizedToolResults(params) {
+	const { messages, contextWindowTokens } = params;
+	const maxChars = calculateMaxToolResultChars(contextWindowTokens);
+	for (const msg of messages) {
+		if (msg.role !== "toolResult") continue;
+		if (getToolResultTextLength(msg) > maxChars) return true;
+	}
+	return false;
+}
+
+//#endregion
 //#region src/agents/session-transcript-repair.ts
 const TOOL_CALL_TYPES = new Set([
 	"toolCall",
@@ -62723,6 +63216,42 @@ function repairToolUseResultPairing(messages) {
 
 //#endregion
 //#region src/agents/session-tool-result-guard.ts
+const GUARD_TRUNCATION_SUFFIX = "\n\n⚠️ [Content truncated during persistence — original exceeded size limit. Use offset/limit parameters or request specific sections for large content.]";
+/**
+* Truncate oversized text content blocks in a tool result message.
+* Returns the original message if under the limit, or a new message with
+* truncated text blocks otherwise.
+*/
+function capToolResultSize(msg) {
+	if (msg.role !== "toolResult") return msg;
+	const content = msg.content;
+	if (!Array.isArray(content)) return msg;
+	let totalTextChars = 0;
+	for (const block of content) if (block && typeof block === "object" && block.type === "text") {
+		const text = block.text;
+		if (typeof text === "string") totalTextChars += text.length;
+	}
+	if (totalTextChars <= HARD_MAX_TOOL_RESULT_CHARS) return msg;
+	const newContent = content.map((block) => {
+		if (!block || typeof block !== "object" || block.type !== "text") return block;
+		const textBlock = block;
+		if (typeof textBlock.text !== "string") return block;
+		const blockShare = textBlock.text.length / totalTextChars;
+		const blockBudget = Math.max(2e3, Math.floor(HARD_MAX_TOOL_RESULT_CHARS * blockShare) - 151);
+		if (textBlock.text.length <= blockBudget) return block;
+		let cutPoint = blockBudget;
+		const lastNewline = textBlock.text.lastIndexOf("\n", blockBudget);
+		if (lastNewline > blockBudget * .8) cutPoint = lastNewline;
+		return {
+			...textBlock,
+			text: textBlock.text.slice(0, cutPoint) + GUARD_TRUNCATION_SUFFIX
+		};
+	});
+	return {
+		...msg,
+		content: newContent
+	};
+}
 function extractAssistantToolCalls(msg) {
 	const content = msg.content;
 	if (!Array.isArray(content)) return [];
@@ -62780,7 +63309,7 @@ function installSessionToolResultGuard(sessionManager, opts) {
 			const id = extractToolResultId(nextMessage);
 			const toolName = id ? pending.get(id) : void 0;
 			if (id) pending.delete(id);
-			return originalAppend(persistToolResult(nextMessage, {
+			return originalAppend(persistToolResult(capToolResultSize(nextMessage), {
 				toolCallId: id ?? void 0,
 				toolName,
 				isSynthetic: false
@@ -63301,10 +63830,6 @@ function buildEmbeddedExtensionPaths(params) {
 }
 
 //#endregion
-//#region src/agents/pi-embedded-runner/logger.ts
-const log$2 = createSubsystemLogger("agent/embedded");
-
-//#endregion
 //#region src/agents/pi-embedded-runner/utils.ts
 function mapThinkingLevel(level) {
 	if (!level) return "off";
@@ -63585,7 +64110,7 @@ function getDmHistoryLimitFromSessionKey(sessionKey, config) {
 	if (!provider) return;
 	const kind = providerParts[1]?.toLowerCase();
 	const userId = stripThreadSuffix(providerParts.slice(2).join(":"));
-	if (kind !== "dm") return;
+	if (kind !== "direct" && kind !== "dm") return;
 	const getLimit = (providerConfig) => {
 		if (!providerConfig) return;
 		if (userId && providerConfig.dms?.[userId]?.historyLimit !== void 0) return providerConfig.dms[userId].historyLimit;
@@ -63857,7 +64382,7 @@ async function compactEmbeddedPiSessionDirect(params) {
 		if (!apiKeyInfo.apiKey) {
 			if (apiKeyInfo.mode !== "aws-sdk") throw new Error(`No API key resolved for provider "${model.provider}" (auth mode: ${apiKeyInfo.mode}).`);
 		} else if (model.provider === "github-copilot") {
-			const { resolveCopilotApiToken } = await import("./github-copilot-token-CvUIKdKY.js").then((n) => n.n);
+			const { resolveCopilotApiToken } = await import("./github-copilot-token-CuXqqyT-.js").then((n) => n.n);
 			const copilotToken = await resolveCopilotApiToken({ githubToken: apiKeyInfo.apiKey });
 			authStorage.setRuntimeApiKey(model.provider, copilotToken.token);
 		} else authStorage.setRuntimeApiKey(model.provider, apiKeyInfo.apiKey);
@@ -63994,6 +64519,7 @@ async function compactEmbeddedPiSessionDirect(params) {
 			arch: os.arch(),
 			node: process.version,
 			model: `${provider}/${modelId}`,
+			shell: detectRuntimeShell(),
 			channel: runtimeChannel,
 			capabilities: runtimeCapabilities,
 			channelActions
@@ -64628,11 +65154,7 @@ function createStreamingDirectiveAccumulator() {
 //#region src/auto-reply/tool-meta.ts
 function shortenMeta(meta) {
 	if (!meta) return meta;
-	const colonIdx = meta.indexOf(":");
-	if (colonIdx === -1) return shortenHomeInString(meta);
-	const base = meta.slice(0, colonIdx);
-	const rest = meta.slice(colonIdx);
-	return `${shortenHomeInString(base)}${rest}`;
+	return shortenHomeInString(meta);
 }
 function formatToolAggregate(toolName, metas, options) {
 	const filtered = (metas ?? []).filter(Boolean).map(shortenMeta);
@@ -64805,6 +65327,7 @@ function handleAgentStart(ctx) {
 }
 function handleAutoCompactionStart(ctx) {
 	ctx.state.compactionInFlight = true;
+	ctx.incrementCompactionCount();
 	ctx.ensureCompactionPromise();
 	ctx.log.debug(`embedded run compaction start: runId=${ctx.params.runId}`);
 	emitAgentEvent({
@@ -65007,6 +65530,7 @@ function handleMessageEnd(ctx, evt) {
 	const msg = evt.message;
 	if (msg?.role !== "assistant") return;
 	const assistantMessage = msg;
+	ctx.recordAssistantUsage(assistantMessage.usage);
 	promoteThinkingTagsToBlocks(assistantMessage);
 	const rawText = extractAssistantText$1(assistantMessage);
 	appendRawStream({
@@ -65530,6 +66054,14 @@ function subscribeEmbeddedPiSession(params) {
 		pendingMessagingTexts: /* @__PURE__ */ new Map(),
 		pendingMessagingTargets: /* @__PURE__ */ new Map()
 	};
+	const usageTotals = {
+		input: 0,
+		output: 0,
+		cacheRead: 0,
+		cacheWrite: 0,
+		total: 0
+	};
+	let compactionCount = 0;
 	const assistantTexts = state.assistantTexts;
 	const toolMetas = state.toolMetas;
 	const toolMetaById = state.toolMetaById;
@@ -65634,6 +66166,30 @@ function subscribeEmbeddedPiSession(params) {
 			state.compactionRetryResolve = void 0;
 			state.compactionRetryPromise = null;
 		}
+	};
+	const recordAssistantUsage = (usageLike) => {
+		const usage = normalizeUsage(usageLike ?? void 0);
+		if (!hasNonzeroUsage(usage)) return;
+		usageTotals.input += usage.input ?? 0;
+		usageTotals.output += usage.output ?? 0;
+		usageTotals.cacheRead += usage.cacheRead ?? 0;
+		usageTotals.cacheWrite += usage.cacheWrite ?? 0;
+		const usageTotal = usage.total ?? (usage.input ?? 0) + (usage.output ?? 0) + (usage.cacheRead ?? 0) + (usage.cacheWrite ?? 0);
+		usageTotals.total += usageTotal;
+	};
+	const getUsageTotals = () => {
+		if (!(usageTotals.input > 0 || usageTotals.output > 0 || usageTotals.cacheRead > 0 || usageTotals.cacheWrite > 0 || usageTotals.total > 0)) return;
+		const derivedTotal = usageTotals.input + usageTotals.output + usageTotals.cacheRead + usageTotals.cacheWrite;
+		return {
+			input: usageTotals.input || void 0,
+			output: usageTotals.output || void 0,
+			cacheRead: usageTotals.cacheRead || void 0,
+			cacheWrite: usageTotals.cacheWrite || void 0,
+			total: usageTotals.total || derivedTotal || void 0
+		};
+	};
+	const incrementCompactionCount = () => {
+		compactionCount += 1;
 	};
 	const blockChunking = params.blockReplyChunking;
 	const blockChunker = blockChunking ? new EmbeddedBlockChunker(blockChunking) : null;
@@ -65817,7 +66373,11 @@ function subscribeEmbeddedPiSession(params) {
 		ensureCompactionPromise,
 		noteCompactionRetry,
 		resolveCompactionRetry,
-		maybeResolveCompactionWait
+		maybeResolveCompactionWait,
+		recordAssistantUsage,
+		incrementCompactionCount,
+		getUsageTotals,
+		getCompactionCount: () => compactionCount
 	};
 	return {
 		assistantTexts,
@@ -65828,6 +66388,8 @@ function subscribeEmbeddedPiSession(params) {
 		getMessagingToolSentTargets: () => messagingToolSentTargets.slice(),
 		didSendViaMessagingTool: () => messagingToolSentTexts.length > 0,
 		getLastToolError: () => state.lastToolError ? { ...state.lastToolError } : void 0,
+		getUsageTotals,
+		getCompactionCount: () => compactionCount,
 		waitForCompactionRetry: () => {
 			if (state.compactionInFlight || state.pendingCompactionRetry > 0) {
 				ensureCompactionPromise();
@@ -66465,6 +67027,7 @@ async function runEmbeddedAttempt(params) {
 				node: process.version,
 				model: `${params.provider}/${params.modelId}`,
 				defaultModel: defaultModelLabel,
+				shell: detectRuntimeShell(),
 				channel: runtimeChannel,
 				capabilities: runtimeCapabilities,
 				channelActions
@@ -66710,7 +67273,7 @@ async function runEmbeddedAttempt(params) {
 				onAgentEvent: params.onAgentEvent,
 				enforceFinalTag: params.enforceFinalTag
 			});
-			const { assistantTexts, toolMetas, unsubscribe, waitForCompactionRetry, getMessagingToolSentTexts, getMessagingToolSentTargets, didSendViaMessagingTool, getLastToolError } = subscription;
+			const { assistantTexts, toolMetas, unsubscribe, waitForCompactionRetry, getMessagingToolSentTexts, getMessagingToolSentTargets, didSendViaMessagingTool, getLastToolError, getUsageTotals, getCompactionCount } = subscription;
 			const queueHandle = {
 				queueMessage: async (text) => {
 					await activeSession.steer(text);
@@ -66859,6 +67422,8 @@ async function runEmbeddedAttempt(params) {
 				messagingToolSentTexts: getMessagingToolSentTexts(),
 				messagingToolSentTargets: getMessagingToolSentTargets(),
 				cloudCodeAssistFormatError: Boolean(lastAssistant?.errorMessage && isCloudCodeAssistFormatError(lastAssistant.errorMessage)),
+				attemptUsage: getUsageTotals(),
+				compactionCount: getCompactionCount(),
 				clientToolCall: clientToolCallDetected ?? void 0
 			};
 		} finally {
@@ -66985,6 +67550,39 @@ function scrubAnthropicRefusalMagic(prompt) {
 	if (!prompt.includes(ANTHROPIC_MAGIC_STRING_TRIGGER_REFUSAL)) return prompt;
 	return prompt.replaceAll(ANTHROPIC_MAGIC_STRING_TRIGGER_REFUSAL, ANTHROPIC_MAGIC_STRING_REPLACEMENT);
 }
+const createUsageAccumulator = () => ({
+	input: 0,
+	output: 0,
+	cacheRead: 0,
+	cacheWrite: 0,
+	total: 0
+});
+const hasUsageValues = (usage) => !!usage && [
+	usage.input,
+	usage.output,
+	usage.cacheRead,
+	usage.cacheWrite,
+	usage.total
+].some((value) => typeof value === "number" && Number.isFinite(value) && value > 0);
+const mergeUsageIntoAccumulator = (target, usage) => {
+	if (!hasUsageValues(usage)) return;
+	target.input += usage.input ?? 0;
+	target.output += usage.output ?? 0;
+	target.cacheRead += usage.cacheRead ?? 0;
+	target.cacheWrite += usage.cacheWrite ?? 0;
+	target.total += usage.total ?? (usage.input ?? 0) + (usage.output ?? 0) + (usage.cacheRead ?? 0) + (usage.cacheWrite ?? 0);
+};
+const toNormalizedUsage = (usage) => {
+	if (!(usage.input > 0 || usage.output > 0 || usage.cacheRead > 0 || usage.cacheWrite > 0 || usage.total > 0)) return;
+	const derivedTotal = usage.input + usage.output + usage.cacheRead + usage.cacheWrite;
+	return {
+		input: usage.input || void 0,
+		output: usage.output || void 0,
+		cacheRead: usage.cacheRead || void 0,
+		cacheWrite: usage.cacheWrite || void 0,
+		total: usage.total || derivedTotal || void 0
+	};
+};
 async function runEmbeddedPiAgent(params) {
 	const sessionLane = resolveSessionLane(params.sessionKey?.trim() || params.sessionId);
 	const globalLane = resolveGlobalLane(params.lane);
@@ -67014,14 +67612,15 @@ async function runEmbeddedPiAgent(params) {
 		await ensureOpenClawModelsJson(params.config, agentDir);
 		const { model, error, authStorage, modelRegistry } = resolveModel$4(provider, modelId, agentDir, params.config);
 		if (!model) throw new Error(error ?? `Unknown model: ${provider}/${modelId}`);
+		const ctxInfo = resolveContextWindowInfo({
+			cfg: params.config,
+			provider,
+			modelId,
+			modelContextWindow: model.contextWindow,
+			defaultTokens: DEFAULT_CONTEXT_TOKENS
+		});
 		const ctxGuard = evaluateContextWindowGuard({
-			info: resolveContextWindowInfo({
-				cfg: params.config,
-				provider,
-				modelId,
-				modelContextWindow: model.contextWindow,
-				defaultTokens: DEFAULT_CONTEXT_TOKENS
-			}),
+			info: ctxInfo,
 			warnBelowTokens: CONTEXT_WINDOW_WARN_BELOW_TOKENS,
 			hardMinTokens: CONTEXT_WINDOW_HARD_MIN_TOKENS
 		});
@@ -67094,7 +67693,7 @@ async function runEmbeddedPiAgent(params) {
 				return;
 			}
 			if (model.provider === "github-copilot") {
-				const { resolveCopilotApiToken } = await import("./github-copilot-token-CvUIKdKY.js").then((n) => n.n);
+				const { resolveCopilotApiToken } = await import("./github-copilot-token-CuXqqyT-.js").then((n) => n.n);
 				const copilotToken = await resolveCopilotApiToken({ githubToken: apiKeyInfo.apiKey });
 				authStorage.setRuntimeApiKey(model.provider, copilotToken.token);
 			} else authStorage.setRuntimeApiKey(model.provider, apiKeyInfo.apiKey);
@@ -67146,6 +67745,9 @@ async function runEmbeddedPiAgent(params) {
 		}
 		const MAX_OVERFLOW_COMPACTION_ATTEMPTS = 3;
 		let overflowCompactionAttempts = 0;
+		let toolResultTruncationAttempted = false;
+		const usageAccumulator = createUsageAccumulator();
+		let autoCompactionCount = 0;
 		try {
 			while (true) {
 				attemptedThinking.add(thinkLevel);
@@ -67208,68 +67810,119 @@ async function runEmbeddedPiAgent(params) {
 					ownerNumbers: params.ownerNumbers,
 					enforceFinalTag: params.enforceFinalTag
 				});
-				const { aborted, promptError, timedOut, sessionIdUsed, lastAssistant } = attempt;
+				const { aborted, promptError, timedOut, sessionIdUsed, lastAssistant, messagesSnapshot } = attempt;
+				mergeUsageIntoAccumulator(usageAccumulator, attempt.attemptUsage ?? normalizeUsage(lastAssistant?.usage));
+				autoCompactionCount += Math.max(0, attempt.compactionCount ?? 0);
+				const formattedAssistantErrorText = lastAssistant ? formatAssistantErrorText(lastAssistant, {
+					cfg: params.config,
+					sessionKey: params.sessionKey ?? params.sessionId
+				}) : void 0;
+				const assistantErrorText = lastAssistant?.stopReason === "error" ? lastAssistant.errorMessage?.trim() || formattedAssistantErrorText : void 0;
 				const responseUsage = lastAssistant?.usage;
 				const responseError = lastAssistant?.errorMessage;
 				const responseContent = Array.isArray(lastAssistant?.content) ? lastAssistant.content.filter((c) => c.type === "text" && c.text).map((c) => c.text ?? "").join("").slice(0, 500) : "";
-				log$2.info(`[DEBUG-AI-RESPONSE] sessionKey=${params.sessionKey ?? params.sessionId} provider=${lastAssistant?.provider ?? provider} model=${lastAssistant?.model ?? modelId} stopReason=${lastAssistant?.stopReason ?? "none"} aborted=${aborted} timedOut=${timedOut} usage={input:${responseUsage?.input ?? 0},output:${responseUsage?.output ?? 0},cacheRead:${responseUsage?.cacheRead ?? 0}} hasError=${!!responseError} errorSnippet=${responseError ? JSON.stringify(responseError.slice(0, 300)) : "none"} contentSnippet=${JSON.stringify(responseContent)}`);
-				if (promptError && !aborted) {
-					const errorText = describeUnknownError(promptError);
-					if (isContextOverflowError(errorText)) {
-						const msgCount = attempt.messagesSnapshot?.length ?? 0;
-						log$2.warn(`[context-overflow-diag] sessionKey=${params.sessionKey ?? params.sessionId} provider=${provider}/${modelId} messages=${msgCount} sessionFile=${params.sessionFile} compactionAttempts=${overflowCompactionAttempts} error=${errorText.slice(0, 200)}`);
-						const isCompactionFailure = isCompactionFailureError(errorText);
-						if (!isCompactionFailure && overflowCompactionAttempts < MAX_OVERFLOW_COMPACTION_ATTEMPTS) {
-							overflowCompactionAttempts++;
-							log$2.warn(`context overflow detected (attempt ${overflowCompactionAttempts}/${MAX_OVERFLOW_COMPACTION_ATTEMPTS}); attempting auto-compaction for ${provider}/${modelId}`);
-							const compactResult = await compactEmbeddedPiSessionDirect({
-								sessionId: params.sessionId,
-								sessionKey: params.sessionKey,
-								messageChannel: params.messageChannel,
-								messageProvider: params.messageProvider,
-								agentAccountId: params.agentAccountId,
-								authProfileId: lastProfileId,
+				const assistantMsgs = messagesSnapshot?.filter((m) => m.role === "assistant") ?? [];
+				const lastAssistantTimestamp = lastAssistant?.timestamp ?? 0;
+				const timeSinceLastAssistant = Date.now() - lastAssistantTimestamp;
+				const isStaleAssistant = timeSinceLastAssistant > 6e4;
+				log$2.info(`[DEBUG-AI-RESPONSE] sessionKey=${params.sessionKey ?? params.sessionId} provider=${lastAssistant?.provider ?? provider} model=${lastAssistant?.model ?? modelId} stopReason=${lastAssistant?.stopReason ?? "none"} aborted=${aborted} timedOut=${timedOut} usage={input:${responseUsage?.input ?? 0},output:${responseUsage?.output ?? 0},cacheRead:${responseUsage?.cacheRead ?? 0}} hasError=${!!responseError} errorSnippet=${responseError ? JSON.stringify(responseError.slice(0, 300)) : "none"} contentSnippet=${JSON.stringify(responseContent)} msgCount=${messagesSnapshot?.length ?? 0} assistantCount=${assistantMsgs.length} lastAssistantAge=${timeSinceLastAssistant}ms isStale=${isStaleAssistant}`);
+				if (isStaleAssistant && lastAssistant?.model === "delivery-mirror") log$2.warn(`[DEBUG-STALE-RESPONSE] sessionKey=${params.sessionKey ?? params.sessionId} The lastAssistant is a stale delivery-mirror entry (age=${timeSinceLastAssistant}ms). This suggests the AI call may not have produced a response. promptError=${promptError ? "yes" : "no"} aborted=${aborted} timedOut=${timedOut}`);
+				const contextOverflowError = !aborted ? (() => {
+					if (promptError) {
+						const errorText = describeUnknownError(promptError);
+						if (isContextOverflowError(errorText)) return {
+							text: errorText,
+							source: "promptError"
+						};
+						return null;
+					}
+					if (assistantErrorText && isContextOverflowError(assistantErrorText)) return {
+						text: assistantErrorText,
+						source: "assistantError"
+					};
+					return null;
+				})() : null;
+				if (contextOverflowError) {
+					const errorText = contextOverflowError.text;
+					const msgCount = attempt.messagesSnapshot?.length ?? 0;
+					log$2.warn(`[context-overflow-diag] sessionKey=${params.sessionKey ?? params.sessionId} provider=${provider}/${modelId} source=${contextOverflowError.source} messages=${msgCount} sessionFile=${params.sessionFile} compactionAttempts=${overflowCompactionAttempts} error=${errorText.slice(0, 200)}`);
+					const isCompactionFailure = isCompactionFailureError(errorText);
+					if (!isCompactionFailure && overflowCompactionAttempts < MAX_OVERFLOW_COMPACTION_ATTEMPTS) {
+						overflowCompactionAttempts++;
+						log$2.warn(`context overflow detected (attempt ${overflowCompactionAttempts}/${MAX_OVERFLOW_COMPACTION_ATTEMPTS}); attempting auto-compaction for ${provider}/${modelId}`);
+						const compactResult = await compactEmbeddedPiSessionDirect({
+							sessionId: params.sessionId,
+							sessionKey: params.sessionKey,
+							messageChannel: params.messageChannel,
+							messageProvider: params.messageProvider,
+							agentAccountId: params.agentAccountId,
+							authProfileId: lastProfileId,
+							sessionFile: params.sessionFile,
+							workspaceDir: resolvedWorkspace,
+							agentDir,
+							config: params.config,
+							skillsSnapshot: params.skillsSnapshot,
+							senderIsOwner: params.senderIsOwner,
+							provider,
+							model: modelId,
+							thinkLevel,
+							reasoningLevel: params.reasoningLevel,
+							bashElevated: params.bashElevated,
+							extraSystemPrompt: params.extraSystemPrompt,
+							ownerNumbers: params.ownerNumbers
+						});
+						if (compactResult.compacted) {
+							autoCompactionCount += 1;
+							log$2.info(`auto-compaction succeeded for ${provider}/${modelId}; retrying prompt`);
+							continue;
+						}
+						log$2.warn(`auto-compaction failed for ${provider}/${modelId}: ${compactResult.reason ?? "nothing to compact"}`);
+					}
+					if (!toolResultTruncationAttempted) {
+						const contextWindowTokens = ctxInfo.tokens;
+						if (attempt.messagesSnapshot ? sessionLikelyHasOversizedToolResults({
+							messages: attempt.messagesSnapshot,
+							contextWindowTokens
+						}) : false) {
+							toolResultTruncationAttempted = true;
+							log$2.warn(`[context-overflow-recovery] Attempting tool result truncation for ${provider}/${modelId} (contextWindow=${contextWindowTokens} tokens)`);
+							const truncResult = await truncateOversizedToolResultsInSession({
 								sessionFile: params.sessionFile,
-								workspaceDir: resolvedWorkspace,
-								agentDir,
-								config: params.config,
-								skillsSnapshot: params.skillsSnapshot,
-								senderIsOwner: params.senderIsOwner,
-								provider,
-								model: modelId,
-								thinkLevel,
-								reasoningLevel: params.reasoningLevel,
-								bashElevated: params.bashElevated,
-								extraSystemPrompt: params.extraSystemPrompt,
-								ownerNumbers: params.ownerNumbers
+								contextWindowTokens,
+								sessionId: params.sessionId,
+								sessionKey: params.sessionKey
 							});
-							if (compactResult.compacted) {
-								log$2.info(`auto-compaction succeeded for ${provider}/${modelId}; retrying prompt`);
+							if (truncResult.truncated) {
+								log$2.info(`[context-overflow-recovery] Truncated ${truncResult.truncatedCount} tool result(s); retrying prompt`);
+								overflowCompactionAttempts = 0;
 								continue;
 							}
-							log$2.warn(`auto-compaction failed for ${provider}/${modelId}: ${compactResult.reason ?? "nothing to compact"}`);
+							log$2.warn(`[context-overflow-recovery] Tool result truncation did not help: ${truncResult.reason ?? "unknown"}`);
 						}
-						const kind = isCompactionFailure ? "compaction_failure" : "context_overflow";
-						return {
-							payloads: [{
-								text: "Context overflow: prompt too large for the model. Try again with less input or a larger-context model.",
-								isError: true
-							}],
-							meta: {
-								durationMs: Date.now() - started,
-								agentMeta: {
-									sessionId: sessionIdUsed,
-									provider,
-									model: model.id
-								},
-								systemPromptReport: attempt.systemPromptReport,
-								error: {
-									kind,
-									message: errorText
-								}
-							}
-						};
 					}
+					const kind = isCompactionFailure ? "compaction_failure" : "context_overflow";
+					return {
+						payloads: [{
+							text: "Context overflow: prompt too large for the model. Try again with less input or a larger-context model.",
+							isError: true
+						}],
+						meta: {
+							durationMs: Date.now() - started,
+							agentMeta: {
+								sessionId: sessionIdUsed,
+								provider,
+								model: model.id
+							},
+							systemPromptReport: attempt.systemPromptReport,
+							error: {
+								kind,
+								message: errorText
+							}
+						}
+					};
+				}
+				if (promptError && !aborted) {
+					const errorText = describeUnknownError(promptError);
 					if (/incorrect role information|roles must alternate/i.test(errorText)) return {
 						payloads: [{
 							text: "Message ordering conflict - please try again. If this persists, use /new to start a fresh session.",
@@ -67450,13 +68103,16 @@ async function runEmbeddedPiAgent(params) {
 						});
 					}
 				}
-				const usage = normalizeUsage(lastAssistant?.usage);
+				const usage = toNormalizedUsage(usageAccumulator);
 				const agentMeta = {
 					sessionId: sessionIdUsed,
 					provider: lastAssistant?.provider ?? provider,
 					model: lastAssistant?.model ?? model.id,
-					usage
+					usage,
+					compactionCount: autoCompactionCount > 0 ? autoCompactionCount : void 0
 				};
+				const assistantTextsJoined = attempt.assistantTexts?.join("").slice(0, 500) ?? "";
+				log$2.info(`[DEBUG-STREAMING-OUTPUT] sessionKey=${params.sessionKey ?? params.sessionId} assistantTextsCount=${attempt.assistantTexts?.length ?? 0} assistantTextsLength=${attempt.assistantTexts?.reduce((acc, t) => acc + t.length, 0) ?? 0} didSendViaMessagingTool=${attempt.didSendViaMessagingTool} messagingToolSentCount=${attempt.messagingToolSentTexts?.length ?? 0} sample=${JSON.stringify(assistantTextsJoined)}`);
 				const payloads = buildEmbeddedRunPayloads({
 					assistantTexts: attempt.assistantTexts,
 					toolMetas: attempt.toolMetas,

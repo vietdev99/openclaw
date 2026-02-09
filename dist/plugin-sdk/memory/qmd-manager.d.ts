@@ -24,6 +24,8 @@ export declare class QmdMemoryManager implements MemorySearchManager {
     private readonly sessionExporter;
     private updateTimer;
     private pendingUpdate;
+    private queuedForcedUpdate;
+    private queuedForcedRuns;
     private closed;
     private db;
     private lastUpdateAt;
@@ -55,6 +57,16 @@ export declare class QmdMemoryManager implements MemorySearchManager {
     probeVectorAvailability(): Promise<boolean>;
     close(): Promise<void>;
     private runUpdate;
+    private enqueueForcedUpdate;
+    private drainForcedUpdates;
+    /**
+     * Symlink the default QMD models directory into our custom XDG_CACHE_HOME so
+     * that the pre-installed ML models (~/.cache/qmd/models/) are reused rather
+     * than re-downloaded for every agent.  If the default models directory does
+     * not exist, or a models directory/symlink already exists in the target, this
+     * is a no-op.
+     */
+    private symlinkSharedModels;
     private runQmd;
     private ensureDb;
     private exportSessions;
@@ -64,6 +76,7 @@ export declare class QmdMemoryManager implements MemorySearchManager {
     private extractSnippetLines;
     private readCounts;
     private isScopeAllowed;
+    private logScopeDenied;
     private deriveChannelFromKey;
     private deriveChatTypeFromKey;
     private normalizeSessionKey;
@@ -75,4 +88,7 @@ export declare class QmdMemoryManager implements MemorySearchManager {
     private isWithinRoot;
     private clampResultsByInjectedChars;
     private shouldSkipUpdate;
+    private isSqliteBusyError;
+    private createQmdBusyError;
+    private waitForPendingUpdateBeforeSearch;
 }

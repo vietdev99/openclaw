@@ -31,10 +31,12 @@ export type ReplyDispatcherOptions = {
 export type ReplyDispatcherWithTypingOptions = Omit<ReplyDispatcherOptions, "onIdle"> & {
     onReplyStart?: () => Promise<void> | void;
     onIdle?: () => void;
+    /** Called when the typing controller is cleaned up (e.g., on NO_REPLY). */
+    onCleanup?: () => void;
 };
 type ReplyDispatcherWithTypingResult = {
     dispatcher: ReplyDispatcher;
-    replyOptions: Pick<GetReplyOptions, "onReplyStart" | "onTypingController">;
+    replyOptions: Pick<GetReplyOptions, "onReplyStart" | "onTypingController" | "onTypingCleanup">;
     markDispatchIdle: () => void;
 };
 export type ReplyDispatcher = {
