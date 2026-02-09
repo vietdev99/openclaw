@@ -209,114 +209,109 @@ export function Providers() {
     }
   };
 
-  const handleDeleteProfile = async (providerId: string, _profileId: string) => {
-    const providerName = PROVIDER_METADATA[providerId]?.name ?? providerId;
-    if (!confirm(`Are you sure you want to delete "${providerName}" credentials?`)) return;
+  const handleDeleteProfile = async (providerId: string, profileId: string) => {
+    if (!confirm(`Are you sure you want to delete profile "${profileId}"?`)) return;
     if (!snapshot?.config || !snapshot.hash) return;
 
     try {
-      // Build a JSON Merge Patch: set keys to null to delete them
-      // This avoids re-serializing the entire config (which causes type coercion bugs)
+      // Count how many profiles belong to this provider
+      const providerProfiles = Object.entries(snapshot.config.auth?.profiles ?? {}).filter(
+        ([, profile]) => (profile as { provider?: string }).provider === providerId,
+      );
+      const isLastProfile = providerProfiles.length <= 1;
+
+      // Build a JSON Merge Patch
       const patch: Record<string, unknown> = {};
 
-      // 1. Remove from models.providers
-      if (snapshot.config.models?.providers?.[providerId]) {
-        patch.models = {
-          providers: { [providerId]: null },
-        };
-      }
-
-      // 2. Remove matching auth.profiles entries
-      const authProfilesNulls: Record<string, null> = {};
-      if (snapshot.config.auth?.profiles) {
-        for (const [profileKey, profile] of Object.entries(snapshot.config.auth.profiles)) {
-          if ((profile as { provider?: string }).provider === providerId) {
-            authProfilesNulls[profileKey] = null;
-          }
+      if (isLastProfile) {
+        // Last profile — also clean up provider-level config
+        // 1. Remove from models.providers
+        if (snapshot.config.models?.providers?.[providerId]) {
+          patch.models = {
+            providers: { [providerId]: null },
+          };
         }
-      }
 
-      // 3. Remove from auth.order
-      const authOrderNulls: Record<string, null> = {};
-      if ((snapshot.config.auth as { order?: Record<string, unknown> })?.order?.[providerId]) {
-        authOrderNulls[providerId] = null;
-      }
-
-      if (Object.keys(authProfilesNulls).length > 0 || Object.keys(authOrderNulls).length > 0) {
+        // 2. Remove the profile from auth.profiles
         patch.auth = {
-          ...(Object.keys(authProfilesNulls).length > 0 ? { profiles: authProfilesNulls } : {}),
-          ...(Object.keys(authOrderNulls).length > 0 ? { order: authOrderNulls } : {}),
+          profiles: { [profileId]: null },
+        };
+
+        // 3. Remove from auth.order
+        if ((snapshot.config.auth as { order?: Record<string, unknown> })?.order?.[providerId]) {
+          (patch.auth as Record<string, unknown>).order = { [providerId]: null };
+        }
+
+        // 4. Clean up agents.defaults referencing the deleted provider
+        const agentsPatch: Record<string, unknown> = {};
+        const defaultsPatch: Record<string, unknown> = {};
+
+        // Clean agents.defaults.models entries
+        const modelsNulls: Record<string, null> = {};
+        if (snapshot.config.agents?.defaults?.models) {
+          for (const modelKey of Object.keys(snapshot.config.agents.defaults.models)) {
+            if (modelKey.startsWith(`${providerId}/`)) {
+              modelsNulls[modelKey] = null;
+            }
+          }
+        }
+        if (Object.keys(modelsNulls).length > 0) {
+          defaultsPatch.models = modelsNulls;
+        }
+
+        // Clean agents.defaults.model.primary & fallbacks
+        const modelConfig = snapshot.config.agents?.defaults?.model;
+        if (modelConfig && typeof modelConfig === "object") {
+          const mc = modelConfig as { primary?: string; fallbacks?: string[] };
+          if (mc.primary?.startsWith(`${providerId}/`)) {
+            defaultsPatch.model = { ...mc, primary: "" };
+          }
+          if (mc.fallbacks?.some((fb) => fb.startsWith(`${providerId}/`))) {
+            const existing = (defaultsPatch.model as Record<string, unknown>) ?? { ...mc };
+            existing.fallbacks = (mc.fallbacks ?? []).filter(
+              (fb) => !fb.startsWith(`${providerId}/`),
+            );
+            defaultsPatch.model = existing;
+          }
+        }
+
+        // Clean agents.defaults.imageModel.primary
+        const imgModel = snapshot.config.agents?.defaults?.imageModel;
+        if (imgModel && typeof imgModel === "object") {
+          const im = imgModel as { primary?: string };
+          if (im.primary?.startsWith(`${providerId}/`)) {
+            defaultsPatch.imageModel = { ...imgModel, primary: "" };
+          }
+        }
+
+        if (Object.keys(defaultsPatch).length > 0) {
+          agentsPatch.defaults = defaultsPatch;
+          patch.agents = agentsPatch;
+        }
+      } else {
+        // Not the last profile — only delete this specific profile
+        patch.auth = {
+          profiles: { [profileId]: null },
         };
       }
 
-      // 4. Clean up agents.defaults referencing the deleted provider
-      const agentsPatch: Record<string, unknown> = {};
-      const defaultsPatch: Record<string, unknown> = {};
+      console.log("[DeleteProfile] Sending patch:", JSON.stringify(patch));
 
-      // Clean agents.defaults.models entries
-      const modelsNulls: Record<string, null> = {};
-      if (snapshot.config.agents?.defaults?.models) {
-        for (const modelKey of Object.keys(snapshot.config.agents.defaults.models)) {
-          if (modelKey.startsWith(`${providerId}/`)) {
-            modelsNulls[modelKey] = null;
-          }
-        }
-      }
-      if (Object.keys(modelsNulls).length > 0) {
-        defaultsPatch.models = modelsNulls;
-      }
-
-      // Clean agents.defaults.model.primary
-      const modelConfig = snapshot.config.agents?.defaults?.model;
-      if (modelConfig && typeof modelConfig === "object") {
-        const mc = modelConfig as { primary?: string; fallbacks?: string[] };
-        if (mc.primary?.startsWith(`${providerId}/`)) {
-          defaultsPatch.model = { ...mc, primary: "" };
-        }
-        if (mc.fallbacks?.some((fb) => fb.startsWith(`${providerId}/`))) {
-          const existing = (defaultsPatch.model as Record<string, unknown>) ?? { ...mc };
-          existing.fallbacks = (mc.fallbacks ?? []).filter(
-            (fb) => !fb.startsWith(`${providerId}/`),
-          );
-          defaultsPatch.model = existing;
-        }
-      }
-
-      // Clean agents.defaults.imageModel.primary
-      const imgModel = snapshot.config.agents?.defaults?.imageModel;
-      if (imgModel && typeof imgModel === "object") {
-        const im = imgModel as { primary?: string };
-        if (im.primary?.startsWith(`${providerId}/`)) {
-          defaultsPatch.imageModel = { ...imgModel, primary: "" };
-        }
-      }
-
-      if (Object.keys(defaultsPatch).length > 0) {
-        agentsPatch.defaults = defaultsPatch;
-        patch.agents = agentsPatch;
-      }
-
-      console.log("[DeleteProvider] Sending patch:", JSON.stringify(patch));
-
-      // Send as config.patch (only changed keys, avoids serialization type bugs)
       await request("config.patch", {
         raw: JSON.stringify(patch),
         baseHash: snapshot.hash,
       });
 
-      // Gateway will restart after config change — just reload the page
-      // to reconnect cleanly instead of trying to call loadConfig during restart
+      // Gateway will restart after config change — reload the page
       setTimeout(() => window.location.reload(), 2500);
     } catch (err) {
-      // Ignore "gateway not connected" since it means the patch succeeded
-      // and the gateway is restarting
       const msg = err instanceof Error ? err.message : String(err);
       if (msg.includes("gateway not connected") || msg.includes("not connected")) {
         setTimeout(() => window.location.reload(), 2000);
         return;
       }
-      console.error("Failed to delete provider:", err);
-      alert(`Failed to delete provider: ${msg}`);
+      console.error("Failed to delete profile:", err);
+      alert(`Failed to delete profile: ${msg}`);
     }
   };
 
