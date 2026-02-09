@@ -57,19 +57,18 @@ function registerFeishuEvents(
 
   eventDispatcher.register({
     "im.message.receive_v1": async (data) => {
-      try {
-        const event = data as unknown as FeishuMessageEvent;
-        await handleFeishuMessage({
-          cfg,
-          event,
-          botOpenId: botOpenIds.get(accountId),
-          runtime,
-          chatHistories,
-          accountId,
-        });
-      } catch (err) {
+      const event = data as unknown as FeishuMessageEvent;
+      // Fire-and-forget: don't await so multiple messages can be processed concurrently
+      handleFeishuMessage({
+        cfg,
+        event,
+        botOpenId: botOpenIds.get(accountId),
+        runtime,
+        chatHistories,
+        accountId,
+      }).catch((err) => {
         error(`feishu[${accountId}]: error handling message: ${String(err)}`);
-      }
+      });
     },
     "im.message.message_read_v1": async () => {
       // Ignore read receipts
