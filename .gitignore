@@ -83,3 +83,9 @@ USER.md
 .agent/*.json
 !.agent/workflows/
 local/
+
+# Temp/debug files
+build.log
+electron_stderr.txt
+electron_stdout.txt
+nul
