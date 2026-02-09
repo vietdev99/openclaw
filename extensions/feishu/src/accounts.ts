@@ -104,8 +104,19 @@ export function resolveFeishuAccount(params: {
   cfg: ClawdbotConfig;
   accountId?: string | null;
 }): ResolvedFeishuAccount {
-  const accountId = normalizeAccountId(params.accountId);
+  let accountId = normalizeAccountId(params.accountId);
   const feishuCfg = params.cfg.channels?.feishu as FeishuConfig | undefined;
+
+  // If the requested accountId doesn't exist in the accounts map,
+  // fall back to the first configured account (e.g., "vietpw" when tools request "default").
+  const configuredIds = listConfiguredAccountIds(params.cfg);
+  if (
+    configuredIds.length > 0 &&
+    accountId === DEFAULT_ACCOUNT_ID &&
+    !configuredIds.includes(DEFAULT_ACCOUNT_ID)
+  ) {
+    accountId = configuredIds[0]!;
+  }
 
   // Base enabled state (top-level)
   const baseEnabled = feishuCfg?.enabled !== false;
