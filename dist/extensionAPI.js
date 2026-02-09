@@ -39419,7 +39419,12 @@ async function runReplyAgent(params) {
 			systemPromptReport: runResult.meta.systemPromptReport,
 			cliSessionId
 		});
-		if (payloadArray.length === 0) return finalizeWithFollowup(void 0, queueKey, runFollowupTurn);
+		if (payloadArray.length === 0) {
+			const embeddedError = runResult.meta?.error;
+			const messagingToolTexts = runResult.messagingToolSentTexts;
+			defaultRuntime.error(`[DEBUG-EMPTY-REPLY] Agent returned 0 payloads. provider=${providerUsed}, model=${modelUsed}, fallbackProvider=${fallbackProvider ?? "none"}, fallbackModel=${fallbackModel ?? "none"}, embeddedError=${embeddedError ? JSON.stringify(embeddedError) : "none"}, usage=${usage ? JSON.stringify(usage) : "none"}, messagingToolTexts=${messagingToolTexts?.length ?? 0}, sessionKey=${sessionKey ?? "unknown"}`);
+			return finalizeWithFollowup(void 0, queueKey, runFollowupTurn);
+		}
 		const payloadResult = buildReplyPayloads({
 			payloads: payloadArray,
 			isHeartbeat,
@@ -67146,6 +67151,7 @@ async function runEmbeddedPiAgent(params) {
 				attemptedThinking.add(thinkLevel);
 				await fs$1.mkdir(resolvedWorkspace, { recursive: true });
 				const prompt = provider === "anthropic" ? scrubAnthropicRefusalMagic(params.prompt) : params.prompt;
+				log$2.info(`[DEBUG-AI-REQUEST] sessionKey=${params.sessionKey ?? params.sessionId} provider=${provider} model=${modelId} profileId=${lastProfileId ?? "none"} thinkLevel=${thinkLevel} promptLength=${prompt?.length ?? 0} prompt=${JSON.stringify(prompt?.slice(0, 500))}`);
 				const attempt = await runEmbeddedAttempt({
 					sessionId: params.sessionId,
 					sessionKey: params.sessionKey,
@@ -67203,6 +67209,10 @@ async function runEmbeddedPiAgent(params) {
 					enforceFinalTag: params.enforceFinalTag
 				});
 				const { aborted, promptError, timedOut, sessionIdUsed, lastAssistant } = attempt;
+				const responseUsage = lastAssistant?.usage;
+				const responseError = lastAssistant?.errorMessage;
+				const responseContent = Array.isArray(lastAssistant?.content) ? lastAssistant.content.filter((c) => c.type === "text" && c.text).map((c) => c.text ?? "").join("").slice(0, 500) : "";
+				log$2.info(`[DEBUG-AI-RESPONSE] sessionKey=${params.sessionKey ?? params.sessionId} provider=${lastAssistant?.provider ?? provider} model=${lastAssistant?.model ?? modelId} stopReason=${lastAssistant?.stopReason ?? "none"} aborted=${aborted} timedOut=${timedOut} usage={input:${responseUsage?.input ?? 0},output:${responseUsage?.output ?? 0},cacheRead:${responseUsage?.cacheRead ?? 0}} hasError=${!!responseError} errorSnippet=${responseError ? JSON.stringify(responseError.slice(0, 300)) : "none"} contentSnippet=${JSON.stringify(responseContent)}`);
 				if (promptError && !aborted) {
 					const errorText = describeUnknownError(promptError);
 					if (isContextOverflowError(errorText)) {
@@ -67329,6 +67339,64 @@ async function runEmbeddedPiAgent(params) {
 						status: resolveFailoverStatus(promptFailoverReason ?? "unknown")
 					});
 					throw promptError;
+				}
+				if (lastAssistant?.errorMessage && !aborted) {
+					const assistantErrorText = lastAssistant.errorMessage;
+					if (isContextOverflowError(assistantErrorText)) {
+						const msgCount = attempt.messagesSnapshot?.length ?? 0;
+						log$2.warn(`[context-overflow-diag-assistant] sessionKey=${params.sessionKey ?? params.sessionId} provider=${provider}/${modelId} messages=${msgCount} sessionFile=${params.sessionFile} compactionAttempts=${overflowCompactionAttempts} error=${assistantErrorText.slice(0, 200)}`);
+						const isCompactionFailure = isCompactionFailureError(assistantErrorText);
+						if (!isCompactionFailure && overflowCompactionAttempts < MAX_OVERFLOW_COMPACTION_ATTEMPTS) {
+							overflowCompactionAttempts++;
+							log$2.warn(`context overflow detected from assistant error (attempt ${overflowCompactionAttempts}/${MAX_OVERFLOW_COMPACTION_ATTEMPTS}); attempting auto-compaction for ${provider}/${modelId}`);
+							const compactResult = await compactEmbeddedPiSessionDirect({
+								sessionId: params.sessionId,
+								sessionKey: params.sessionKey,
+								messageChannel: params.messageChannel,
+								messageProvider: params.messageProvider,
+								agentAccountId: params.agentAccountId,
+								authProfileId: lastProfileId,
+								sessionFile: params.sessionFile,
+								workspaceDir: resolvedWorkspace,
+								agentDir,
+								config: params.config,
+								skillsSnapshot: params.skillsSnapshot,
+								senderIsOwner: params.senderIsOwner,
+								provider,
+								model: modelId,
+								thinkLevel,
+								reasoningLevel: params.reasoningLevel,
+								bashElevated: params.bashElevated,
+								extraSystemPrompt: params.extraSystemPrompt,
+								ownerNumbers: params.ownerNumbers
+							});
+							if (compactResult.compacted) {
+								log$2.info(`auto-compaction succeeded for ${provider}/${modelId}; retrying prompt`);
+								continue;
+							}
+							log$2.warn(`auto-compaction failed for ${provider}/${modelId}: ${compactResult.reason ?? "nothing to compact"}`);
+						}
+						const kind = isCompactionFailure ? "compaction_failure" : "context_overflow";
+						return {
+							payloads: [{
+								text: "Context overflow: prompt too large for the model. Try again with less input or a larger-context model.",
+								isError: true
+							}],
+							meta: {
+								durationMs: Date.now() - started,
+								agentMeta: {
+									sessionId: sessionIdUsed,
+									provider,
+									model: model.id
+								},
+								systemPromptReport: attempt.systemPromptReport,
+								error: {
+									kind,
+									message: assistantErrorText
+								}
+							}
+						};
+					}
 				}
 				const fallbackThinking = pickFallbackThinkingLevel({
 					message: lastAssistant?.errorMessage,
