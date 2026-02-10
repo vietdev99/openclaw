@@ -27,6 +27,14 @@ export type MemoryFlushSettings = {
   reserveTokensFloor: number;
 };
 
+export const DEFAULT_PROACTIVE_COMPACTION_THRESHOLD_PERCENT = 80;
+
+export type ProactiveCompactionSettings = {
+  enabled: boolean;
+  thresholdPercent: number;
+  contextWindowTokens: number;
+};
+
 const normalizeNonNegativeInt = (value: unknown): number | null => {
   if (typeof value !== "number" || !Number.isFinite(value)) {
     return null;
@@ -101,5 +109,73 @@ export function shouldRunMemoryFlush(params: {
     return false;
   }
 
+  return true;
+}
+
+/**
+ * Resolves proactive compaction settings from config.
+ * Proactive compaction triggers BEFORE context overflow at a configured threshold (default 80%).
+ */
+export function resolveProactiveCompactionSettings(params: {
+  cfg?: OpenClawConfig;
+  modelId?: string;
+  agentCfgContextTokens?: number;
+}): ProactiveCompactionSettings {
+  const compactionCfg = params.cfg?.agents?.defaults?.compaction;
+  // Proactive compaction enabled by default
+  const enabled = compactionCfg?.proactiveEnabled !== false;
+  // Default threshold is 80% of context window
+  const rawThreshold = compactionCfg?.proactiveThresholdPercent;
+  let thresholdPercent = DEFAULT_PROACTIVE_COMPACTION_THRESHOLD_PERCENT;
+  if (typeof rawThreshold === "number" && Number.isFinite(rawThreshold)) {
+    // Clamp between 50% and 95% (below 50% is too aggressive, above 95% is too late)
+    thresholdPercent = Math.max(50, Math.min(95, Math.floor(rawThreshold)));
+  }
+  const contextWindowTokens = resolveMemoryFlushContextWindowTokens({
+    modelId: params.modelId,
+    agentCfgContextTokens: params.agentCfgContextTokens,
+  });
+
+  return {
+    enabled,
+    thresholdPercent,
+    contextWindowTokens,
+  };
+}
+
+/**
+ * Determines if proactive compaction should run to prevent context overflow.
+ * This triggers compaction BEFORE the context window is exceeded.
+ */
+export function shouldRunProactiveCompaction(params: {
+  entry?: Pick<SessionEntry, "totalTokens" | "compactionCount">;
+  settings: ProactiveCompactionSettings;
+  /** Compaction count at which proactive compaction last ran for this session */
+  lastProactiveCompactionCount?: number;
+}): boolean {
+  if (!params.settings.enabled) {
+    return false;
+  }
+  const totalTokens = params.entry?.totalTokens;
+  if (!totalTokens || totalTokens <= 0) {
+    return false;
+  }
+  const contextWindow = params.settings.contextWindowTokens;
+  if (contextWindow <= 0) {
+    return false;
+  }
+  // Calculate threshold in tokens (e.g., 80% of 200K = 160K)
+  const thresholdTokens = Math.floor(contextWindow * (params.settings.thresholdPercent / 100));
+  if (totalTokens < thresholdTokens) {
+    return false;
+  }
+  // Avoid running proactive compaction multiple times at the same compaction count
+  const compactionCount = params.entry?.compactionCount ?? 0;
+  if (
+    typeof params.lastProactiveCompactionCount === "number" &&
+    params.lastProactiveCompactionCount >= compactionCount
+  ) {
+    return false;
+  }
   return true;
 }

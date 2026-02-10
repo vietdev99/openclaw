@@ -23,7 +23,6 @@ echo [2/6] Pulling latest code...
 git pull origin main
 if errorlevel 1 (
     echo   ERROR: git pull failed. Resolve conflicts first.
-    pause
     exit /b 1
 )
 git submodule update --init --recursive
@@ -35,7 +34,6 @@ echo [3/6] Installing dependencies...
 call pnpm install
 if errorlevel 1 (
     echo   ERROR: pnpm install failed.
-    pause
     exit /b 1
 )
 echo   Done.
@@ -46,7 +44,6 @@ echo [4/6] Building core...
 call npm run build
 if errorlevel 1 (
     echo   ERROR: Core build failed.
-    pause
     exit /b 1
 )
 echo   Done.
@@ -79,4 +76,3 @@ echo.
 echo   Start gateway:  openclaw gateway
 echo   UI:             http://localhost:18789
 echo.
-pause
