@@ -66,6 +66,9 @@ export async function runMemoryFlushIfNeeded(params: {
       lastProactiveCompactionCount: currentEntry?.compactionCount,
     });
 
+  // Track if proactive compaction ran - if so, skip memory flush to avoid consuming the session turn
+  let proactiveCompactionRan = false;
+
   if (needsProactiveCompaction) {
     const thresholdPct = proactiveSettings.thresholdPercent;
     const totalTokens = currentEntry?.totalTokens ?? 0;
@@ -102,6 +105,8 @@ export async function runMemoryFlushIfNeeded(params: {
           `[proactive-compaction] succeeded (tokensBefore=${compactResult.result?.tokensBefore}, ` +
             `tokensAfter=${compactResult.result?.tokensAfter}, session=${params.sessionKey})`,
         );
+        // Mark proactive compaction as ran - skip memory flush to let user's message be processed
+        proactiveCompactionRan = true;
         // Increment compaction count
         const nextCount = await incrementCompactionCount({
           sessionEntry: activeSessionEntry,
@@ -124,6 +129,14 @@ export async function runMemoryFlushIfNeeded(params: {
   }
 
   // === MEMORY FLUSH ===
+  // Skip memory flush if proactive compaction just ran - we need to let the user's actual message be processed
+  if (proactiveCompactionRan) {
+    logVerbose(
+      `[memory-flush] skipping: proactive compaction already ran this turn (session=${params.sessionKey})`,
+    );
+    return activeSessionEntry;
+  }
+
   const memoryFlushSettings = resolveMemoryFlushSettings(params.cfg);
   if (!memoryFlushSettings) {
     return activeSessionEntry;
