@@ -414,6 +414,69 @@ export async function sendFileFeishu(params: {
 }
 
 /**
+ * Send an audio message using a file_key (plays inline as voice message)
+ */
+export async function sendAudioFeishu(params: {
+  cfg: ClawdbotConfig;
+  to: string;
+  fileKey: string;
+  replyToMessageId?: string;
+  accountId?: string;
+}): Promise<SendMediaResult> {
+  const { cfg, to, fileKey, replyToMessageId, accountId } = params;
+  const account = resolveFeishuAccount({ cfg, accountId });
+  if (!account.configured) {
+    throw new Error(`Feishu account "${account.accountId}" not configured`);
+  }
+
+  const client = createFeishuClient(account);
+  const receiveId = normalizeFeishuTarget(to);
+  if (!receiveId) {
+    throw new Error(`Invalid Feishu target: ${to}`);
+  }
+
+  const receiveIdType = resolveReceiveIdType(receiveId);
+  const content = JSON.stringify({ file_key: fileKey });
+
+  if (replyToMessageId) {
+    const response = await client.im.message.reply({
+      path: { message_id: replyToMessageId },
+      data: {
+        content,
+        msg_type: "audio",
+      },
+    });
+
+    if (response.code !== 0) {
+      throw new Error(`Feishu audio reply failed: ${response.msg || `code ${response.code}`}`);
+    }
+
+    return {
+      messageId: response.data?.message_id ?? "unknown",
+      chatId: receiveId,
+    };
+  }
+
+  const response = await client.im.message.create({
+    params: { receive_id_type: receiveIdType },
+    data: {
+      receive_id: receiveId,
+      content,
+      msg_type: "audio",
+    },
+  });
+
+  if (response.code !== 0) {
+    throw new Error(`Feishu audio send failed: ${response.msg || `code ${response.code}`}`);
+  }
+
+  return {
+    messageId: response.data?.message_id ?? "unknown",
+    chatId: receiveId,
+  };
+}
+
+/**
  * Helper to detect file type from extension
  */
 export function detectFileType(
@@ -515,13 +578,28 @@ export async function sendMediaFeishu(params: {
     return sendImageFeishu({ cfg, to, imageKey, replyToMessageId, accountId });
   } else {
     const fileType = detectFileType(name);
+    const isAudio = fileType === "opus";
+
+    // Estimate duration for audio files (required by Feishu API)
+    // Rough estimate: buffer size / bitrate. For opus ~32kbps = 4000 bytes/sec
+    const duration = isAudio ? Math.max(1000, Math.round((buffer.length / 4000) * 1000)) : undefined;
+
+    console.log(`[feishu-media] uploadFile: name=${name}, type=${fileType}, isAudio=${isAudio}, size=${buffer.length}, duration=${duration}`);
+
     const { fileKey } = await uploadFileFeishu({
       cfg,
       file: buffer,
       fileName: name,
       fileType,
+      duration,
       accountId,
     });
+
+    console.log(`[feishu-media] uploaded: fileKey=${fileKey}, sending as ${isAudio ? "audio" : "file"}`);
+
+    if (isAudio) {
+      return sendAudioFeishu({ cfg, to, fileKey, replyToMessageId, accountId });
+    }
     return sendFileFeishu({ cfg, to, fileKey, replyToMessageId, accountId });
   }
 }

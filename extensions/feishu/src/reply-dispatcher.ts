@@ -44,6 +44,9 @@ export function createFeishuReplyDispatcher(params: CreateFeishuReplyDispatcherP
   const core = getFeishuRuntime();
   const { cfg, agentId, chatId, replyToMessageId, mentionTargets, accountId } = params;
 
+  // DEBUG: Log chatId at dispatcher creation time
+  params.runtime.log?.(`[DEBUG-DISPATCHER-CREATE] chatId=${chatId} replyToMessageId=${replyToMessageId} accountId=${accountId}`);
+
   // Resolve account for config access
   const account = resolveFeishuAccount({ cfg, accountId });
 

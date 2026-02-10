@@ -841,6 +841,9 @@ export async function handleFeishuMessage(params: {
       ...mediaPayload,
     });
 
+    // DEBUG: Log chatId before creating dispatcher
+    log(`[DEBUG-PRE-DISPATCHER] ctx.chatId=${ctx.chatId} ctx.messageId=${ctx.messageId} sessionKey=${route.sessionKey}`);
+
     const { dispatcher, replyOptions, markDispatchIdle } = createFeishuReplyDispatcher({
       cfg,
       agentId: route.agentId,
