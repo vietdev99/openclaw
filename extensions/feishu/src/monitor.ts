@@ -1,7 +1,6 @@
-import type { IncomingMessage, ServerResponse } from "node:http";
 import type { ClawdbotConfig, RuntimeEnv, HistoryEntry } from "openclaw/plugin-sdk";
 import * as Lark from "@larksuiteoapi/node-sdk";
-import { registerPluginHttpRoute } from "openclaw/plugin-sdk";
+import * as http from "http";
 import type { ResolvedFeishuAccount } from "./types.js";
 import { resolveFeishuAccount, listEnabledFeishuAccounts } from "./accounts.js";
 import { handleFeishuMessage, type FeishuMessageEvent, type FeishuBotAddedEvent } from "./bot.js";
@@ -15,8 +14,9 @@ export type MonitorFeishuOpts = {
   accountId?: string;
 };
 
-// Per-account WebSocket clients and bot info
+// Per-account WebSocket clients, HTTP servers, and bot info
 const wsClients = new Map<string, Lark.WSClient>();
+const httpServers = new Map<string, http.Server>();
 const botOpenIds = new Map<string, string>();
 
 async function fetchBotOpenId(account: ResolvedFeishuAccount): Promise<string | undefined> {
@@ -28,38 +28,30 @@ async function fetchBotOpenId(account: ResolvedFeishuAccount): Promise<string | 
   }
 }
 
-/** Read incoming request body as a string. */
-function readRequestBody(req: IncomingMessage): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const chunks: Buffer[] = [];
-    req.on("data", (chunk: Buffer) => chunks.push(chunk));
-    req.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
-    req.on("error", reject);
-  });
-}
-
 /**
- * Register event handlers on the given EventDispatcher.
- * Shared between WebSocket and webhook modes.
+ * Register common event handlers on an EventDispatcher.
+ * When fireAndForget is true (webhook mode), message handling is not awaited
+ * to avoid blocking the HTTP response (Lark requires <3s response).
  */
-function registerFeishuEvents(
+function registerEventHandlers(
   eventDispatcher: Lark.EventDispatcher,
-  params: {
+  context: {
     cfg: ClawdbotConfig;
     accountId: string;
-    chatHistories: Map<string, HistoryEntry[]>;
     runtime?: RuntimeEnv;
+    chatHistories: Map<string, HistoryEntry[]>;
+    fireAndForget?: boolean;
   },
-): void {
-  const { cfg, accountId, chatHistories, runtime } = params;
-  const error = runtime?.error ?? console.error;
+) {
+  const { cfg, accountId, runtime, chatHistories, fireAndForget } = context;
   const log = runtime?.log ?? console.log;
+  const error = runtime?.error ?? console.error;
 
   eventDispatcher.register({
     "im.message.receive_v1": async (data) => {
-      const event = data as unknown as FeishuMessageEvent;
       try {
-        await handleFeishuMessage({
+        const event = data as unknown as FeishuMessageEvent;
+        const promise = handleFeishuMessage({
           cfg,
           event,
           botOpenId: botOpenIds.get(accountId),
@@ -67,6 +59,13 @@ function registerFeishuEvents(
           chatHistories,
           accountId,
         });
+        if (fireAndForget) {
+          promise.catch((err) => {
+            error(`feishu[${accountId}]: error handling message: ${String(err)}`);
+          });
+        } else {
+          await promise;
+        }
       } catch (err) {
         error(`feishu[${accountId}]: error handling message: ${String(err)}`);
       }
@@ -93,155 +92,64 @@ function registerFeishuEvents(
   });
 }
 
-/**
- * Start webhook mode for a single account.
- * Registers an HTTP route on the gateway server to receive Lark events.
- */
-async function startWebhookMode(params: {
+type MonitorAccountParams = {
   cfg: ClawdbotConfig;
   account: ResolvedFeishuAccount;
   runtime?: RuntimeEnv;
   abortSignal?: AbortSignal;
-}): Promise<void> {
+};
+
+/**
+ * Monitor a single Feishu account.
+ */
+async function monitorSingleAccount(params: MonitorAccountParams): Promise<void> {
   const { cfg, account, runtime, abortSignal } = params;
   const { accountId } = account;
   const log = runtime?.log ?? console.log;
-  const error = runtime?.error ?? console.error;
 
-  const webhookPath = account.config.webhookPath ?? "/feishu/events";
-  const chatHistories = new Map<string, HistoryEntry[]>();
+  // Fetch bot open_id
+  const botOpenId = await fetchBotOpenId(account);
+  botOpenIds.set(accountId, botOpenId ?? "");
+  log(`feishu[${accountId}]: bot open_id resolved: ${botOpenId ?? "unknown"}`);
+
+  const connectionMode = account.config.connectionMode ?? "websocket";
   const eventDispatcher = createEventDispatcher(account);
+  const chatHistories = new Map<string, HistoryEntry[]>();
 
-  // Register the same event handlers as WebSocket mode
-  registerFeishuEvents(eventDispatcher, { cfg, accountId, chatHistories, runtime });
+  registerEventHandlers(eventDispatcher, {
+    cfg,
+    accountId,
+    runtime,
+    chatHistories,
+    fireAndForget: connectionMode === "webhook",
+  });
 
-  // Build the AES cipher for encrypted events (if encryptKey is set)
-  const encryptKey = account.encryptKey;
-  let aesCipher: Lark.AESCipher | null = null;
-  if (encryptKey) {
-    aesCipher = new Lark.AESCipher(encryptKey);
+  if (connectionMode === "webhook") {
+    return monitorWebhook({ params, accountId, eventDispatcher });
   }
 
-  // Register HTTP route on the gateway server
-  const unregisterHttp = registerPluginHttpRoute({
-    path: webhookPath,
-    pluginId: "feishu",
-    accountId,
-    log: (msg) => log(msg),
-    handler: async (req: IncomingMessage, res: ServerResponse) => {
-      // Only accept POST requests
-      if (req.method !== "POST") {
-        res.statusCode = 200;
-        res.setHeader("Content-Type", "text/plain");
-        res.end("Feishu webhook endpoint is active");
-        return;
-      }
-
-      try {
-        const rawBody = await readRequestBody(req);
-        let body: Record<string, unknown>;
-        try {
-          body = JSON.parse(rawBody) as Record<string, unknown>;
-        } catch {
-          res.statusCode = 400;
-          res.setHeader("Content-Type", "application/json");
-          res.end(JSON.stringify({ error: "Invalid JSON" }));
-          return;
-        }
-
-        // Handle encrypted events
-        if (body.encrypt && typeof body.encrypt === "string" && aesCipher) {
-          try {
-            const decrypted = JSON.parse(aesCipher.decrypt(body.encrypt));
-            body = { ...decrypted, ...body };
-            delete body.encrypt;
-          } catch (err) {
-            error(`feishu[${accountId}]: failed to decrypt event: ${String(err)}`);
-            res.statusCode = 400;
-            res.setHeader("Content-Type", "application/json");
-            res.end(JSON.stringify({ error: "Decryption failed" }));
-            return;
-          }
-        }
-
-        // Handle URL verification challenge
-        if (body.type === "url_verification") {
-          log(`feishu[${accountId}]: URL verification challenge received`);
-          res.statusCode = 200;
-          res.setHeader("Content-Type", "application/json");
-          res.end(JSON.stringify({ challenge: body.challenge }));
-          return;
-        }
-
-        // Respond immediately with 200 to avoid Lark timeout
-        res.statusCode = 200;
-        res.setHeader("Content-Type", "application/json");
-        res.end(JSON.stringify({ code: 0, msg: "ok" }));
-
-        // Process event asynchronously via the EventDispatcher
-        const dataWithHeaders = Object.assign(Object.create({ headers: req.headers }), body);
-
-        try {
-          await eventDispatcher.invoke(dataWithHeaders, { needCheck: false });
-        } catch (err) {
-          error(`feishu[${accountId}]: error processing webhook event: ${String(err)}`);
-        }
-      } catch (err) {
-        error(`feishu[${accountId}]: webhook handler error: ${String(err)}`);
-        if (!res.headersSent) {
-          res.statusCode = 500;
-          res.setHeader("Content-Type", "application/json");
-          res.end(JSON.stringify({ error: "Internal server error" }));
-        }
-      }
-    },
-  });
-
-  log(`feishu[${accountId}]: webhook handler registered at ${webhookPath}`);
-
-  // Wait until abort signal
-  return new Promise<void>((resolve) => {
-    const handleAbort = () => {
-      log(`feishu[${accountId}]: abort signal received, stopping webhook`);
-      unregisterHttp();
-      botOpenIds.delete(accountId);
-      resolve();
-    };
-
-    if (abortSignal?.aborted) {
-      unregisterHttp();
-      botOpenIds.delete(accountId);
-      resolve();
-      return;
-    }
-
-    abortSignal?.addEventListener("abort", handleAbort, { once: true });
-  });
+  return monitorWebSocket({ params, accountId, eventDispatcher });
 }
 
-/**
- * Start WebSocket mode for a single account.
- */
-async function startWebSocketMode(params: {
-  cfg: ClawdbotConfig;
-  account: ResolvedFeishuAccount;
-  runtime?: RuntimeEnv;
-  abortSignal?: AbortSignal;
-}): Promise<void> {
-  const { cfg, account, runtime, abortSignal } = params;
-  const { accountId } = account;
+type ConnectionParams = {
+  params: MonitorAccountParams;
+  accountId: string;
+  eventDispatcher: Lark.EventDispatcher;
+};
+
+async function monitorWebSocket({
+  params,
+  accountId,
+  eventDispatcher,
+}: ConnectionParams): Promise<void> {
+  const { account, runtime, abortSignal } = params;
   const log = runtime?.log ?? console.log;
+  const error = runtime?.error ?? console.error;
 
   log(`feishu[${accountId}]: starting WebSocket connection...`);
 
   const wsClient = createFeishuWSClient(account);
   wsClients.set(accountId, wsClient);
-
-  const chatHistories = new Map<string, HistoryEntry[]>();
-  const eventDispatcher = createEventDispatcher(account);
-
-  // Register the same event handlers
-  registerFeishuEvents(eventDispatcher, { cfg, accountId, chatHistories, runtime });
 
   return new Promise((resolve, reject) => {
     const cleanup = () => {
@@ -264,7 +172,7 @@ async function startWebSocketMode(params: {
     abortSignal?.addEventListener("abort", handleAbort, { once: true });
 
     try {
-      void wsClient.start({ eventDispatcher });
+      wsClient.start({ eventDispatcher });
       log(`feishu[${accountId}]: WebSocket client started`);
     } catch (err) {
       cleanup();
@@ -274,31 +182,55 @@ async function startWebSocketMode(params: {
   });
 }
 
-/**
- * Monitor a single Feishu account.
- */
-async function monitorSingleAccount(params: {
-  cfg: ClawdbotConfig;
-  account: ResolvedFeishuAccount;
-  runtime?: RuntimeEnv;
-  abortSignal?: AbortSignal;
-}): Promise<void> {
-  const { cfg, account, runtime, abortSignal } = params;
-  const { accountId } = account;
+async function monitorWebhook({
+  params,
+  accountId,
+  eventDispatcher,
+}: ConnectionParams): Promise<void> {
+  const { account, runtime, abortSignal } = params;
   const log = runtime?.log ?? console.log;
+  const error = runtime?.error ?? console.error;
 
-  // Fetch bot open_id
-  const botOpenId = await fetchBotOpenId(account);
-  botOpenIds.set(accountId, botOpenId ?? "");
-  log(`feishu[${accountId}]: bot open_id resolved: ${botOpenId ?? "unknown"}`);
+  const port = account.config.webhookPort ?? 3000;
+  const path = account.config.webhookPath ?? "/feishu/events";
 
-  const connectionMode = account.config.connectionMode ?? "websocket";
+  log(`feishu[${accountId}]: starting Webhook server on port ${port}, path ${path}...`);
 
-  if (connectionMode === "webhook") {
-    return startWebhookMode({ cfg, account, runtime, abortSignal });
-  }
+  const server = http.createServer();
+  server.on("request", Lark.adaptDefault(path, eventDispatcher, { autoChallenge: true }));
+  httpServers.set(accountId, server);
 
-  return startWebSocketMode({ cfg, account, runtime, abortSignal });
+  return new Promise((resolve, reject) => {
+    const cleanup = () => {
+      server.close();
+      httpServers.delete(accountId);
+      botOpenIds.delete(accountId);
+    };
+
+    const handleAbort = () => {
+      log(`feishu[${accountId}]: abort signal received, stopping Webhook server`);
+      cleanup();
+      resolve();
+    };
+
+    if (abortSignal?.aborted) {
+      cleanup();
+      resolve();
+      return;
+    }
+
+    abortSignal?.addEventListener("abort", handleAbort, { once: true });
+
+    server.listen(port, () => {
+      log(`feishu[${accountId}]: Webhook server listening on port ${port}`);
+    });
+
+    server.on("error", (err) => {
+      error(`feishu[${accountId}]: Webhook server error: ${err}`);
+      abortSignal?.removeEventListener("abort", handleAbort);
+      reject(err);
+    });
+  });
 }
 
 /**
@@ -355,9 +287,18 @@ export async function monitorFeishuProvider(opts: MonitorFeishuOpts = {}): Promi
 export function stopFeishuMonitor(accountId?: string): void {
   if (accountId) {
     wsClients.delete(accountId);
+    const server = httpServers.get(accountId);
+    if (server) {
+      server.close();
+      httpServers.delete(accountId);
+    }
     botOpenIds.delete(accountId);
   } else {
     wsClients.clear();
+    for (const server of httpServers.values()) {
+      server.close();
+    }
+    httpServers.clear();
     botOpenIds.clear();
   }
 }
