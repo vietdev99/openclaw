@@ -114,6 +114,41 @@ function resolveAnthropicOpus46ForwardCompatModel(
   return undefined;
 }
 
+// google-antigravity forward-compat: if claude-opus-4-6-thinking isn't in the
+// registry (e.g. pi-ai hasn't published it yet), clone from claude-opus-4-5-thinking.
+function resolveAntigravityOpus46ForwardCompatModel(
+  provider: string,
+  modelId: string,
+  modelRegistry: ModelRegistry,
+): Model<Api> | undefined {
+  const normalizedProvider = normalizeProviderId(provider);
+  if (normalizedProvider !== "google-antigravity") {
+    return undefined;
+  }
+
+  const trimmedModelId = modelId.trim();
+  const lower = trimmedModelId.toLowerCase();
+  if (lower !== "claude-opus-4-6-thinking") {
+    return undefined;
+  }
+
+  // Try to find the 4.5 template
+  const templateIds = ["claude-opus-4-5-thinking", "claude-sonnet-4-5-thinking"] as const;
+  for (const templateId of templateIds) {
+    const template = modelRegistry.find(normalizedProvider, templateId) as Model<Api> | null;
+    if (!template) {
+      continue;
+    }
+    return normalizeModelCompat({
+      ...template,
+      id: trimmedModelId,
+      name: "Claude Opus 4.6 Thinking (Antigravity)",
+    } as Model<Api>);
+  }
+
+  return undefined;
+}
+
 export function buildInlineProviderModels(
   providers: Record<string, InlineProviderConfig>,
 ): InlineModelEntry[] {
@@ -198,6 +233,14 @@ export function resolveModel(
     );
     if (anthropicForwardCompat) {
       return { model: anthropicForwardCompat, authStorage, modelRegistry };
+    }
+    const antigravityForwardCompat = resolveAntigravityOpus46ForwardCompatModel(
+      provider,
+      modelId,
+      modelRegistry,
+    );
+    if (antigravityForwardCompat) {
+      return { model: antigravityForwardCompat, authStorage, modelRegistry };
     }
     const providerCfg = providers[provider];
     if (providerCfg || modelId.startsWith("mock-")) {
