@@ -1,10 +1,13 @@
 import type { AssistantMessage } from "@mariozechner/pi-ai";
 import type { OpenClawConfig } from "../../config/config.js";
 import type { FailoverReason } from "./types.js";
-export declare const BILLING_ERROR_USER_MESSAGE = "\u26A0\uFE0F API provider returned a billing error \u2014 your API key has run out of credits or has an insufficient balance. Check your provider's billing dashboard and top up or switch to a different API key.";
+export declare function formatBillingErrorMessage(provider?: string): string;
+export declare const BILLING_ERROR_USER_MESSAGE: string;
 export declare function isContextOverflowError(errorMessage?: string): boolean;
 export declare function isLikelyContextOverflowError(errorMessage?: string): boolean;
 export declare function isCompactionFailureError(errorMessage?: string): boolean;
+export declare function isCloudflareOrHtmlErrorPage(raw: string): boolean;
+export declare function isTransientHttpError(raw: string): boolean;
 export declare function getApiErrorPayloadFingerprint(raw?: string): string | null;
 export declare function isRawApiErrorPayload(raw?: string): boolean;
 export type ApiErrorInfo = {
@@ -18,8 +21,11 @@ export declare function formatRawAssistantErrorForUi(raw?: string): string;
 export declare function formatAssistantErrorText(msg: AssistantMessage, opts?: {
     cfg?: OpenClawConfig;
     sessionKey?: string;
+    provider?: string;
 }): string | undefined;
-export declare function sanitizeUserFacingText(text: string): string;
+export declare function sanitizeUserFacingText(text: string, opts?: {
+    errorContext?: boolean;
+}): string;
 export declare function isRateLimitAssistantError(msg: AssistantMessage | undefined): boolean;
 export declare function isRateLimitErrorMessage(raw: string): boolean;
 export declare function isTimeoutErrorMessage(raw: string): boolean;

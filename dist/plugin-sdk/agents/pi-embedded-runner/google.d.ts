@@ -2,6 +2,7 @@ import type { AgentMessage, AgentTool } from "@mariozechner/pi-agent-core";
 import type { SessionManager } from "@mariozechner/pi-coding-agent";
 import type { TSchema } from "@sinclair/typebox";
 import type { TranscriptPolicy } from "../transcript-policy.js";
+export declare function sanitizeAntigravityThinkingBlocks(messages: AgentMessage[]): AgentMessage[];
 export declare function sanitizeToolsForGoogle<TSchemaType extends TSchema = TSchema, TResult = unknown>(params: {
     tools: AgentTool<TSchemaType, TResult>[];
     provider: string;

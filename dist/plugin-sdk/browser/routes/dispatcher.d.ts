@@ -4,6 +4,7 @@ type BrowserDispatchRequest = {
     path: string;
     query?: Record<string, unknown>;
     body?: unknown;
+    signal?: AbortSignal;
 };
 type BrowserDispatchResponse = {
     status: number;

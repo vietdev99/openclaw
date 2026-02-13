@@ -1,99 +1,101 @@
 #!/usr/bin/env node
-import { Ct as formatControlUiSshHint, D as runMessageAction, Et as moveToTrash, Ft as waitForGatewayReachable, Hr as applyTemplate, I as CHANNEL_MESSAGE_ACTION_NAMES, Mt as resolveControlUiLinks, Ot as openUrl, P as formatTargetDisplay, St as ensureWorkspaceAndSessions, Tt as handleReset, an as registerMemoryCli, at as CHANNEL_TARGETS_DESCRIPTION, br as lookupContextTokens, fn as waitForever, ht as resolveCommitHash, jt as randomToken, on as runMemoryStatus, ot as CHANNEL_TARGET_DESCRIPTION, sn as monitorWebChannel, t as getReplyFromConfig, un as installUnhandledRejectionHandler, vt as DEFAULT_WORKSPACE, xt as detectBrowserOpenSupport, yt as applyWizardMetadata } from "./reply-2cUgDobY.js";
+import { Ct as formatControlUiSshHint, D as runMessageAction, Et as moveToTrash, Ft as waitForGatewayReachable, I as CHANNEL_MESSAGE_ACTION_NAMES, Mt as resolveControlUiLinks, Ot as openUrl, P as formatTargetDisplay, St as ensureWorkspaceAndSessions, Tt as handleReset, an as registerMemoryCli, at as CHANNEL_TARGETS_DESCRIPTION, br as lookupContextTokens, ht as resolveCommitHash, jt as randomToken, on as runMemoryStatus, ot as CHANNEL_TARGET_DESCRIPTION, sn as monitorWebChannel, t as getReplyFromConfig, un as waitForever, vt as DEFAULT_WORKSPACE, xt as detectBrowserOpenSupport, yt as applyWizardMetadata } from "./reply-ejQ2X-et.js";
 import { g as resolveStateDir, i as isNixMode, m as resolveOAuthDir, o as resolveConfigPath, r as STATE_DIR, u as resolveGatewayPort } from "./paths-DVBShlw6.js";
-import { D as info, E as danger, I as colorize, L as isRich, M as setVerbose, R as theme, S as normalizeChatChannelId, c as defaultRuntime, h as DEFAULT_CHAT_CHANNEL, l as restoreTerminalState, r as enableConsoleCapture, s as visibleWidth, v as getChatChannelMeta } from "./subsystem-DPnkvS73.js";
-import { C as toWhatsappJid, _ as resolveUserPath, b as shortenHomePath, h as resolveHomeDir, m as resolveConfigDir, n as assertWebChannel, p as normalizeE164, y as shortenHomeInString } from "./utils-DC1T2Vz-.js";
-import "./pi-embedded-helpers-BWjrfQXy.js";
-import { l as normalizeAgentId, n as DEFAULT_AGENT_ID, t as DEFAULT_ACCOUNT_ID } from "./session-key-CnoyNstj.js";
-import { n as runExec, t as runCommandWithTimeout } from "./exec-DYfgNoXq.js";
-import { c as resolveDefaultAgentId, f as DEFAULT_AGENT_WORKSPACE_DIR, h as DEFAULT_IDENTITY_FILENAME, r as resolveAgentDir, s as resolveAgentWorkspaceDir, t as listAgentIds, w as resolveDefaultAgentWorkspaceDir, x as ensureAgentWorkspace } from "./agent-scope-BByj7vhO.js";
-import { Et as DEFAULT_PROVIDER, Tt as DEFAULT_MODEL, Z as resolveAuthProfileOrder, bt as normalizeSecretInput, d as resolveConfiguredModelRef, ft as upsertAuthProfile, gt as resolveAuthStorePath, pt as ensureAuthProfileStore, rt as resolveApiKeyForProfile, s as normalizeProviderId, wt as DEFAULT_CONTEXT_TOKENS, yt as normalizeOptionalSecretInput, z as resolveEnvApiKey } from "./model-selection-BhmuYZ_I.js";
-import "./github-copilot-token-BaCPUhqX.js";
+import { D as info, E as danger, I as colorize, L as isRich, M as setVerbose, R as theme, S as normalizeChatChannelId, c as defaultRuntime, h as DEFAULT_CHAT_CHANNEL, l as restoreTerminalState, r as enableConsoleCapture, s as visibleWidth, v as getChatChannelMeta } from "./subsystem-BoExtIHo.js";
+import { C as shortenHomePath, E as toWhatsappJid, S as shortenHomeInString, b as resolveUserPath, h as normalizeE164, n as assertWebChannel, v as resolveHomeDir } from "./utils-Cd9QdCHh.js";
+import "./pi-embedded-helpers-C_lhPT4B.js";
+import { l as normalizeAgentId, n as DEFAULT_AGENT_ID, t as DEFAULT_ACCOUNT_ID } from "./session-key-GfnX_e51.js";
+import { n as runExec, t as runCommandWithTimeout } from "./exec-CFsUECIN.js";
+import { c as resolveDefaultAgentId, f as DEFAULT_AGENT_WORKSPACE_DIR, h as DEFAULT_IDENTITY_FILENAME, r as resolveAgentDir, s as resolveAgentWorkspaceDir, t as listAgentIds, w as resolveDefaultAgentWorkspaceDir, x as ensureAgentWorkspace } from "./agent-scope-DHqkl7uR.js";
+import { Ct as normalizeSecretInput, Dt as DEFAULT_CONTEXT_TOKENS, H as resolveEnvApiKey, Ot as DEFAULT_MODEL, St as normalizeOptionalSecretInput, d as resolveConfiguredModelRef, et as resolveAuthProfileOrder, gt as ensureAuthProfileStore, ht as upsertAuthProfile, kt as DEFAULT_PROVIDER, ot as resolveApiKeyForProfile, s as normalizeProviderId, yt as resolveAuthStorePath } from "./model-selection-DA1of_xi.js";
+import "./github-copilot-token-BnWAMtK1.js";
 import { n as replaceCliName, r as resolveCliName, t as formatCliCommand } from "./command-format-DELazozB.js";
 import { t as parseBooleanValue } from "./boolean-Wzu0-e0P.js";
-import { r as normalizeEnv, t as isTruthyEnvValue } from "./env-Y4yRmSqA.js";
-import { c as writeConfigFile, h as parseDurationMs, i as loadConfig, j as VERSION, o as readConfigFileSnapshot, r as createConfigIO } from "./config-FRUrOQZj.js";
-import "./manifest-registry-DOTZQxt4.js";
-import { n as listChannelPlugins, r as normalizeChannelId, t as getChannelPlugin } from "./plugins-CuI88ZiU.js";
-import { D as resolveSessionKey, E as deriveSessionKey, d as loadSessionStore, m as saveSessionStore } from "./sandbox-C185_hge.js";
-import "./image-dn3Njs1_.js";
-import "./pi-model-discovery-BgH7qogB.js";
-import { c as describePortOwner, l as ensurePortAvailable, s as PortInUseError, u as handlePortError } from "./chrome-CC8KALzU.js";
-import "./skills-CjhMBxcZ.js";
-import "./routes-D3N1InSK.js";
-import { r as formatUncaughtError } from "./errors-vYYpRkTl.js";
-import { n as movePathToTrash } from "./server-context-l0h6VfcS.js";
-import "./image-ops-EegHvxH9.js";
-import { h as GATEWAY_CLIENT_NAMES, l as normalizeMessageChannel, m as GATEWAY_CLIENT_MODES } from "./message-channel-DDb2JxXt.js";
-import "./logging-kuFzZMsG.js";
-import "./accounts-3IDYMVnb.js";
-import { a as resolveSessionTranscriptsDirForAgent, i as resolveSessionTranscriptsDir, o as resolveStorePath } from "./paths-CxObeRE2.js";
-import "./redact-CVRUv382.js";
-import "./tool-display-B8rbikzT.js";
-import "./ir-BS1fAOeg.js";
-import "./deliver-CM6ppKJ9.js";
-import "./send-ZzePPedh.js";
-import "./retry-DlPRmz3b.js";
-import "./dispatcher-D5mQxjGe.js";
-import "./manager-BWg1XU9W.js";
-import "./sqlite-BRZvq4T_.js";
-import "./tui-formatters-N7bcYhx3.js";
-import "./net-DtMP4uTE.js";
-import { i as randomIdempotencyKey, n as callGateway } from "./call-SToV_X7B.js";
-import { n as formatTimeAgo } from "./format-relative-DNdCmPHR.js";
-import "./login-qr-O7vyafvc.js";
-import "./pairing-store-DBF3toMZ.js";
-import { t as formatDocsLink } from "./links-BrCcQdeo.js";
-import { n as runCommandWithRuntime } from "./cli-utils-BQSNeTJ_.js";
-import { n as withProgress } from "./progress-ivKJNZJD.js";
-import "./pi-tools.policy-DxygtQGR.js";
-import { n as stylePromptMessage, r as stylePromptTitle, t as stylePromptHint } from "./prompt-style-BICJRGik.js";
-import "./pairing-labels-ebB3q0oa.js";
-import "./session-cost-usage-qWpHSsOY.js";
-import "./control-service-mkpqnLnA.js";
-import "./channel-selection-BjEoIX1o.js";
-import { t as createDefaultDeps } from "./deps-FpE8y9Fq.js";
-import { l as ensureBinary, u as promptYesNo } from "./tailscale-DrPtVYAT.js";
-import { t as isMainModule } from "./is-main-ByiS0c9u.js";
-import { t as ensureOpenClawCliOnPath } from "./path-env-Bia65M95.js";
-import { a as gatewayInstallErrorHint, g as assertSupportedRuntime, i as buildGatewayInstallPlan, r as isGatewayDaemonRuntime, t as DEFAULT_GATEWAY_DAEMON_RUNTIME } from "./daemon-runtime-DyAxvNAk.js";
-import { a as buildAgentSummaries, c as loadAgentIdentity, f as parseIdentityMarkdown, i as applyAgentConfig, l as pruneAgentConfig, n as statusCommand, o as findAgentEntryIndex, s as listAgentEntries, t as runOnboardingWizard, u as identityHasValues } from "./onboarding-D-5hyCxQ.js";
-import { t as resolveChannelDefaultAccountId } from "./helpers-COtFgQD3.js";
-import { n as logConfigUpdated, t as formatConfigPath } from "./logging-CmsRK8OB.js";
-import "./note-NfDJnHkP.js";
-import { t as WizardCancelledError } from "./prompts-O1HoLCu0.js";
-import { t as createClackPrompter } from "./clack-prompter-DmxXWrUK.js";
-import { d as warnIfModelConfigLooksOff, f as applyAuthChoice, g as promptAuthChoiceGrouped, h as applyGoogleGeminiModelDefault, m as upsertSharedEnvVar, p as applyOpenAIConfig } from "./onboard-skills-D59X9_x2.js";
-import { $ as setOpenrouterApiKey, C as applyMoonshotConfig, D as applyOpenrouterConfig, F as applyVercelAiGatewayConfig, J as setGeminiApiKey, K as setAnthropicApiKey, L as applyXaiConfig, N as applyVeniceConfig, Q as setOpencodeZenApiKey, V as applyZaiConfig, X as setMinimaxApiKey, Y as setKimiCodingApiKey, Z as setMoonshotApiKey, at as setXiaomiApiKey, et as setQianfanApiKey, f as applyOpencodeZenConfig, ft as buildTokenProfileId, g as applyMinimaxConfig, it as setXaiApiKey, j as applySyntheticConfig, k as applyQianfanConfig, m as applyMinimaxApiConfig, nt as setVeniceApiKey, ot as setZaiApiKey, pt as validateAnthropicSetupToken, q as setCloudflareAiGatewayConfig, rt as setVercelAiGatewayApiKey, tt as setSyntheticApiKey, v as applyAuthProfileConfig, w as applyMoonshotConfigCn, x as applyKimiCodeConfig, y as applyCloudflareAiGatewayConfig, z as applyXiaomiConfig } from "./github-copilot-auth-C2aIopws.js";
-import { n as setupChannels } from "./onboard-channels-Mz0FAMh5.js";
-import "./plugin-auto-enable-DthTY4De.js";
-import "./archive-BqqvCvaB.js";
-import "./skill-scanner-RWP2Cydz.js";
-import "./installs-BRkH5j9d.js";
-import { l as healthCommand } from "./health-format-DrhLJ909.js";
-import "./update-runner-17AVLD2V.js";
-import "./auth-DDm6lFUz.js";
-import "./audit-nhhFMthk.js";
-import { t as renderTable } from "./table-BmxjBXj8.js";
-import "./skills-status-DlOueDAG.js";
-import { t as resolveGatewayService } from "./service-CkAAbfQi.js";
-import { r as isSystemdUserServiceAvailable } from "./systemd-BfwxPVGX.js";
-import "./service-audit-C3zUxDpK.js";
-import "./node-service-B6uNvdom.js";
-import "./channels-status-issues-BDWA5GV-.js";
-import { c as registerSubCliCommands, d as getPositiveIntFlagValue, f as getVerboseFlag, l as getCommandPath, m as hasHelpOrVersion, p as hasFlag, u as getFlagValue } from "./completion-cli-BKTdpTZH.js";
-import { n as callGatewayFromCli, t as addGatewayClientOptions } from "./gateway-rpc-wODa5UqF.js";
-import { t as formatHelpExamples } from "./help-format-DIjHLBb7.js";
-import { a as createOutboundSendDeps, n as resolveSessionKeyForRequest, t as agentCommand } from "./agent-C1O9nHiB.js";
-import { i as hasExplicitOptions, n as resolveCliChannelOptions, r as ensurePluginRegistryLoaded } from "./channel-options-BJCMVzP1.js";
-import { n as parsePositiveIntOrUndefined, t as collectOption } from "./helpers-CWQnEONe.js";
-import { i as CONFIGURE_WIZARD_SECTIONS, n as configureCommand, r as configureCommandWithSections } from "./configure-C3aNC6nZ.js";
-import { n as ensureSystemdUserLingerNonInteractive } from "./systemd-linger-D-Luzba4.js";
-import "./widearea-dns-DwemL45A.js";
-import "./auth-health-B1kf_dVW.js";
-import { n as loadAndMaybeMigrateDoctorConfig, t as doctorCommand } from "./doctor-hqiPBCDq.js";
-import "./hooks-status-Dj8B7rxh.js";
-import "./tui-BGGhV5VG.js";
+import { r as normalizeEnv, t as isTruthyEnvValue } from "./env-DJ7nGqFG.js";
+import { N as VERSION, P as loadDotEnv, c as writeConfigFile, g as parseDurationMs, i as loadConfig, o as readConfigFileSnapshot, r as createConfigIO } from "./config-Dxs2gRuz.js";
+import "./manifest-registry-DJxkeeLb.js";
+import { n as listChannelPlugins, r as normalizeChannelId, t as getChannelPlugin } from "./plugins-_WVbdhZt.js";
+import { D as deriveSessionKey, F as resolveFreshSessionTotalTokens, O as resolveSessionKey, d as loadSessionStore, m as saveSessionStore } from "./sandbox-CqbrfSX2.js";
+import { d as installUnhandledRejectionHandler, v as applyTemplate } from "./runner-B0_PrvgQ.js";
+import "./image-PjdFbjhY.js";
+import "./pi-model-discovery-D7UMynrN.js";
+import { c as describePortOwner, l as ensurePortAvailable, s as PortInUseError, u as handlePortError } from "./chrome-DBQbpMSY.js";
+import "./skills-BK6d6B4l.js";
+import "./routes-CNA8Qnqs.js";
+import { r as formatUncaughtError } from "./errors-B0eT3jVv.js";
+import { n as movePathToTrash } from "./server-context-C9CpOvRr.js";
+import "./image-ops-DX7CFA0y.js";
+import { h as GATEWAY_CLIENT_NAMES, l as normalizeMessageChannel, m as GATEWAY_CLIENT_MODES } from "./message-channel-BLi2a6Yw.js";
+import "./logging-fywhKCmE.js";
+import "./accounts-BWW7zo3r.js";
+import { c as resolveStorePath, o as resolveSessionTranscriptsDir, s as resolveSessionTranscriptsDirForAgent } from "./paths-vjv8uGfE.js";
+import "./redact-BRsnXqwD.js";
+import "./tool-display-CZRIDMRm.js";
+import "./fetch-DTfNRNYr.js";
+import "./deliver-Q23R2Fmj.js";
+import "./ir-B0rJjijR.js";
+import "./send-wmyN82IO.js";
+import "./retry-DgElgZY_.js";
+import "./dispatcher-rjpMX6eD.js";
+import "./manager-CrCQwGmU.js";
+import "./sqlite-PxKCeFhL.js";
+import "./tui-formatters-DGmY7hFS.js";
+import "./client-CRisBAa-.js";
+import { i as randomIdempotencyKey, n as callGateway } from "./call-CJl9B-T-.js";
+import { n as formatTimeAgo } from "./format-relative-DeThRatJ.js";
+import "./login-qr-BuVgFzqI.js";
+import "./pairing-store-jC3O-h9t.js";
+import { t as formatDocsLink } from "./links-D-aHfIyT.js";
+import { n as runCommandWithRuntime } from "./cli-utils-DBHv89pz.js";
+import { n as withProgress } from "./progress-BZ6Yqdj_.js";
+import "./pi-tools.policy-2U-O-YOZ.js";
+import { n as stylePromptMessage, r as stylePromptTitle, t as stylePromptHint } from "./prompt-style-XkYLpOar.js";
+import "./pairing-labels-BlKuMX24.js";
+import "./session-cost-usage-BD_ITlJf.js";
+import { m as promptYesNo, p as ensureBinary } from "./auth-Clo4dwbU.js";
+import "./control-auth-B3QJMvXn.js";
+import "./control-service-pAa_ZKWX.js";
+import "./channel-selection-BQ2PhwHK.js";
+import { t as createDefaultDeps } from "./deps-Bt0JtQzS.js";
+import { t as isMainModule } from "./is-main-BTWsaJ6V.js";
+import { t as ensureOpenClawCliOnPath } from "./path-env-BqHDfzz6.js";
+import { a as gatewayInstallErrorHint, g as assertSupportedRuntime, i as buildGatewayInstallPlan, r as isGatewayDaemonRuntime, t as DEFAULT_GATEWAY_DAEMON_RUNTIME } from "./daemon-runtime-CG7kXM_k.js";
+import { a as buildAgentSummaries, c as loadAgentIdentity, f as parseIdentityMarkdown, i as applyAgentConfig, l as pruneAgentConfig, n as statusCommand, o as findAgentEntryIndex, s as listAgentEntries, t as runOnboardingWizard, u as identityHasValues } from "./onboarding-DJgjb824.js";
+import { t as resolveChannelDefaultAccountId } from "./helpers-D_XAf8wc.js";
+import { n as logConfigUpdated, t as formatConfigPath } from "./logging-CA7nvs7k.js";
+import "./note-CAMzKnS8.js";
+import { t as WizardCancelledError } from "./prompts-BdNX5n0U.js";
+import { t as createClackPrompter } from "./clack-prompter-CVm-nQ0E.js";
+import { S as promptAuthChoiceGrouped, _ as applyAuthChoice, a as CustomApiError, b as detectZaiEndpoint, g as warnIfModelConfigLooksOff, l as resolveCustomProviderId, o as applyCustomApiConfig, s as parseNonInteractiveCustomApiFlags, v as applyOpenAIConfig, x as applyGoogleGeminiModelDefault, y as upsertSharedEnvVar } from "./onboard-skills-Bab9ei48.js";
+import { $ as setAnthropicApiKey, C as applyLitellmConfig, E as applyMoonshotConfigCn, Et as validateAnthropicSetupToken, F as applyTogetherConfig, G as applyZaiConfig, L as applyVeniceConfig, N as applySyntheticConfig, T as applyMoonshotConfig, Tt as buildTokenProfileId, U as applyXiaomiConfig, V as applyXaiConfig, at as setMoonshotApiKey, ct as setQianfanApiKey, dt as setVeniceApiKey, et as setCloudflareAiGatewayConfig, f as applyOpencodeZenConfig, ft as setVercelAiGatewayApiKey, g as applyMinimaxConfig, ht as setZaiApiKey, it as setMinimaxApiKey, j as applyQianfanConfig, k as applyOpenrouterConfig, lt as setSyntheticApiKey, m as applyMinimaxApiConfig, mt as setXiaomiApiKey, nt as setKimiCodingApiKey, ot as setOpencodeZenApiKey, pt as setXaiApiKey, rt as setLitellmApiKey, st as setOpenrouterApiKey, tt as setGeminiApiKey, ut as setTogetherApiKey, v as applyAuthProfileConfig, x as applyKimiCodeConfig, y as applyCloudflareAiGatewayConfig, z as applyVercelAiGatewayConfig } from "./github-copilot-auth-CcGvoNvm.js";
+import { n as setupChannels } from "./onboard-channels-CIr0AYZn.js";
+import "./plugin-auto-enable-DEQ4U-Ia.js";
+import "./archive-BRel346v.js";
+import "./skill-scanner-DlhCKNxY.js";
+import "./installs-RhFaD8Rw.js";
+import { l as healthCommand } from "./health-format-BTNMiraL.js";
+import "./update-runner-DT99q2gp.js";
+import "./audit-rYz2llNx.js";
+import { t as renderTable } from "./table-C64DEP0U.js";
+import "./skills-status-Bv7I9gJb.js";
+import { t as resolveGatewayService } from "./service-H4dyJHpH.js";
+import { r as isSystemdUserServiceAvailable } from "./systemd-C6Naowm6.js";
+import "./service-audit-5Vs86PZG.js";
+import "./node-service-C461Gsfb.js";
+import "./channels-status-issues-CTezqyUc.js";
+import { c as registerSubCliCommands, d as getPositiveIntFlagValue, f as getVerboseFlag, l as getCommandPath, m as hasHelpOrVersion, p as hasFlag, u as getFlagValue } from "./completion-cli-BGsDTodT.js";
+import { n as callGatewayFromCli, t as addGatewayClientOptions } from "./gateway-rpc-DoJ37TTE.js";
+import { t as formatHelpExamples } from "./help-format-Ceq89i0m.js";
+import { a as createOutboundSendDeps, n as resolveSessionKeyForRequest, t as agentCommand } from "./agent-oAZKxYEd.js";
+import { i as hasExplicitOptions, n as resolveCliChannelOptions, r as ensurePluginRegistryLoaded } from "./channel-options-CO7DrPoT.js";
+import { n as parsePositiveIntOrUndefined, t as collectOption } from "./helpers-BPtdhlRR.js";
+import { i as CONFIGURE_WIZARD_SECTIONS, n as configureCommand, r as configureCommandWithSections } from "./configure-DadlqgMP.js";
+import { n as ensureSystemdUserLingerNonInteractive } from "./systemd-linger-CL0aninQ.js";
+import "./widearea-dns-BAJa3aC1.js";
+import "./auth-health-BLmwFEhX.js";
+import { n as loadAndMaybeMigrateDoctorConfig, t as doctorCommand } from "./doctor-Bw88WJqs.js";
+import "./hooks-status-BkjoUVWM.js";
+import "./tui-6ofgFFoI.js";
 import process$1 from "node:process";
 import { fileURLToPath } from "node:url";
 import fs from "node:fs";
@@ -101,23 +103,8 @@ import path from "node:path";
 import JSON5 from "json5";
 import fs$1 from "node:fs/promises";
 import { cancel, confirm, isCancel, multiselect, select } from "@clack/prompts";
-import dotenv from "dotenv";
 import { Command } from "commander";
 
-//#region src/infra/dotenv.ts
-function loadDotEnv(opts) {
-	const quiet = opts?.quiet ?? true;
-	dotenv.config({ quiet });
-	const globalEnvPath = path.join(resolveConfigDir(process.env), ".env");
-	if (!fs.existsSync(globalEnvPath)) return;
-	dotenv.config({
-		quiet,
-		path: globalEnvPath,
-		override: false
-	});
-}
-
-//#endregion
 //#region src/commands/agents.bindings.ts
 function bindingMatchKey(match) {
 	const accountId = match.accountId?.trim() || DEFAULT_ACCOUNT_ID;
@@ -370,7 +357,7 @@ async function agentsAddCommand(opts, runtime = defaultRuntime, params) {
 				if (normalizeAgentId(value) === DEFAULT_AGENT_ID) return `"${DEFAULT_AGENT_ID}" is reserved. Choose another name.`;
 			}
 		});
-		const agentName = String(name).trim();
+		const agentName = String(name ?? "").trim();
 		const agentId = normalizeAgentId(agentName);
 		if (agentName !== agentId) await prompter.note(`Normalized id to "${agentId}".`, "Agent id");
 		if (listAgentEntries(cfg).find((agent) => normalizeAgentId(agent.id) === agentId)) {
@@ -388,7 +375,7 @@ async function agentsAddCommand(opts, runtime = defaultRuntime, params) {
 			initialValue: workspaceDefault,
 			validate: (value) => value?.trim() ? void 0 : "Required"
 		});
-		const workspaceDir = resolveUserPath(String(workspaceInput).trim() || workspaceDefault);
+		const workspaceDir = resolveUserPath(String(workspaceInput ?? "").trim() || workspaceDefault);
 		const agentDir = resolveAgentDir(cfg, agentId);
 		let nextConfig = applyAgentConfig(cfg, {
 			agentId,
@@ -480,7 +467,7 @@ async function agentsAddCommand(opts, runtime = defaultRuntime, params) {
 		await prompter.outro(`Agent "${agentId}" ready.`);
 	} catch (err) {
 		if (err instanceof WizardCancelledError) {
-			runtime.exit(0);
+			runtime.exit(1);
 			return;
 		}
 		throw err;
@@ -871,7 +858,10 @@ const colorByPct = (label, pct, rich) => {
 	return theme.muted(label);
 };
 const formatTokensCell = (total, contextTokens, rich) => {
-	if (!total) return "-".padEnd(TOKENS_PAD);
+	if (total === void 0) {
+		const label = `unknown/${contextTokens ? formatKTokens(contextTokens) : "?"} (?%)`;
+		return rich ? theme.muted(label.padEnd(TOKENS_PAD)) : label.padEnd(TOKENS_PAD);
+	}
 	const totalLabel = formatKTokens(total);
 	const ctxLabel = contextTokens ? formatKTokens(contextTokens) : "?";
 	const pct = contextTokens ? Math.min(999, Math.round(total / contextTokens * 100)) : null;
@@ -934,6 +924,7 @@ function toRows(store) {
 			inputTokens: entry?.inputTokens,
 			outputTokens: entry?.outputTokens,
 			totalTokens: entry?.totalTokens,
+			totalTokensFresh: entry?.totalTokensFresh,
 			model: entry?.model,
 			contextTokens: entry?.contextTokens
 		};
@@ -972,6 +963,8 @@ async function sessionsCommand(opts, runtime) {
 			activeMinutes: activeMinutes ?? null,
 			sessions: rows.map((r) => ({
 				...r,
+				totalTokens: resolveFreshSessionTotalTokens(r) ?? null,
+				totalTokensFresh: typeof r.totalTokens === "number" ? r.totalTokensFresh !== false : false,
 				contextTokens: r.contextTokens ?? lookupContextTokens(r.model) ?? configContextTokens ?? null,
 				model: r.model ?? configModel ?? null
 			}))
@@ -998,9 +991,7 @@ async function sessionsCommand(opts, runtime) {
 	for (const row of rows) {
 		const model = row.model ?? configModel;
 		const contextTokens = row.contextTokens ?? lookupContextTokens(model) ?? configContextTokens;
-		const input = row.inputTokens ?? 0;
-		const output = row.outputTokens ?? 0;
-		const total = row.totalTokens ?? input + output;
+		const total = resolveFreshSessionTotalTokens(row);
 		const keyLabel = truncateKey(row.key).padEnd(KEY_PAD);
 		const keyCell = rich ? theme.accent(keyLabel) : keyLabel;
 		const line = [
@@ -1304,7 +1295,7 @@ function registerBrowserFilesAndDownloadsCommands(browser, parentOpts) {
 			defaultRuntime.exit(1);
 		}
 	});
-	browser.command("waitfordownload").description("Wait for the next download (and save it)").argument("[path]", "Save path (default: /tmp/openclaw/downloads/...)").option("--target-id <id>", "CDP target id (or unique prefix)").option("--timeout-ms <ms>", "How long to wait for the next download (default: 120000)", (v) => Number(v)).action(async (outPath, opts, cmd) => {
+	browser.command("waitfordownload").description("Wait for the next download (and save it)").argument("[path]", "Save path (default: /tmp/openclaw/downloads/...; fallback: os.tmpdir()/openclaw/downloads/...)").option("--target-id <id>", "CDP target id (or unique prefix)").option("--timeout-ms <ms>", "How long to wait for the next download (default: 120000)", (v) => Number(v)).action(async (outPath, opts, cmd) => {
 		const { parent, profile } = resolveBrowserActionContext(cmd, parentOpts);
 		try {
 			const timeoutMs = Number.isFinite(opts.timeoutMs) ? opts.timeoutMs : void 0;
@@ -2852,7 +2843,7 @@ async function loadValidConfig() {
 }
 function registerConfigCli(program) {
 	const cmd = program.command("config").description("Config helpers (get/set/unset). Run without subcommand for the wizard.").addHelpText("after", () => `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/config", "docs.openclaw.ai/cli/config")}\n`).option("--section <section>", "Configure wizard sections (repeatable). Use with no subcommand.", (value, previous) => [...previous, value], []).action(async (opts) => {
-		const { CONFIGURE_WIZARD_SECTIONS, configureCommand, configureCommandWithSections } = await import("./configure-C3aNC6nZ.js").then((n) => n.t);
+		const { CONFIGURE_WIZARD_SECTIONS, configureCommand, configureCommandWithSections } = await import("./configure-DadlqgMP.js").then((n) => n.t);
 		const sections = Array.isArray(opts.section) ? opts.section.map((value) => typeof value === "string" ? value.trim() : "").filter(Boolean) : [];
 		if (sections.length === 0) {
 			await configureCommand(defaultRuntime);
@@ -2895,7 +2886,8 @@ function registerConfigCli(program) {
 			const parsedPath = parsePath(path);
 			if (parsedPath.length === 0) throw new Error("Path is empty.");
 			const parsedValue = parseValue(value, opts);
-			const next = (await loadValidConfig()).config;
+			const snapshot = await loadValidConfig();
+			const next = structuredClone(snapshot.resolved);
 			setAtPath(next, parsedPath, parsedValue);
 			await writeConfigFile(next);
 			defaultRuntime.log(info(`Updated ${path}. Restart the gateway to apply.`));
@@ -2908,7 +2900,8 @@ function registerConfigCli(program) {
 		try {
 			const parsedPath = parsePath(path);
 			if (parsedPath.length === 0) throw new Error("Path is empty.");
-			const next = (await loadValidConfig()).config;
+			const snapshot = await loadValidConfig();
+			const next = structuredClone(snapshot.resolved);
 			if (!unsetAtPath(next, parsedPath)) {
 				defaultRuntime.error(danger(`Config path not found: ${path}`));
 				defaultRuntime.exit(1);
@@ -4176,7 +4169,7 @@ async function runInteractiveOnboarding(opts, runtime = defaultRuntime) {
 		await runOnboardingWizard(opts, runtime, prompter);
 	} catch (err) {
 		if (err instanceof WizardCancelledError) {
-			runtime.exit(0);
+			runtime.exit(1);
 			return;
 		}
 		throw err;
@@ -4262,13 +4255,22 @@ const AUTH_CHOICE_FLAG_MAP = [
 		flag: "opencodeZenApiKey",
 		authChoice: "opencode-zen",
 		label: "--opencode-zen-api-key"
+	},
+	{
+		flag: "litellmApiKey",
+		authChoice: "litellm-api-key",
+		label: "--litellm-api-key"
 	}
 ];
+function hasStringValue(value) {
+	return typeof value === "string" ? value.trim().length > 0 : Boolean(value);
+}
 function inferAuthChoiceFromFlags(opts) {
-	const matches = AUTH_CHOICE_FLAG_MAP.filter(({ flag }) => {
-		const value = opts[flag];
-		if (typeof value === "string") return value.trim().length > 0;
-		return Boolean(value);
+	const matches = AUTH_CHOICE_FLAG_MAP.filter(({ flag }) => hasStringValue(opts[flag]));
+	if (hasStringValue(opts.customBaseUrl) || hasStringValue(opts.customModelId) || hasStringValue(opts.customApiKey)) matches.push({
+		flag: "customBaseUrl",
+		authChoice: "custom-api-key",
+		label: "--custom-base-url/--custom-model-id/--custom-api-key"
 	});
 	return {
 		choice: matches[0]?.authChoice,
@@ -4308,6 +4310,14 @@ async function resolveNonInteractiveApiKey(params) {
 		key: envResolved.apiKey,
 		source: "env"
 	};
+	const explicitEnvVar = params.envVarName?.trim();
+	if (explicitEnvVar) {
+		const explicitEnvKey = normalizeOptionalSecretInput(process.env[explicitEnvVar]);
+		if (explicitEnvKey) return {
+			key: explicitEnvKey,
+			source: "env"
+		};
+	}
 	if (params.allowProfile ?? true) {
 		const profileKey = await resolveApiKeyFromProfiles({
 			provider: params.provider,
@@ -4319,6 +4329,7 @@ async function resolveNonInteractiveApiKey(params) {
 			source: "profile"
 		};
 	}
+	if (params.required === false) return null;
 	const profileHint = params.allowProfile === false ? "" : `, or existing ${params.provider} API-key profile`;
 	params.runtime.error(`Missing ${params.flagName} (or ${params.envVar} in env${profileHint}).`);
 	params.runtime.exit(1);
@@ -4428,7 +4439,7 @@ async function applyNonInteractiveAuthChoice(params) {
 		});
 		return applyGoogleGeminiModelDefault(nextConfig).next;
 	}
-	if (authChoice === "zai-api-key") {
+	if (authChoice === "zai-api-key" || authChoice === "zai-coding-global" || authChoice === "zai-coding-cn" || authChoice === "zai-global" || authChoice === "zai-cn") {
 		const resolved = await resolveNonInteractiveApiKey({
 			provider: "zai",
 			cfg: baseConfig,
@@ -4444,7 +4455,23 @@ async function applyNonInteractiveAuthChoice(params) {
 			provider: "zai",
 			mode: "api_key"
 		});
-		return applyZaiConfig(nextConfig);
+		let endpoint;
+		let modelIdOverride;
+		if (authChoice === "zai-coding-global") endpoint = "coding-global";
+		else if (authChoice === "zai-coding-cn") endpoint = "coding-cn";
+		else if (authChoice === "zai-global") endpoint = "global";
+		else if (authChoice === "zai-cn") endpoint = "cn";
+		else {
+			const detected = await detectZaiEndpoint({ apiKey: resolved.key });
+			if (detected) {
+				endpoint = detected.endpoint;
+				modelIdOverride = detected.modelId;
+			} else endpoint = "global";
+		}
+		return applyZaiConfig(nextConfig, {
+			endpoint,
+			...modelIdOverride ? { modelId: modelIdOverride } : {}
+		});
 	}
 	if (authChoice === "xiaomi-api-key") {
 		const resolved = await resolveNonInteractiveApiKey({
@@ -4537,6 +4564,24 @@ async function applyNonInteractiveAuthChoice(params) {
 			mode: "api_key"
 		});
 		return applyOpenrouterConfig(nextConfig);
+	}
+	if (authChoice === "litellm-api-key") {
+		const resolved = await resolveNonInteractiveApiKey({
+			provider: "litellm",
+			cfg: baseConfig,
+			flagValue: opts.litellmApiKey,
+			flagName: "--litellm-api-key",
+			envVar: "LITELLM_API_KEY",
+			runtime
+		});
+		if (!resolved) return null;
+		if (resolved.source !== "profile") await setLitellmApiKey(resolved.key);
+		nextConfig = applyAuthProfileConfig(nextConfig, {
+			profileId: "litellm:default",
+			provider: "litellm",
+			mode: "api_key"
+		});
+		return applyLitellmConfig(nextConfig);
 	}
 	if (authChoice === "ai-gateway-api-key") {
 		const resolved = await resolveNonInteractiveApiKey({
@@ -4710,6 +4755,75 @@ async function applyNonInteractiveAuthChoice(params) {
 			mode: "api_key"
 		});
 		return applyOpencodeZenConfig(nextConfig);
+	}
+	if (authChoice === "together-api-key") {
+		const resolved = await resolveNonInteractiveApiKey({
+			provider: "together",
+			cfg: baseConfig,
+			flagValue: opts.togetherApiKey,
+			flagName: "--together-api-key",
+			envVar: "TOGETHER_API_KEY",
+			runtime
+		});
+		if (!resolved) return null;
+		if (resolved.source !== "profile") await setTogetherApiKey(resolved.key);
+		nextConfig = applyAuthProfileConfig(nextConfig, {
+			profileId: "together:default",
+			provider: "together",
+			mode: "api_key"
+		});
+		return applyTogetherConfig(nextConfig);
+	}
+	if (authChoice === "custom-api-key") try {
+		const customAuth = parseNonInteractiveCustomApiFlags({
+			baseUrl: opts.customBaseUrl,
+			modelId: opts.customModelId,
+			compatibility: opts.customCompatibility,
+			apiKey: opts.customApiKey,
+			providerId: opts.customProviderId
+		});
+		const resolvedCustomApiKey = await resolveNonInteractiveApiKey({
+			provider: resolveCustomProviderId({
+				config: nextConfig,
+				baseUrl: customAuth.baseUrl,
+				providerId: customAuth.providerId
+			}).providerId,
+			cfg: baseConfig,
+			flagValue: customAuth.apiKey,
+			flagName: "--custom-api-key",
+			envVar: "CUSTOM_API_KEY",
+			envVarName: "CUSTOM_API_KEY",
+			runtime,
+			required: false
+		});
+		const result = applyCustomApiConfig({
+			config: nextConfig,
+			baseUrl: customAuth.baseUrl,
+			modelId: customAuth.modelId,
+			compatibility: customAuth.compatibility,
+			apiKey: resolvedCustomApiKey?.key,
+			providerId: customAuth.providerId
+		});
+		if (result.providerIdRenamedFrom && result.providerId) runtime.log(`Custom provider ID "${result.providerIdRenamedFrom}" already exists for a different base URL. Using "${result.providerId}".`);
+		return result.config;
+	} catch (err) {
+		if (err instanceof CustomApiError) {
+			switch (err.code) {
+				case "missing_required":
+				case "invalid_compatibility":
+					runtime.error(err.message);
+					break;
+				default:
+					runtime.error(`Invalid custom provider config: ${err.message}`);
+					break;
+			}
+			runtime.exit(1);
+			return null;
+		}
+		const reason = err instanceof Error ? err.message : String(err);
+		runtime.error(`Invalid custom provider config: ${reason}`);
+		runtime.exit(1);
+		return null;
 	}
 	if (authChoice === "oauth" || authChoice === "chutes" || authChoice === "openai-codex" || authChoice === "qwen-portal" || authChoice === "minimax-portal") {
 		runtime.error("OAuth requires interactive mode.");
@@ -5128,7 +5242,7 @@ function resolveInstallDaemonFlag(command, opts) {
 	if (getOptionValueSource.call(command, "installDaemon") === "cli") return Boolean(opts.installDaemon);
 }
 function registerOnboardCommand(program) {
-	program.command("onboard").description("Interactive wizard to set up the gateway, workspace, and skills").addHelpText("after", () => `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/onboard", "docs.openclaw.ai/cli/onboard")}\n`).option("--workspace <dir>", "Agent workspace directory (default: ~/.openclaw/workspace)").option("--reset", "Reset config + credentials + sessions + workspace before running wizard").option("--non-interactive", "Run without prompts", false).option("--accept-risk", "Acknowledge that agents are powerful and full system access is risky (required for --non-interactive)", false).option("--flow <flow>", "Wizard flow: quickstart|advanced|manual").option("--mode <mode>", "Wizard mode: local|remote").option("--auth-choice <choice>", "Auth: setup-token|token|chutes|openai-codex|openai-api-key|xai-api-key|qianfan-api-key|openrouter-api-key|ai-gateway-api-key|cloudflare-ai-gateway-api-key|moonshot-api-key|moonshot-api-key-cn|kimi-code-api-key|synthetic-api-key|venice-api-key|gemini-api-key|zai-api-key|xiaomi-api-key|apiKey|minimax-api|minimax-api-lightning|opencode-zen|skip").option("--token-provider <id>", "Token provider id (non-interactive; used with --auth-choice token)").option("--token <token>", "Token value (non-interactive; used with --auth-choice token)").option("--token-profile-id <id>", "Auth profile id (non-interactive; default: <provider>:manual)").option("--token-expires-in <duration>", "Optional token expiry duration (e.g. 365d, 12h)").option("--anthropic-api-key <key>", "Anthropic API key").option("--openai-api-key <key>", "OpenAI API key").option("--openrouter-api-key <key>", "OpenRouter API key").option("--ai-gateway-api-key <key>", "Vercel AI Gateway API key").option("--cloudflare-ai-gateway-account-id <id>", "Cloudflare Account ID").option("--cloudflare-ai-gateway-gateway-id <id>", "Cloudflare AI Gateway ID").option("--cloudflare-ai-gateway-api-key <key>", "Cloudflare AI Gateway API key").option("--moonshot-api-key <key>", "Moonshot API key").option("--kimi-code-api-key <key>", "Kimi Coding API key").option("--gemini-api-key <key>", "Gemini API key").option("--zai-api-key <key>", "Z.AI API key").option("--xiaomi-api-key <key>", "Xiaomi API key").option("--minimax-api-key <key>", "MiniMax API key").option("--synthetic-api-key <key>", "Synthetic API key").option("--venice-api-key <key>", "Venice API key").option("--opencode-zen-api-key <key>", "OpenCode Zen API key").option("--xai-api-key <key>", "xAI API key").option("--qianfan-api-key <key>", "QIANFAN API key").option("--gateway-port <port>", "Gateway port").option("--gateway-bind <mode>", "Gateway bind: loopback|tailnet|lan|auto|custom").option("--gateway-auth <mode>", "Gateway auth: token|password").option("--gateway-token <token>", "Gateway token (token auth)").option("--gateway-password <password>", "Gateway password (password auth)").option("--remote-url <url>", "Remote Gateway WebSocket URL").option("--remote-token <token>", "Remote Gateway token (optional)").option("--tailscale <mode>", "Tailscale: off|serve|funnel").option("--tailscale-reset-on-exit", "Reset tailscale serve/funnel on exit").option("--install-daemon", "Install gateway service").option("--no-install-daemon", "Skip gateway service install").option("--skip-daemon", "Skip gateway service install").option("--daemon-runtime <runtime>", "Daemon runtime: node|bun").option("--skip-channels", "Skip channel setup").option("--skip-skills", "Skip skills setup").option("--skip-health", "Skip health check").option("--skip-ui", "Skip Control UI/TUI prompts").option("--node-manager <name>", "Node manager for skills: npm|pnpm|bun").option("--json", "Output JSON summary", false).action(async (opts, command) => {
+	program.command("onboard").description("Interactive wizard to set up the gateway, workspace, and skills").addHelpText("after", () => `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/onboard", "docs.openclaw.ai/cli/onboard")}\n`).option("--workspace <dir>", "Agent workspace directory (default: ~/.openclaw/workspace)").option("--reset", "Reset config + credentials + sessions + workspace before running wizard").option("--non-interactive", "Run without prompts", false).option("--accept-risk", "Acknowledge that agents are powerful and full system access is risky (required for --non-interactive)", false).option("--flow <flow>", "Wizard flow: quickstart|advanced|manual").option("--mode <mode>", "Wizard mode: local|remote").option("--auth-choice <choice>", "Auth: setup-token|token|chutes|openai-codex|openai-api-key|xai-api-key|qianfan-api-key|openrouter-api-key|litellm-api-key|ai-gateway-api-key|cloudflare-ai-gateway-api-key|moonshot-api-key|moonshot-api-key-cn|kimi-code-api-key|synthetic-api-key|venice-api-key|gemini-api-key|zai-api-key|zai-coding-global|zai-coding-cn|zai-global|zai-cn|xiaomi-api-key|apiKey|minimax-api|minimax-api-lightning|opencode-zen|custom-api-key|skip|together-api-key").option("--token-provider <id>", "Token provider id (non-interactive; used with --auth-choice token)").option("--token <token>", "Token value (non-interactive; used with --auth-choice token)").option("--token-profile-id <id>", "Auth profile id (non-interactive; default: <provider>:manual)").option("--token-expires-in <duration>", "Optional token expiry duration (e.g. 365d, 12h)").option("--anthropic-api-key <key>", "Anthropic API key").option("--openai-api-key <key>", "OpenAI API key").option("--openrouter-api-key <key>", "OpenRouter API key").option("--ai-gateway-api-key <key>", "Vercel AI Gateway API key").option("--cloudflare-ai-gateway-account-id <id>", "Cloudflare Account ID").option("--cloudflare-ai-gateway-gateway-id <id>", "Cloudflare AI Gateway ID").option("--cloudflare-ai-gateway-api-key <key>", "Cloudflare AI Gateway API key").option("--moonshot-api-key <key>", "Moonshot API key").option("--kimi-code-api-key <key>", "Kimi Coding API key").option("--gemini-api-key <key>", "Gemini API key").option("--zai-api-key <key>", "Z.AI API key").option("--xiaomi-api-key <key>", "Xiaomi API key").option("--minimax-api-key <key>", "MiniMax API key").option("--synthetic-api-key <key>", "Synthetic API key").option("--venice-api-key <key>", "Venice API key").option("--together-api-key <key>", "Together AI API key").option("--opencode-zen-api-key <key>", "OpenCode Zen API key").option("--xai-api-key <key>", "xAI API key").option("--litellm-api-key <key>", "LiteLLM API key").option("--qianfan-api-key <key>", "QIANFAN API key").option("--custom-base-url <url>", "Custom provider base URL").option("--custom-api-key <key>", "Custom provider API key (optional)").option("--custom-model-id <id>", "Custom provider model ID").option("--custom-provider-id <id>", "Custom provider ID (optional; auto-derived by default)").option("--custom-compatibility <mode>", "Custom provider API compatibility: openai|anthropic (default: openai)").option("--gateway-port <port>", "Gateway port").option("--gateway-bind <mode>", "Gateway bind: loopback|tailnet|lan|auto|custom").option("--gateway-auth <mode>", "Gateway auth: token|password").option("--gateway-token <token>", "Gateway token (token auth)").option("--gateway-password <password>", "Gateway password (password auth)").option("--remote-url <url>", "Remote Gateway WebSocket URL").option("--remote-token <token>", "Remote Gateway token (optional)").option("--tailscale <mode>", "Tailscale: off|serve|funnel").option("--tailscale-reset-on-exit", "Reset tailscale serve/funnel on exit").option("--install-daemon", "Install gateway service").option("--no-install-daemon", "Skip gateway service install").option("--skip-daemon", "Skip gateway service install").option("--daemon-runtime <runtime>", "Daemon runtime: node|bun").option("--skip-channels", "Skip channel setup").option("--skip-skills", "Skip skills setup").option("--skip-health", "Skip health check").option("--skip-ui", "Skip Control UI/TUI prompts").option("--node-manager <name>", "Node manager for skills: npm|pnpm|bun").option("--json", "Output JSON summary", false).action(async (opts, command) => {
 		await runCommandWithRuntime(defaultRuntime, async () => {
 			const installDaemon = resolveInstallDaemonFlag(command, { installDaemon: Boolean(opts.installDaemon) });
 			const gatewayPort = typeof opts.gatewayPort === "string" ? Number.parseInt(opts.gatewayPort, 10) : void 0;
@@ -5159,8 +5273,15 @@ function registerOnboardCommand(program) {
 				minimaxApiKey: opts.minimaxApiKey,
 				syntheticApiKey: opts.syntheticApiKey,
 				veniceApiKey: opts.veniceApiKey,
+				togetherApiKey: opts.togetherApiKey,
 				opencodeZenApiKey: opts.opencodeZenApiKey,
 				xaiApiKey: opts.xaiApiKey,
+				litellmApiKey: opts.litellmApiKey,
+				customBaseUrl: opts.customBaseUrl,
+				customApiKey: opts.customApiKey,
+				customModelId: opts.customModelId,
+				customProviderId: opts.customProviderId,
+				customCompatibility: opts.customCompatibility,
 				gatewayPort: typeof gatewayPort === "number" && Number.isFinite(gatewayPort) ? gatewayPort : void 0,
 				gatewayBind: opts.gatewayBind,
 				gatewayAuth: opts.gatewayAuth,

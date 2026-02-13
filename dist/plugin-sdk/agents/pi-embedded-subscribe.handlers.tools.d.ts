@@ -15,4 +15,4 @@ export declare function handleToolExecutionEnd(ctx: EmbeddedPiSubscribeContext, 
     toolCallId: string;
     isError: boolean;
     result?: unknown;
-}): void;
+}): Promise<void>;

@@ -91,6 +91,31 @@ export declare function getPageForTargetId(opts: {
 export declare function refLocator(page: Page, ref: string): import("node_modules/playwright-core/index.js").Locator;
 export declare function closePlaywrightBrowserConnection(): Promise<void>;
 /**
+ * Best-effort cancellation for stuck page operations.
+ *
+ * Playwright serializes CDP commands per page; a long-running or stuck operation (notably evaluate)
+ * can block all subsequent commands. We cannot safely "cancel" an individual command, and we do
+ * not want to close the actual Chromium tab. Instead, we disconnect Playwright's CDP connection
+ * so in-flight commands fail fast and the next request reconnects transparently.
+ *
+ * IMPORTANT: We CANNOT call Connection.close() because Playwright shares a single Connection
+ * across all objects (BrowserType, Browser, etc.). Closing it corrupts the entire Playwright
+ * instance, preventing reconnection.
+ *
+ * Instead we:
+ * 1. Null out `cached` so the next call triggers a fresh connectOverCDP
+ * 2. Fire-and-forget browser.close() — it may hang but won't block us
+ * 3. The next connectBrowser() creates a completely new CDP WebSocket connection
+ *
+ * The old browser.close() eventually resolves when the in-browser evaluate timeout fires,
+ * or the old connection gets GC'd. Either way, it doesn't affect the fresh connection.
+ */
+export declare function forceDisconnectPlaywrightForTarget(opts: {
+    cdpUrl: string;
+    targetId?: string;
+    reason?: string;
+}): Promise<void>;
+/**
  * List all pages/tabs from the persistent Playwright connection.
  * Used for remote profiles where HTTP-based /json/list is ephemeral.
  */

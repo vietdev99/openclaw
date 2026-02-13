@@ -84,6 +84,7 @@ export declare function resolveReplyDirectives(params: {
     aliasIndex: ModelAliasIndex;
     provider: string;
     model: string;
+    hasResolvedHeartbeatModelOverride: boolean;
     typing: TypingController;
     opts?: GetReplyOptions;
     skillFilter?: string[];

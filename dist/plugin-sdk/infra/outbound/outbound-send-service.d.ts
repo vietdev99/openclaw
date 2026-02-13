@@ -37,6 +37,8 @@ export declare function executeSendAction(params: {
     mediaUrls?: string[];
     gifPlayback?: boolean;
     bestEffort?: boolean;
+    replyToId?: string;
+    threadId?: string | number;
 }): Promise<{
     handledBy: "plugin" | "core";
     payload: unknown;

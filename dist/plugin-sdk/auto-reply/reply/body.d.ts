@@ -7,5 +7,4 @@ export declare function applySessionHints(params: {
     sessionKey?: string;
     storePath?: string;
     abortKey?: string;
-    messageId?: string;
 }): Promise<string>;

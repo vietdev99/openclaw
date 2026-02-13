@@ -30,6 +30,8 @@ export type { ChunkMode } from "../auto-reply/chunk.js";
 export { SILENT_REPLY_TOKEN, isSilentReplyText } from "../auto-reply/tokens.js";
 export { approveDevicePairing, listDevicePairing, rejectDevicePairing, } from "../infra/device-pairing.js";
 export { formatErrorMessage } from "../infra/errors.js";
+export { isWSLSync, isWSL2Sync, isWSLEnv } from "../infra/wsl.js";
+export { isTruthyEnvValue } from "../infra/env.js";
 export { resolveToolsBySender } from "../config/group-policy.js";
 export { buildPendingHistoryContextFromMap, clearHistoryEntries, clearHistoryEntriesIfEnabled, DEFAULT_GROUP_HISTORY_LIMIT, recordPendingHistoryEntry, recordPendingHistoryEntryIfEnabled, } from "../auto-reply/reply/history.js";
 export type { HistoryEntry } from "../auto-reply/reply/history.js";

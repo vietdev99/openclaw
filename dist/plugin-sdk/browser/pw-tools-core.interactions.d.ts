@@ -59,6 +59,8 @@ export declare function evaluateViaPlaywright(opts: {
     targetId?: string;
     fn: string;
     ref?: string;
+    timeoutMs?: number;
+    signal?: AbortSignal;
 }): Promise<unknown>;
 export declare function scrollIntoViewViaPlaywright(opts: {
     cdpUrl: string;

@@ -1,5 +1,6 @@
+import { isRecord } from "../../../utils.js";
+export { isRecord };
 export declare function asString(value: unknown): string | undefined;
-export declare function isRecord(value: unknown): value is Record<string, unknown>;
 export declare function formatMatchMetadata(params: {
     matchKey?: unknown;
     matchSource?: unknown;

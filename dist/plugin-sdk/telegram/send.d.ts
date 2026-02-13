@@ -46,6 +46,9 @@ export declare function buildInlineKeyboard(buttons?: TelegramSendOpts["buttons"
 export declare function sendMessageTelegram(to: string, text: string, opts?: TelegramSendOpts): Promise<TelegramSendResult>;
 export declare function reactMessageTelegram(chatIdInput: string | number, messageIdInput: string | number, emoji: string, opts?: TelegramReactionOpts): Promise<{
     ok: true;
+} | {
+    ok: false;
+    warning: string;
 }>;
 type TelegramDeleteOpts = {
     token?: string;

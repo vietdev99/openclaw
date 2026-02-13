@@ -50,6 +50,11 @@ declare function resolveChannelId(rest: RequestClient, recipient: DiscordRecipie
     channelId: string;
     dm?: boolean;
 }>;
+export declare function buildDiscordTextChunks(text: string, opts?: {
+    maxLinesPerMessage?: number;
+    chunkMode?: ChunkMode;
+    maxChars?: number;
+}): string[];
 declare function sendDiscordText(rest: RequestClient, channelId: string, text: string, replyTo: string | undefined, request: DiscordRequest, maxLinesPerMessage?: number, embeds?: unknown[], chunkMode?: ChunkMode): Promise<{
     id: string;
     channel_id: string;

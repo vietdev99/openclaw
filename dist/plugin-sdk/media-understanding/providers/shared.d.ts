@@ -1,7 +1,7 @@
 import type { GuardedFetchResult } from "../../infra/net/fetch-guard.js";
 import type { LookupFn, SsrFPolicy } from "../../infra/net/ssrf.js";
+export { fetchWithTimeout } from "../../utils/fetch-timeout.js";
 export declare function normalizeBaseUrl(baseUrl: string | undefined, fallback: string): string;
-export declare function fetchWithTimeout(url: string, init: RequestInit, timeoutMs: number, fetchFn: typeof fetch): Promise<Response>;
 export declare function fetchWithTimeoutGuarded(url: string, init: RequestInit, timeoutMs: number, fetchFn: typeof fetch, options?: {
     ssrfPolicy?: SsrFPolicy;
     lookupFn?: LookupFn;

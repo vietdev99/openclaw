@@ -201,6 +201,7 @@ const CHAT_CHANNEL_ORDER = [
 	"telegram",
 	"whatsapp",
 	"discord",
+	"irc",
 	"googlechat",
 	"slack",
 	"signal",
@@ -241,6 +242,16 @@ const CHAT_CHANNEL_META = {
 		docsLabel: "discord",
 		blurb: "very well supported right now.",
 		systemImage: "bubble.left.and.bubble.right"
+	},
+	irc: {
+		id: "irc",
+		label: "IRC",
+		selectionLabel: "IRC (Server + Nick)",
+		detailLabel: "IRC",
+		docsPath: "/channels/irc",
+		docsLabel: "irc",
+		blurb: "classic IRC networks with DM/channel routing and pairing controls.",
+		systemImage: "network"
 	},
 	googlechat: {
 		id: "googlechat",
@@ -285,6 +296,7 @@ const CHAT_CHANNEL_META = {
 };
 const CHAT_CHANNEL_ALIASES = {
 	imsg: "imessage",
+	"internet-relay-chat": "irc",
 	"google-chat": "googlechat",
 	gchat: "googlechat"
 };
@@ -324,6 +336,31 @@ function formatChannelSelectionLine(meta, docsLink) {
 	const docs = meta.selectionDocsOmitLabel ? docsLink(meta.docsPath) : docsLink(meta.docsPath, docsLabel);
 	const extras = (meta.selectionExtras ?? []).filter(Boolean).join(" ");
 	return `${meta.label} — ${meta.blurb} ${docsPrefix ? `${docsPrefix} ` : ""}${docs}${extras ? ` ${extras}` : ""}`;
+}
+
+//#endregion
+//#region src/infra/tmp-openclaw-dir.ts
+const POSIX_OPENCLAW_TMP_DIR = "/tmp/openclaw";
+function isNodeErrorWithCode(err, code) {
+	return typeof err === "object" && err !== null && "code" in err && err.code === code;
+}
+function resolvePreferredOpenClawTmpDir(options = {}) {
+	const accessSync = options.accessSync ?? fs.accessSync;
+	const statSync = options.statSync ?? fs.statSync;
+	const tmpdir = options.tmpdir ?? os.tmpdir;
+	try {
+		if (!statSync(POSIX_OPENCLAW_TMP_DIR).isDirectory()) return path.join(tmpdir(), "openclaw");
+		accessSync(POSIX_OPENCLAW_TMP_DIR, fs.constants.W_OK | fs.constants.X_OK);
+		return POSIX_OPENCLAW_TMP_DIR;
+	} catch (err) {
+		if (!isNodeErrorWithCode(err, "ENOENT")) return path.join(tmpdir(), "openclaw");
+	}
+	try {
+		accessSync("/tmp", fs.constants.W_OK | fs.constants.X_OK);
+		return POSIX_OPENCLAW_TMP_DIR;
+	} catch {
+		return path.join(tmpdir(), "openclaw");
+	}
 }
 
 //#endregion
@@ -568,12 +605,13 @@ const loggingState = {
 	consoleTimestampPrefix: false,
 	consoleSubsystemFilter: null,
 	resolvingConsoleSettings: false,
+	streamErrorHandlersInstalled: false,
 	rawConsole: null
 };
 
 //#endregion
 //#region src/logging/logger.ts
-const DEFAULT_LOG_DIR = "/tmp/openclaw";
+const DEFAULT_LOG_DIR = resolvePreferredOpenClawTmpDir();
 const DEFAULT_LOG_FILE = path.join(DEFAULT_LOG_DIR, "openclaw.log");
 const LOG_PREFIX = "openclaw";
 const LOG_SUFFIX = ".log";
@@ -730,6 +768,7 @@ const colorize = (rich, color, value) => rich ? color(value) : value;
 //#endregion
 //#region src/globals.ts
 let globalVerbose = false;
+let globalYes = false;
 function setVerbose(v) {
 	globalVerbose = v;
 }
@@ -750,6 +789,9 @@ function logVerbose(message) {
 function logVerboseConsole(message) {
 	if (!globalVerbose) return;
 	console.log(theme.muted(message));
+}
+function isYes() {
+	return globalYes;
 }
 const success = theme.success;
 const warn = theme.warn;
@@ -792,17 +834,10 @@ function restoreTerminalState(reason) {
 		reportRestoreFailure("progress line", err, reason);
 	}
 	const stdin = process.stdin;
-	if (stdin.isTTY && typeof stdin.setRawMode === "function") {
-		try {
-			stdin.setRawMode(false);
-		} catch (err) {
-			reportRestoreFailure("raw mode", err, reason);
-		}
-		if (typeof stdin.isPaused === "function" && stdin.isPaused()) try {
-			stdin.resume();
-		} catch (err) {
-			reportRestoreFailure("stdin resume", err, reason);
-		}
+	if (stdin.isTTY && typeof stdin.setRawMode === "function") try {
+		stdin.setRawMode(false);
+	} catch (err) {
+		reportRestoreFailure("raw mode", err, reason);
 	}
 	if (process.stdout.isTTY) try {
 		process.stdout.write(RESET_SEQUENCE);
@@ -916,12 +951,20 @@ function isEpipeError(err) {
 	return code === "EPIPE" || code === "EIO";
 }
 function formatConsoleTimestamp(style) {
-	const now = (/* @__PURE__ */ new Date()).toISOString();
-	if (style === "pretty") return now.slice(11, 19);
-	return now;
+	const now = /* @__PURE__ */ new Date();
+	if (style === "pretty") return `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
+	const year = now.getFullYear();
+	const month = String(now.getMonth() + 1).padStart(2, "0");
+	const day = String(now.getDate()).padStart(2, "0");
+	const h = String(now.getHours()).padStart(2, "0");
+	const m = String(now.getMinutes()).padStart(2, "0");
+	const s = String(now.getSeconds()).padStart(2, "0");
+	const ms = String(now.getMilliseconds()).padStart(3, "0");
+	const tzOffset = now.getTimezoneOffset();
+	return `${year}-${month}-${day}T${h}:${m}:${s}.${ms}${tzOffset <= 0 ? "+" : "-"}${String(Math.floor(Math.abs(tzOffset) / 60)).padStart(2, "0")}:${String(Math.abs(tzOffset) % 60).padStart(2, "0")}`;
 }
 function hasTimestampPrefix(value) {
-	return /^(?:\d{2}:\d{2}:\d{2}|\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?)/.test(value);
+	return /^(?:\d{2}:\d{2}:\d{2}|\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?)/.test(value);
 }
 function isJsonPayload(value) {
 	const trimmed = value.trim();
@@ -940,6 +983,13 @@ function isJsonPayload(value) {
 function enableConsoleCapture() {
 	if (loggingState.consolePatched) return;
 	loggingState.consolePatched = true;
+	if (!loggingState.streamErrorHandlersInstalled) {
+		loggingState.streamErrorHandlersInstalled = true;
+		for (const stream of [process.stdout, process.stderr]) stream.on("error", (err) => {
+			if (isEpipeError(err)) return;
+			throw err;
+		});
+	}
 	let logger = null;
 	const getLoggerLazy = () => {
 		if (!logger) logger = getLogger();
@@ -1404,11 +1454,11 @@ if (!ensureExperimentalWarningSuppressed()) {
 		applyCliProfileEnv({ profile: parsed.profile });
 		process$1.argv = parsed.argv;
 	}
-	import("./run-main-CQO1hvo7.js").then(({ runCli }) => runCli(process$1.argv)).catch((error) => {
+	import("./run-main-CXZiqUi_.js").then(({ runCli }) => runCli(process$1.argv)).catch((error) => {
 		console.error("[openclaw] Failed to start CLI:", error instanceof Error ? error.stack ?? error.message : error);
 		process$1.exitCode = 1;
 	});
 }
 
 //#endregion
-export { DEFAULT_CHAT_CHANNEL as $, getChildLogger as A, resolveConfigPath as B, setVerbose as C, colorize as D, warn as E, CONFIG_PATH as F, resolveIsNixMode as G, resolveDefaultConfigCandidates as H, DEFAULT_GATEWAY_PORT as I, resolveOAuthDir as J, resolveLegacyStateDirs as K, STATE_DIR as L, getResolvedLoggerSettings as M, toPinoLikeLogger as N, isRich as O, normalizeLogLevel as P, CHAT_CHANNEL_ORDER as Q, isNixMode as R, logVerboseConsole as S, success as T, resolveGatewayLockDir as U, resolveConfigPathCandidate as V, resolveGatewayPort as W, resolveStateDir as X, resolveOAuthPath as Y, CHANNEL_IDS as Z, unregisterActiveProgressLine as _, parseBooleanValue as a, normalizeChannelId as at, isVerbose as b, enableConsoleCapture as c, requireActivePluginRegistry as ct, shouldLogSubsystemToConsole as d, expandHomePrefix as dt, formatChannelPrimerLine as et, visibleWidth as f, resolveEffectiveHomeDir as ft, registerActiveProgressLine as g, clearActiveProgressLine as h, normalizeEnv as i, normalizeAnyChannelId as it, getLogger as j, theme as k, setConsoleSubsystemFilter as l, setActivePluginRegistry as lt, restoreTerminalState as m, isTruthyEnvValue as n, getChatChannelMeta as nt, createSubsystemLogger as o, normalizeChatChannelId as ot, defaultRuntime as p, resolveRequiredHomeDir as pt, resolveNewStateDir as q, logAcceptedEnvOption as r, listChatChannels as rt, runtimeForLogger as s, getActivePluginRegistry as st, installProcessWarningFilter as t, formatChannelSelectionLine as tt, setConsoleTimestampPrefix as u, normalizeProfileName as ut, danger as v, shouldLogVerbose as w, logVerbose as x, info as y, resolveCanonicalConfigPath as z };
+export { CHANNEL_IDS as $, theme as A, resolveCanonicalConfigPath as B, logVerboseConsole as C, warn as D, success as E, normalizeLogLevel as F, resolveGatewayPort as G, resolveConfigPathCandidate as H, CONFIG_PATH as I, resolveNewStateDir as J, resolveIsNixMode as K, DEFAULT_GATEWAY_PORT as L, getLogger as M, getResolvedLoggerSettings as N, colorize as O, toPinoLikeLogger as P, resolvePreferredOpenClawTmpDir as Q, STATE_DIR as R, logVerbose as S, shouldLogVerbose as T, resolveDefaultConfigCandidates as U, resolveConfigPath as V, resolveGatewayLockDir as W, resolveOAuthPath as X, resolveOAuthDir as Y, resolveStateDir as Z, unregisterActiveProgressLine as _, parseBooleanValue as a, listChatChannels as at, isVerbose as b, enableConsoleCapture as c, normalizeChatChannelId as ct, shouldLogSubsystemToConsole as d, setActivePluginRegistry as dt, CHAT_CHANNEL_ORDER as et, visibleWidth as f, normalizeProfileName as ft, registerActiveProgressLine as g, clearActiveProgressLine as h, resolveRequiredHomeDir as ht, normalizeEnv as i, getChatChannelMeta as it, getChildLogger as j, isRich as k, setConsoleSubsystemFilter as l, getActivePluginRegistry as lt, restoreTerminalState as m, resolveEffectiveHomeDir as mt, isTruthyEnvValue as n, formatChannelPrimerLine as nt, createSubsystemLogger as o, normalizeAnyChannelId as ot, defaultRuntime as p, expandHomePrefix as pt, resolveLegacyStateDirs as q, logAcceptedEnvOption as r, formatChannelSelectionLine as rt, runtimeForLogger as s, normalizeChannelId as st, installProcessWarningFilter as t, DEFAULT_CHAT_CHANNEL as tt, setConsoleTimestampPrefix as u, requireActivePluginRegistry as ut, danger as v, setVerbose as w, isYes as x, info as y, isNixMode as z };

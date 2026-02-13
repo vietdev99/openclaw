@@ -474,6 +474,7 @@ export declare const BindingsSchema: z.ZodOptional<z.ZodArray<z.ZodObject<{
         }, z.core.$strict>>;
         guildId: z.ZodOptional<z.ZodString>;
         teamId: z.ZodOptional<z.ZodString>;
+        roles: z.ZodOptional<z.ZodArray<z.ZodString>>;
     }, z.core.$strict>;
 }, z.core.$strict>>>;
 export declare const BroadcastStrategySchema: z.ZodEnum<{

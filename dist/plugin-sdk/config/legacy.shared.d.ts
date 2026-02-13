@@ -8,7 +8,8 @@ export type LegacyConfigMigration = {
     describe: string;
     apply: (raw: Record<string, unknown>, changes: string[]) => void;
 };
-export declare const isRecord: (value: unknown) => value is Record<string, unknown>;
+import { isRecord } from "../utils.js";
+export { isRecord };
 export declare const getRecord: (value: unknown) => Record<string, unknown> | null;
 export declare const ensureRecord: (root: Record<string, unknown>, key: string) => Record<string, unknown>;
 export declare const mergeMissing: (target: Record<string, unknown>, source: Record<string, unknown>) => void;

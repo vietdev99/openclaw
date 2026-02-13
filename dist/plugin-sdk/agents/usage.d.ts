@@ -41,4 +41,5 @@ export declare function deriveSessionTotalTokens(params: {
         cacheWrite?: number;
     };
     contextTokens?: number;
+    promptTokens?: number;
 }): number | undefined;

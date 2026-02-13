@@ -11,7 +11,7 @@
  * Check if content contains suspicious patterns that may indicate injection.
  */
 export declare function detectSuspiciousPatterns(content: string): string[];
-export type ExternalContentSource = "email" | "webhook" | "api" | "channel_metadata" | "web_search" | "web_fetch" | "unknown";
+export type ExternalContentSource = "email" | "webhook" | "api" | "browser" | "channel_metadata" | "web_search" | "web_fetch" | "unknown";
 export type WrapExternalContentOptions = {
     /** Source of the external content */
     source: ExternalContentSource;

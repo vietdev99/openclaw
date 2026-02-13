@@ -9,9 +9,11 @@ export type WebMediaResult = {
 };
 export declare function loadWebMedia(mediaUrl: string, maxBytes?: number, options?: {
     ssrfPolicy?: SsrFPolicy;
+    localRoots?: string[] | "any";
 }): Promise<WebMediaResult>;
 export declare function loadWebMediaRaw(mediaUrl: string, maxBytes?: number, options?: {
     ssrfPolicy?: SsrFPolicy;
+    localRoots?: string[] | "any";
 }): Promise<WebMediaResult>;
 export declare function optimizeImageToJpeg(buffer: Buffer, maxBytes: number, opts?: {
     contentType?: string;

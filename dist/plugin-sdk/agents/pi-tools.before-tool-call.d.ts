@@ -1,4 +1,5 @@
 import type { AnyAgentTool } from "./tools/common.js";
+import { isPlainObject } from "../utils.js";
 type HookContext = {
     agentId?: string;
     sessionKey?: string;
@@ -10,7 +11,6 @@ type HookOutcome = {
     blocked: false;
     params: unknown;
 };
-declare function isPlainObject(value: unknown): value is Record<string, unknown>;
 export declare function runBeforeToolCallHook(args: {
     toolName: string;
     params: unknown;

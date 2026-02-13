@@ -17,6 +17,8 @@ type MessageSendParams = {
     mediaUrls?: string[];
     gifPlayback?: boolean;
     accountId?: string;
+    replyToId?: string;
+    threadId?: string | number;
     dryRun?: boolean;
     bestEffort?: boolean;
     deps?: OutboundSendDeps;

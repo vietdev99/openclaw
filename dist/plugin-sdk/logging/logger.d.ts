@@ -1,7 +1,7 @@
 import { Logger as TsLogger } from "tslog";
 import type { ConsoleStyle } from "./console.js";
 import { type LogLevel } from "./levels.js";
-export declare const DEFAULT_LOG_DIR = "/tmp/openclaw";
+export declare const DEFAULT_LOG_DIR: string;
 export declare const DEFAULT_LOG_FILE: string;
 export type LoggerSettings = {
     level?: LogLevel;

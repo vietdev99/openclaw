@@ -6,6 +6,8 @@ export declare function capArrayByJsonBytes<T>(items: T[], maxBytes: number): {
     items: T[];
     bytes: number;
 };
-export declare function readFirstUserMessageFromTranscript(sessionId: string, storePath: string | undefined, sessionFile?: string, agentId?: string): string | null;
+export declare function readFirstUserMessageFromTranscript(sessionId: string, storePath: string | undefined, sessionFile?: string, agentId?: string, opts?: {
+    includeInterSession?: boolean;
+}): string | null;
 export declare function readLastMessagePreviewFromTranscript(sessionId: string, storePath: string | undefined, sessionFile?: string, agentId?: string): string | null;
 export declare function readSessionPreviewItemsFromTranscript(sessionId: string, storePath: string | undefined, sessionFile: string | undefined, agentId: string | undefined, maxItems: number, maxChars: number): SessionPreviewItem[];

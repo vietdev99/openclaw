@@ -20,6 +20,7 @@ export type HeartbeatSummary = {
     model?: string;
     ackMaxChars: number;
 };
+export declare function isCronSystemEvent(evt: string): boolean;
 export type HeartbeatRunner = {
     stop: () => void;
     updateConfig: (cfg: OpenClawConfig) => void;

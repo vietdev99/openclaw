@@ -27,7 +27,7 @@ export declare const BrowserToolSchema: import("node_modules/@sinclair/typebox/b
     accept: import("node_modules/@sinclair/typebox/build/esm/index.mjs").TOptional<import("node_modules/@sinclair/typebox/build/esm/index.mjs").TBoolean>;
     promptText: import("node_modules/@sinclair/typebox/build/esm/index.mjs").TOptional<import("node_modules/@sinclair/typebox/build/esm/index.mjs").TString>;
     request: import("node_modules/@sinclair/typebox/build/esm/index.mjs").TOptional<import("node_modules/@sinclair/typebox/build/esm/index.mjs").TObject<{
-        kind: import("node_modules/@sinclair/typebox/build/esm/index.mjs").TUnsafe<"fill" | "type" | "close" | "select" | "wait" | "click" | "drag" | "evaluate" | "hover" | "press" | "resize">;
+        kind: import("node_modules/@sinclair/typebox/build/esm/index.mjs").TUnsafe<"fill" | "close" | "resize" | "type" | "select" | "wait" | "click" | "drag" | "evaluate" | "hover" | "press">;
         targetId: import("node_modules/@sinclair/typebox/build/esm/index.mjs").TOptional<import("node_modules/@sinclair/typebox/build/esm/index.mjs").TString>;
         ref: import("node_modules/@sinclair/typebox/build/esm/index.mjs").TOptional<import("node_modules/@sinclair/typebox/build/esm/index.mjs").TString>;
         doubleClick: import("node_modules/@sinclair/typebox/build/esm/index.mjs").TOptional<import("node_modules/@sinclair/typebox/build/esm/index.mjs").TBoolean>;

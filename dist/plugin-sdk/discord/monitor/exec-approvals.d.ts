@@ -53,6 +53,7 @@ export declare class DiscordExecApprovalHandler {
     private handleApprovalRequested;
     private handleApprovalResolved;
     private handleApprovalTimeout;
+    private finalizeMessage;
     private updateMessage;
     resolveApproval(approvalId: string, decision: ExecApprovalDecision): Promise<boolean>;
 }

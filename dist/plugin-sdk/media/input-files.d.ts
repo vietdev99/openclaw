@@ -1,3 +1,4 @@
+import type { SsrFPolicy } from "../infra/net/ssrf.js";
 export type InputImageContent = {
     type: "image";
     data: string;
@@ -15,6 +16,7 @@ export type InputPdfLimits = {
 };
 export type InputFileLimits = {
     allowUrl: boolean;
+    urlAllowlist?: string[];
     allowedMimes: Set<string>;
     maxBytes: number;
     maxChars: number;
@@ -24,6 +26,7 @@ export type InputFileLimits = {
 };
 export type InputImageLimits = {
     allowUrl: boolean;
+    urlAllowlist?: string[];
     allowedMimes: Set<string>;
     maxBytes: number;
     maxRedirects: number;
@@ -68,6 +71,8 @@ export declare function fetchWithGuard(params: {
     maxBytes: number;
     timeoutMs: number;
     maxRedirects: number;
+    policy?: SsrFPolicy;
+    auditContext?: string;
 }): Promise<InputFetchResult>;
 export declare function extractImageContentFromSource(source: InputImageSource, limits: InputImageLimits): Promise<InputImageContent>;
 export declare function extractFileContentFromSource(params: {

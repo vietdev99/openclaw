@@ -13,12 +13,14 @@ export type DiscordGuildEntryResolved = {
     requireMention?: boolean;
     reactionNotifications?: "off" | "own" | "all" | "allowlist";
     users?: Array<string | number>;
+    roles?: Array<string | number>;
     channels?: Record<string, {
         allow?: boolean;
         requireMention?: boolean;
         skills?: string[];
         enabled?: boolean;
         users?: Array<string | number>;
+        roles?: Array<string | number>;
         systemPrompt?: string;
         includeThreadStarter?: boolean;
         autoThread?: boolean;
@@ -30,6 +32,7 @@ export type DiscordChannelConfigResolved = {
     skills?: string[];
     enabled?: boolean;
     users?: Array<string | number>;
+    roles?: Array<string | number>;
     systemPrompt?: string;
     includeThreadStarter?: boolean;
     autoThread?: boolean;
@@ -57,6 +60,18 @@ export declare function resolveDiscordAllowListMatch(params: {
 }): DiscordAllowListMatch;
 export declare function resolveDiscordUserAllowed(params: {
     allowList?: Array<string | number>;
+    userId: string;
+    userName?: string;
+    userTag?: string;
+}): boolean;
+export declare function resolveDiscordRoleAllowed(params: {
+    allowList?: Array<string | number>;
+    memberRoleIds: string[];
+}): boolean;
+export declare function resolveDiscordMemberAllowed(params: {
+    userAllowList?: Array<string | number>;
+    roleAllowList?: Array<string | number>;
+    memberRoleIds: string[];
     userId: string;
     userName?: string;
     userTag?: string;

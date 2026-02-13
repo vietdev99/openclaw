@@ -14385,7 +14385,13 @@ function linkify(state, silent) {
 	if (!link) return false;
 	let url = link.url;
 	if (url.length <= proto.length) return false;
-	url = url.replace(/\*+$/, "");
+	let urlEnd = url.length;
+	while (urlEnd > 0 && url.charCodeAt(urlEnd - 1) === 42) {
+		urlEnd--;
+	}
+	if (urlEnd !== url.length) {
+		url = url.slice(0, urlEnd);
+	}
 	const fullUrl = state.md.normalizeLink(url);
 	if (!state.md.validateLink(fullUrl)) return false;
 	if (!silent) {

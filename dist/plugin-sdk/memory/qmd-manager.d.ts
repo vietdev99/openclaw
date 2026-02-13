@@ -89,6 +89,9 @@ export declare class QmdMemoryManager implements MemorySearchManager {
     private clampResultsByInjectedChars;
     private shouldSkipUpdate;
     private isSqliteBusyError;
+    private isUnsupportedQmdOptionError;
     private createQmdBusyError;
     private waitForPendingUpdateBeforeSearch;
+    private buildCollectionFilterArgs;
+    private buildSearchArgs;
 }

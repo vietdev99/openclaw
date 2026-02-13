@@ -73,6 +73,7 @@ export type BrowserActRequest = {
     fn: string;
     ref?: string;
     targetId?: string;
+    timeoutMs?: number;
 } | {
     kind: "close";
     targetId?: string;

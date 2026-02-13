@@ -11,7 +11,13 @@ export type HeartbeatRunResult = {
 export type HeartbeatWakeHandler = (opts: {
     reason?: string;
 }) => Promise<HeartbeatRunResult>;
-export declare function setHeartbeatWakeHandler(next: HeartbeatWakeHandler | null): void;
+/**
+ * Register (or clear) the heartbeat wake handler.
+ * Returns a disposer function that clears this specific registration.
+ * Stale disposers (from previous registrations) are no-ops, preventing
+ * a race where an old runner's cleanup clears a newer runner's handler.
+ */
+export declare function setHeartbeatWakeHandler(next: HeartbeatWakeHandler | null): () => void;
 export declare function requestHeartbeatNow(opts?: {
     reason?: string;
     coalesceMs?: number;

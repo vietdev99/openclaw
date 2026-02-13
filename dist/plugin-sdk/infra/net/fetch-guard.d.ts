@@ -10,6 +10,7 @@ export type GuardedFetchOptions = {
     policy?: SsrFPolicy;
     lookupFn?: LookupFn;
     pinDns?: boolean;
+    auditContext?: string;
 };
 export type GuardedFetchResult = {
     response: Response;

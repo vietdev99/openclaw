@@ -13,6 +13,7 @@ export declare function matchesMentionWithExplicit(params: {
     text: string;
     mentionRegexes: RegExp[];
     explicit?: ExplicitMentionSignal;
+    transcript?: string;
 }): boolean;
 export declare function stripStructuralPrefixes(text: string): string;
 export declare function stripMentions(text: string, ctx: MsgContext, cfg: OpenClawConfig | undefined, agentId?: string): string;

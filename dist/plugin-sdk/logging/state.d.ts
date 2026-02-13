@@ -8,6 +8,7 @@ export declare const loggingState: {
     consoleTimestampPrefix: boolean;
     consoleSubsystemFilter: string[] | null;
     resolvingConsoleSettings: boolean;
+    streamErrorHandlersInstalled: boolean;
     rawConsole: {
         log: typeof console.log;
         info: typeof console.info;

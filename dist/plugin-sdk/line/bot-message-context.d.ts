@@ -23,6 +23,7 @@ export declare function buildLineMessageContext(params: BuildLineMessageContextP
         LocationSource?: import("../channels/location.js").LocationSource | undefined;
         LocationIsLive?: boolean | undefined;
         Body: string;
+        BodyForAgent: string;
         RawBody: string;
         CommandBody: string;
         From: string;
@@ -62,6 +63,7 @@ export declare function buildLinePostbackContext(params: {
 }): Promise<{
     ctxPayload: {
         Body: string;
+        BodyForAgent: string;
         RawBody: string;
         CommandBody: string;
         From: string;

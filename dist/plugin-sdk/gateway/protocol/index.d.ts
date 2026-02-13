@@ -66,11 +66,8 @@ export declare const validateEventFrame: AjvPkg.ValidateFunction<{
     event: string;
 }>;
 export declare const validateSendParams: AjvPkg.ValidateFunction<{
-    message: any;
     to: any;
     idempotencyKey: any;
-} & {
-    message: any;
 } & {
     to: any;
 } & {

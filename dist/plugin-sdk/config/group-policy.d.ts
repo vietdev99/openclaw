@@ -27,12 +27,14 @@ export declare function resolveChannelGroupPolicy(params: {
     channel: GroupPolicyChannel;
     groupId?: string | null;
     accountId?: string | null;
+    groupIdCaseInsensitive?: boolean;
 }): ChannelGroupPolicy;
 export declare function resolveChannelGroupRequireMention(params: {
     cfg: OpenClawConfig;
     channel: GroupPolicyChannel;
     groupId?: string | null;
     accountId?: string | null;
+    groupIdCaseInsensitive?: boolean;
     requireMentionOverride?: boolean;
     overrideOrder?: "before-config" | "after-config";
 }): boolean;
@@ -41,4 +43,5 @@ export declare function resolveChannelGroupToolsPolicy(params: {
     channel: GroupPolicyChannel;
     groupId?: string | null;
     accountId?: string | null;
+    groupIdCaseInsensitive?: boolean;
 } & GroupToolPolicySender): GroupToolPolicyConfig | undefined;

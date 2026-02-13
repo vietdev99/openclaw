@@ -7,7 +7,7 @@ export declare const AgentEventSchema: import("node_modules/@sinclair/typebox/bu
 }>;
 export declare const SendParamsSchema: import("node_modules/@sinclair/typebox/build/esm/index.mjs").TObject<{
     to: import("node_modules/@sinclair/typebox/build/esm/index.mjs").TString;
-    message: import("node_modules/@sinclair/typebox/build/esm/index.mjs").TString;
+    message: import("node_modules/@sinclair/typebox/build/esm/index.mjs").TOptional<import("node_modules/@sinclair/typebox/build/esm/index.mjs").TString>;
     mediaUrl: import("node_modules/@sinclair/typebox/build/esm/index.mjs").TOptional<import("node_modules/@sinclair/typebox/build/esm/index.mjs").TString>;
     mediaUrls: import("node_modules/@sinclair/typebox/build/esm/index.mjs").TOptional<import("node_modules/@sinclair/typebox/build/esm/index.mjs").TArray<import("node_modules/@sinclair/typebox/build/esm/index.mjs").TString>>;
     gifPlayback: import("node_modules/@sinclair/typebox/build/esm/index.mjs").TOptional<import("node_modules/@sinclair/typebox/build/esm/index.mjs").TBoolean>;
@@ -48,6 +48,12 @@ export declare const AgentParamsSchema: import("node_modules/@sinclair/typebox/b
     timeout: import("node_modules/@sinclair/typebox/build/esm/index.mjs").TOptional<import("node_modules/@sinclair/typebox/build/esm/index.mjs").TInteger>;
     lane: import("node_modules/@sinclair/typebox/build/esm/index.mjs").TOptional<import("node_modules/@sinclair/typebox/build/esm/index.mjs").TString>;
     extraSystemPrompt: import("node_modules/@sinclair/typebox/build/esm/index.mjs").TOptional<import("node_modules/@sinclair/typebox/build/esm/index.mjs").TString>;
+    inputProvenance: import("node_modules/@sinclair/typebox/build/esm/index.mjs").TOptional<import("node_modules/@sinclair/typebox/build/esm/index.mjs").TObject<{
+        kind: import("node_modules/@sinclair/typebox/build/esm/index.mjs").TString;
+        sourceSessionKey: import("node_modules/@sinclair/typebox/build/esm/index.mjs").TOptional<import("node_modules/@sinclair/typebox/build/esm/index.mjs").TString>;
+        sourceChannel: import("node_modules/@sinclair/typebox/build/esm/index.mjs").TOptional<import("node_modules/@sinclair/typebox/build/esm/index.mjs").TString>;
+        sourceTool: import("node_modules/@sinclair/typebox/build/esm/index.mjs").TOptional<import("node_modules/@sinclair/typebox/build/esm/index.mjs").TString>;
+    }>>;
     idempotencyKey: import("node_modules/@sinclair/typebox/build/esm/index.mjs").TString;
     label: import("node_modules/@sinclair/typebox/build/esm/index.mjs").TOptional<import("node_modules/@sinclair/typebox/build/esm/index.mjs").TString>;
     spawnedBy: import("node_modules/@sinclair/typebox/build/esm/index.mjs").TOptional<import("node_modules/@sinclair/typebox/build/esm/index.mjs").TString>;

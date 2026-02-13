@@ -57,6 +57,12 @@ export type SessionEntry = {
     inputTokens?: number;
     outputTokens?: number;
     totalTokens?: number;
+    /**
+     * Whether totalTokens reflects a fresh context snapshot for the latest run.
+     * Undefined means legacy/unknown freshness; false forces consumers to treat
+     * totalTokens as stale/unknown for context-utilization displays.
+     */
+    totalTokensFresh?: boolean;
     modelProvider?: string;
     model?: string;
     contextTokens?: number;
@@ -82,6 +88,8 @@ export type SessionEntry = {
     systemPromptReport?: SessionSystemPromptReport;
 };
 export declare function mergeSessionEntry(existing: SessionEntry | undefined, patch: Partial<SessionEntry>): SessionEntry;
+export declare function resolveFreshSessionTotalTokens(entry?: Pick<SessionEntry, "totalTokens" | "totalTokensFresh"> | null): number | undefined;
+export declare function isSessionTotalTokensFresh(entry?: Pick<SessionEntry, "totalTokens" | "totalTokensFresh"> | null): boolean;
 export type GroupKeyResolution = {
     key: string;
     channel?: string;

@@ -1,10 +1,14 @@
 import type { Guild, Message, User } from "@buape/carbon";
-import { type EnvelopeFormatOptions } from "../../auto-reply/envelope.js";
+export type DiscordReplyContext = {
+    id: string;
+    channelId: string;
+    sender: string;
+    body: string;
+    timestamp?: number;
+};
 export declare function resolveReplyContext(message: Message, resolveDiscordMessageText: (message: Message, options?: {
     includeForwarded?: boolean;
-}) => string, options?: {
-    envelope?: EnvelopeFormatOptions;
-}): string | null;
+}) => string): DiscordReplyContext | null;
 export declare function buildDirectLabel(author: User, tagOverride?: string): string;
 export declare function buildGuildLabel(params: {
     guild?: Guild;

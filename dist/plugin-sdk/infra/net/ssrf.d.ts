@@ -8,6 +8,7 @@ export type LookupFn = typeof dnsLookup;
 export type SsrFPolicy = {
     allowPrivateNetwork?: boolean;
     allowedHostnames?: string[];
+    hostnameAllowlist?: string[];
 };
 export declare function isPrivateIpAddress(address: string): boolean;
 export declare function isBlockedHostname(hostname: string): boolean;

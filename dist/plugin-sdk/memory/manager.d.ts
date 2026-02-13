@@ -104,12 +104,6 @@ export declare class MemoryIndexManager implements MemorySearchManager {
     private resetIndex;
     private readMeta;
     private writeMeta;
-    private listSessionFiles;
-    private sessionPathForFile;
-    private normalizeSessionText;
-    private extractSessionText;
-    private buildSessionEntry;
-    private estimateEmbeddingTokens;
     private buildEmbeddingBatches;
     private loadEmbeddingCache;
     private upsertEmbeddingCache;

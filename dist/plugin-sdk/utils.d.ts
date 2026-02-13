@@ -1,4 +1,8 @@
 export declare function ensureDir(dir: string): Promise<void>;
+/**
+ * Check if a file or directory exists at the given path.
+ */
+export declare function pathExists(targetPath: string): Promise<boolean>;
 export declare function clampNumber(value: number, min: number, max: number): number;
 export declare function clampInt(value: number, min: number, max: number): number;
 /** Alias for clampNumber (shorter, more common name) */
@@ -11,6 +15,16 @@ export declare function escapeRegExp(value: string): string;
  * Safely parse JSON, returning null on error instead of throwing.
  */
 export declare function safeParseJson<T>(raw: string): T | null;
+/**
+ * Type guard for plain objects (not arrays, null, Date, RegExp, etc.).
+ * Uses Object.prototype.toString for maximum safety.
+ */
+export declare function isPlainObject(value: unknown): value is Record<string, unknown>;
+/**
+ * Type guard for Record<string, unknown> (less strict than isPlainObject).
+ * Accepts any non-null object that isn't an array.
+ */
+export declare function isRecord(value: unknown): value is Record<string, unknown>;
 export type WebChannel = "web";
 export declare function assertWebChannel(input: string): asserts input is WebChannel;
 export declare function normalizePath(p: string): string;

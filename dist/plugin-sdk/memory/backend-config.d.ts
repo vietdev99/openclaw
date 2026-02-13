@@ -1,6 +1,6 @@
 import type { OpenClawConfig } from "../config/config.js";
 import type { SessionSendPolicyConfig } from "../config/types.base.js";
-import type { MemoryBackend, MemoryCitationsMode } from "../config/types.memory.js";
+import type { MemoryBackend, MemoryCitationsMode, MemoryQmdSearchMode } from "../config/types.memory.js";
 export type ResolvedMemoryBackendConfig = {
     backend: MemoryBackend;
     citations: MemoryCitationsMode;
@@ -35,6 +35,7 @@ export type ResolvedQmdSessionConfig = {
 };
 export type ResolvedQmdConfig = {
     command: string;
+    searchMode: MemoryQmdSearchMode;
     collections: ResolvedQmdCollection[];
     sessions: ResolvedQmdSessionConfig;
     update: ResolvedQmdUpdateConfig;

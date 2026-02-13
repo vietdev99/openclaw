@@ -10,6 +10,7 @@ export declare function buildStatusReply(params: {
     sessionEntry?: SessionEntry;
     sessionKey: string;
     sessionScope?: SessionScope;
+    storePath?: string;
     provider: string;
     model: string;
     contextTokens: number;

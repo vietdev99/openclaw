@@ -1,4 +1,5 @@
 import type { Bot } from "grammy";
+import type { MsgContext } from "../auto-reply/templating.js";
 import type { OpenClawConfig } from "../config/config.js";
 import type { DmPolicy, TelegramGroupConfig, TelegramTopicConfig } from "../config/types.js";
 import type { StickerMetadata, TelegramContext } from "./bot/types.js";
@@ -62,6 +63,12 @@ export declare const buildTelegramMessageContext: ({ primaryCtx, allMedia, store
         LocationSource?: import("../channels/location.js").LocationSource | undefined;
         LocationIsLive?: boolean | undefined;
         Body: string;
+        BodyForAgent: string;
+        InboundHistory: {
+            sender: string;
+            body: string;
+            timestamp: number | undefined;
+        }[] | undefined;
         RawBody: string;
         CommandBody: string;
         From: string;
@@ -100,7 +107,7 @@ export declare const buildTelegramMessageContext: ({ primaryCtx, allMedia, store
         MediaUrls: string[] | undefined;
         MediaTypes: string[] | undefined;
         Sticker: StickerMetadata | undefined;
-    } & Omit<import("../auto-reply/templating.ts").MsgContext, "CommandAuthorized"> & {
+    } & Omit<MsgContext, "CommandAuthorized"> & {
         CommandAuthorized: boolean;
     };
     primaryCtx: TelegramContext;

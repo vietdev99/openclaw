@@ -9,4 +9,7 @@ export declare function runAgentStep(params: {
     timeoutMs: number;
     channel?: string;
     lane?: string;
+    sourceSessionKey?: string;
+    sourceChannel?: string;
+    sourceTool?: string;
 }): Promise<string | undefined>;

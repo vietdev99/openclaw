@@ -20,6 +20,7 @@ type StatusArgs = {
     sessionEntry?: SessionEntry;
     sessionKey?: string;
     sessionScope?: SessionScope;
+    sessionStorePath?: string;
     groupActivation?: "mention" | "always";
     resolvedThink?: ThinkLevel;
     resolvedVerbose?: VerboseLevel;

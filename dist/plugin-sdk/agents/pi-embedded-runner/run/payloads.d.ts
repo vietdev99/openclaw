@@ -17,6 +17,7 @@ export declare function buildEmbeddedRunPayloads(params: {
     };
     config?: OpenClawConfig;
     sessionKey: string;
+    provider?: string;
     verboseLevel?: VerboseLevel;
     reasoningLevel?: ReasoningLevel;
     toolResultFormat?: ToolResultFormat;

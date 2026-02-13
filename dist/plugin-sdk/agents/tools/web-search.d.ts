@@ -11,7 +11,34 @@ type GrokConfig = {
     model?: string;
     inlineCitations?: boolean;
 };
+type GrokSearchResponse = {
+    output?: Array<{
+        type?: string;
+        role?: string;
+        content?: Array<{
+            type?: string;
+            text?: string;
+            annotations?: Array<{
+                type?: string;
+                url?: string;
+                start_index?: number;
+                end_index?: number;
+            }>;
+        }>;
+    }>;
+    output_text?: string;
+    citations?: string[];
+    inline_citations?: Array<{
+        start_index: number;
+        end_index: number;
+        url: string;
+    }>;
+};
 type PerplexityBaseUrlHint = "direct" | "openrouter";
+declare function extractGrokContent(data: GrokSearchResponse): {
+    text: string | undefined;
+    annotationCitations: string[];
+};
 declare function inferPerplexityBaseUrlFromApiKey(apiKey?: string): PerplexityBaseUrlHint | undefined;
 declare function resolvePerplexityBaseUrl(perplexity?: PerplexityConfig, apiKeySource?: PerplexityApiKeySource, apiKey?: string): string;
 declare function isDirectPerplexityBaseUrl(baseUrl: string): boolean;
@@ -33,5 +60,6 @@ export declare const __testing: {
     readonly resolveGrokApiKey: typeof resolveGrokApiKey;
     readonly resolveGrokModel: typeof resolveGrokModel;
     readonly resolveGrokInlineCitations: typeof resolveGrokInlineCitations;
+    readonly extractGrokContent: typeof extractGrokContent;
 };
 export {};

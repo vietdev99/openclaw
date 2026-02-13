@@ -1,5 +1,5 @@
 import type { MarkdownTableMode } from "../config/types.base.js";
-export type MarkdownStyle = "bold" | "italic" | "strikethrough" | "code" | "code_block" | "spoiler";
+export type MarkdownStyle = "bold" | "italic" | "strikethrough" | "code" | "code_block" | "spoiler" | "blockquote";
 export type MarkdownStyleSpan = {
     start: number;
     end: number;

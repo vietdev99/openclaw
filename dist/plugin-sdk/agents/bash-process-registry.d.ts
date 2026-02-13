@@ -3,6 +3,7 @@ export type ProcessStatus = "running" | "completed" | "failed" | "killed";
 export type SessionStdin = {
     write: (data: string, cb?: (err?: Error | null) => void) => void;
     end: () => void;
+    destroy?: () => void;
     destroyed?: boolean;
 };
 export interface ProcessSession {
