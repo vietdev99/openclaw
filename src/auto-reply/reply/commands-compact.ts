@@ -6,8 +6,11 @@ import {
   isEmbeddedPiRunActive,
   waitForEmbeddedPiRunEnd,
 } from "../../agents/pi-embedded.js";
-import { emergencyCompactSession } from "../../agents/emergency-compaction.js";
-import { resolveSessionFilePath } from "../../config/sessions.js";
+import {
+  resolveFreshSessionTotalTokens,
+  resolveSessionFilePath,
+  resolveSessionFilePathOptions,
+} from "../../config/sessions.js";
 import { logVerbose } from "../../globals.js";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
 import { formatContextUsageShort, formatTokenCount } from "../status.js";
@@ -80,7 +83,14 @@ export const handleCompactCommand: CommandHandler = async (params) => {
     groupChannel: params.sessionEntry.groupChannel,
     groupSpace: params.sessionEntry.space,
     spawnedBy: params.sessionEntry.spawnedBy,
-    sessionFile: resolveSessionFilePath(sessionId, params.sessionEntry),
+    sessionFile: resolveSessionFilePath(
+      sessionId,
+      params.sessionEntry,
+      resolveSessionFilePathOptions({
+        agentId: params.agentId,
+        storePath: params.storePath,
+      }),
+    ),
     workspaceDir: params.workspaceDir,
     config: params.cfg,
     skillsSnapshot: params.sessionEntry.skillsSnapshot,
@@ -118,12 +128,9 @@ export const handleCompactCommand: CommandHandler = async (params) => {
   }
   // Use the post-compaction token count for context summary if available
   const tokensAfterCompaction = result.result?.tokensAfter;
-  const totalTokens =
-    tokensAfterCompaction ??
-    params.sessionEntry.totalTokens ??
-    (params.sessionEntry.inputTokens ?? 0) + (params.sessionEntry.outputTokens ?? 0);
+  const totalTokens = tokensAfterCompaction ?? resolveFreshSessionTotalTokens(params.sessionEntry);
   const contextSummary = formatContextUsageShort(
-    totalTokens > 0 ? totalTokens : null,
+    typeof totalTokens === "number" && totalTokens > 0 ? totalTokens : null,
     params.contextTokens ?? params.sessionEntry.contextTokens ?? null,
   );
   const reason = result.reason?.trim();
@@ -132,120 +139,4 @@ export const handleCompactCommand: CommandHandler = async (params) => {
     : `${compactLabel} • ${contextSummary}`;
   enqueueSystemEvent(line, { sessionKey: params.sessionKey });
   return { shouldContinue: false, reply: { text: `⚙️ ${line}` } };
-};
-
-/**
- * Handler for /compact:emergency command.
- *
- * Used when a session has exceeded the context window and normal compaction
- * would fail. This splits the session into chunks, summarizes each separately,
- * and creates a new compact session.
- */
-export const handleEmergencyCompactCommand: CommandHandler = async (params) => {
-  const emergencyRequested =
-    params.command.commandBodyNormalized === "/compact:emergency" ||
-    params.command.commandBodyNormalized.startsWith("/compact:emergency ");
-  if (!emergencyRequested) {
-    return null;
-  }
-  if (!params.command.isAuthorizedSender) {
-    logVerbose(
-      `Ignoring /compact:emergency from unauthorized sender: ${params.command.senderId || "<unknown>"}`,
-    );
-    return { shouldContinue: false };
-  }
-  if (!params.sessionEntry?.sessionId) {
-    return {
-      shouldContinue: false,
-      reply: { text: "🚨 Emergency compaction unavailable (missing session id)." },
-    };
-  }
-
-  const sessionId = params.sessionEntry.sessionId;
-
-  // Abort any running agent
-  if (isEmbeddedPiRunActive(sessionId)) {
-    abortEmbeddedPiRun(sessionId);
-    await waitForEmbeddedPiRunEnd(sessionId, 15_000);
-  }
-
-  const sessionFile = resolveSessionFilePath(sessionId, params.sessionEntry);
-  if (!sessionFile) {
-    return {
-      shouldContinue: false,
-      reply: { text: "🚨 Emergency compaction failed: cannot resolve session file." },
-    };
-  }
-
-  // Notify user that emergency compaction is starting
-  enqueueSystemEvent(
-    `Emergency compaction starting for session ${params.sessionKey ?? sessionId}...`,
-    { sessionKey: params.sessionKey },
-  );
-
-  try {
-    const result = await emergencyCompactSession({
-      sessionId,
-      sessionKey: params.sessionKey,
-      sessionFile,
-      workspaceDir: params.workspaceDir,
-      config: params.cfg,
-      provider: params.provider,
-      model: params.model,
-      keepBackup: true,
-    });
-
-    if (!result.ok) {
-      const errorMsg = result.error ?? "Unknown error";
-      const line = `Emergency compaction failed: ${errorMsg}`;
-      if (result.backupPath) {
-        enqueueSystemEvent(`Backup saved at: ${result.backupPath}`, {
-          sessionKey: params.sessionKey,
-        });
-      }
-      enqueueSystemEvent(line, { sessionKey: params.sessionKey });
-      return {
-        shouldContinue: false,
-        reply: { text: `🚨 ${line}` },
-      };
-    }
-
-    // Success
-    const tokensBefore = result.tokensBefore ?? 0;
-    const tokensAfter = result.tokensAfter ?? 0;
-    const chunks = result.chunksProcessed ?? 0;
-    const line =
-      `Emergency compaction complete: ` +
-      `${formatTokenCount(tokensBefore)} → ${formatTokenCount(tokensAfter)} ` +
-      `(${chunks} chunks processed)`;
-
-    if (result.backupPath) {
-      enqueueSystemEvent(`Backup saved at: ${result.backupPath}`, {
-        sessionKey: params.sessionKey,
-      });
-    }
-
-    // Update session metadata
-    await incrementCompactionCount({
-      sessionEntry: params.sessionEntry,
-      sessionStore: params.sessionStore,
-      sessionKey: params.sessionKey,
-      storePath: params.storePath,
-      tokensAfter,
-    });
-
-    enqueueSystemEvent(line, { sessionKey: params.sessionKey });
-    return {
-      shouldContinue: false,
-      reply: { text: `✅ ${line}` },
-    };
-  } catch (err) {
-    const errorMsg = String(err);
-    const line = `Emergency compaction crashed: ${errorMsg}`;
-    enqueueSystemEvent(line, { sessionKey: params.sessionKey });
-    return {
-      shouldContinue: false,
-      reply: { text: `🚨 ${line}` },
-    };
-  }
 };

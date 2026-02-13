@@ -114,38 +114,83 @@ function resolveAnthropicOpus46ForwardCompatModel(
   return undefined;
 }
 
-// google-antigravity forward-compat: if claude-opus-4-6-thinking isn't in the
-// registry (e.g. pi-ai hasn't published it yet), clone from claude-opus-4-5-thinking.
-function resolveAntigravityOpus46ForwardCompatModel(
+// Z.ai's GLM-5 may not be present in pi-ai's built-in model catalog yet.
+// When a user configures zai/glm-5 without a models.json entry, clone glm-4.7 as a forward-compat fallback.
+const ZAI_GLM5_MODEL_ID = "glm-5";
+const ZAI_GLM5_TEMPLATE_MODEL_IDS = ["glm-4.7"] as const;
+
+function resolveZaiGlm5ForwardCompatModel(
   provider: string,
   modelId: string,
   modelRegistry: ModelRegistry,
 ): Model<Api> | undefined {
-  const normalizedProvider = normalizeProviderId(provider);
-  if (normalizedProvider !== "google-antigravity") {
+  if (normalizeProviderId(provider) !== "zai") {
+    return undefined;
+  }
+  const trimmed = modelId.trim();
+  const lower = trimmed.toLowerCase();
+  if (lower !== ZAI_GLM5_MODEL_ID && !lower.startsWith(`${ZAI_GLM5_MODEL_ID}-`)) {
     return undefined;
   }
 
-  const trimmedModelId = modelId.trim();
-  const lower = trimmedModelId.toLowerCase();
-  if (lower !== "claude-opus-4-6-thinking") {
-    return undefined;
-  }
-
-  // Try to find the 4.5 template
-  const templateIds = ["claude-opus-4-5-thinking", "claude-sonnet-4-5-thinking"] as const;
-  for (const templateId of templateIds) {
-    const template = modelRegistry.find(normalizedProvider, templateId) as Model<Api> | null;
+  for (const templateId of ZAI_GLM5_TEMPLATE_MODEL_IDS) {
+    const template = modelRegistry.find("zai", templateId) as Model<Api> | null;
     if (!template) {
       continue;
     }
     return normalizeModelCompat({
       ...template,
-      id: trimmedModelId,
-      name: "Claude Opus 4.6 Thinking (Antigravity)",
+      id: trimmed,
+      name: trimmed,
+      reasoning: true,
     } as Model<Api>);
   }
 
+  return normalizeModelCompat({
+    id: trimmed,
+    name: trimmed,
+    api: "openai-completions",
+    provider: "zai",
+    reasoning: true,
+    input: ["text"],
+    cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+    contextWindow: DEFAULT_CONTEXT_TOKENS,
+    maxTokens: DEFAULT_CONTEXT_TOKENS,
+  } as Model<Api>);
+}
+
+// google-antigravity's model catalog in pi-ai can lag behind the actual platform.
+// When a google-antigravity model ID contains "opus-4-6" (or "opus-4.6") but isn't
+// in the registry yet, clone the opus-4-5 template so the correct api
+// ("google-gemini-cli") and baseUrl are preserved.
+const ANTIGRAVITY_OPUS_46_STEMS = ["claude-opus-4-6", "claude-opus-4.6"] as const;
+const ANTIGRAVITY_OPUS_45_TEMPLATES = ["claude-opus-4-5-thinking", "claude-opus-4-5"] as const;
+
+function resolveAntigravityOpus46ForwardCompatModel(
+  provider: string,
+  modelId: string,
+  modelRegistry: ModelRegistry,
+): Model<Api> | undefined {
+  if (normalizeProviderId(provider) !== "google-antigravity") {
+    return undefined;
+  }
+  const lower = modelId.trim().toLowerCase();
+  const isOpus46 = ANTIGRAVITY_OPUS_46_STEMS.some(
+    (stem) => lower === stem || lower.startsWith(`${stem}-`),
+  );
+  if (!isOpus46) {
+    return undefined;
+  }
+  for (const templateId of ANTIGRAVITY_OPUS_45_TEMPLATES) {
+    const template = modelRegistry.find("google-antigravity", templateId) as Model<Api> | null;
+    if (template) {
+      return normalizeModelCompat({
+        ...template,
+        id: modelId.trim(),
+        name: modelId.trim(),
+      } as Model<Api>);
+    }
+  }
   return undefined;
 }
 
@@ -241,6 +286,10 @@ export function resolveModel(
     );
     if (antigravityForwardCompat) {
       return { model: antigravityForwardCompat, authStorage, modelRegistry };
+    }
+    const zaiForwardCompat = resolveZaiGlm5ForwardCompatModel(provider, modelId, modelRegistry);
+    if (zaiForwardCompat) {
+      return { model: zaiForwardCompat, authStorage, modelRegistry };
     }
     const providerCfg = providers[provider];
     if (providerCfg || modelId.startsWith("mock-")) {
