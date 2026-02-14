@@ -1,5 +1,9 @@
 import { type OpenClawConfig, loadConfig } from "../config/config.js";
 import { resolveOpenClawAgentDir } from "./agent-paths.js";
+import {
+  ANTIGRAVITY_OPUS_46_FORWARD_COMPAT_CANDIDATES,
+  resolveForwardCompatModel,
+} from "./model-forward-compat.js";
 import { ensureOpenClawModelsJson } from "./models-config.js";
 
 export type ModelCatalogEntry = {
@@ -30,6 +34,33 @@ let importPiSdk = defaultImportPiSdk;
 const CODEX_PROVIDER = "openai-codex";
 const OPENAI_CODEX_GPT53_MODEL_ID = "gpt-5.3-codex";
 const OPENAI_CODEX_GPT53_SPARK_MODEL_ID = "gpt-5.3-codex-spark";
+
+function applyAntigravityForwardCompat(
+  models: ModelCatalogEntry[],
+  registry: { find: (provider: string, id: string) => unknown },
+): void {
+  for (const candidate of ANTIGRAVITY_OPUS_46_FORWARD_COMPAT_CANDIDATES) {
+    const exists = models.some((m) => m.provider === "google-antigravity" && m.id === candidate.id);
+    if (exists) {
+      continue;
+    }
+    const fallback = resolveForwardCompatModel(
+      "google-antigravity",
+      candidate.id,
+      registry as Parameters<typeof resolveForwardCompatModel>[2],
+    );
+    if (fallback) {
+      models.push({
+        id: fallback.id,
+        name: fallback.name || fallback.id,
+        provider: "google-antigravity",
+        contextWindow: fallback.contextWindow,
+        reasoning: fallback.reasoning,
+        input: fallback.input as Array<"text" | "image"> | undefined,
+      });
+    }
+  }
+}
 
 function applyOpenAICodexSparkFallback(models: ModelCatalogEntry[]): void {
   const hasSpark = models.some(
@@ -127,6 +158,16 @@ export async function loadModelCatalog(params?: {
         models.push({ id, name, provider, contextWindow, reasoning, input });
       }
       applyOpenAICodexSparkFallback(models);
+      const registryObj = Array.isArray(registry) ? undefined : registry;
+      if (
+        registryObj &&
+        typeof (registryObj as unknown as Record<string, unknown>).find === "function"
+      ) {
+        applyAntigravityForwardCompat(
+          models,
+          registryObj as unknown as { find: (provider: string, id: string) => unknown },
+        );
+      }
 
       if (models.length === 0) {
         // If we found nothing, don't cache this result so we can try again.
