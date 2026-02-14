@@ -307,6 +307,20 @@ export async function promptGatewayConfig(
     trustedProxy: trustedProxyConfig,
   });
 
+  // Control UI: prompt to disable device auth (needed for browser admin, e.g. Antigravity OAuth)
+  let disableControlUiDeviceAuth = cfg.gateway?.controlUi?.dangerouslyDisableDeviceAuth ?? false;
+  if (authMode !== "trusted-proxy") {
+    disableControlUiDeviceAuth = Boolean(
+      guardCancel(
+        await confirm({
+          message: "Allow Control UI admin without device identity? (needed for browser OAuth)",
+          initialValue: true,
+        }),
+        runtime,
+      ),
+    );
+  }
+
   next = {
     ...next,
     gateway: {
@@ -317,6 +331,10 @@ export async function promptGatewayConfig(
       auth: authConfig,
       ...(customBindHost && { customBindHost }),
       ...(trustedProxies && { trustedProxies }),
+      controlUi: {
+        ...next.gateway?.controlUi,
+        ...(disableControlUiDeviceAuth && { dangerouslyDisableDeviceAuth: true }),
+      },
       tailscale: {
         ...next.gateway?.tailscale,
         mode: tailscaleMode,

@@ -430,7 +430,11 @@ export function attachGatewayWsMessageHandler(params: {
           close(1008, truncateCloseReason(authMessage));
         };
         if (!device) {
-          if (scopes.length > 0) {
+          // Preserve scopes for authenticated Control UI clients with device auth bypass.
+          // Without this, the UI loses operator.admin and can't call admin methods
+          // like auth.profile.upsert (needed for Antigravity OAuth).
+          const preserveScopes = isControlUi && allowControlUiBypass && sharedAuthOk;
+          if (scopes.length > 0 && !preserveScopes) {
             scopes = [];
             connectParams.scopes = scopes;
           }
