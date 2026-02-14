@@ -10,6 +10,7 @@ export type LegacyConfigMigration = {
   apply: (raw: Record<string, unknown>, changes: string[]) => void;
 };
 
+import { isSafeExecutableValue } from "../infra/exec-safety.js";
 import { isRecord } from "../utils.js";
 export { isRecord };
 
@@ -45,45 +46,27 @@ export const mergeMissing = (target: Record<string, unknown>, source: Record<str
   }
 };
 
-const AUDIO_TRANSCRIPTION_CLI_ALLOWLIST = new Set([
-  "whisper",
-  "whisper-cli",
-  "sherpa-onnx-offline",
-  // Shell wrappers for custom transcription scripts
-  "powershell.exe",
-  "powershell",
-  "pwsh.exe",
-  "pwsh",
-  "bash",
-  "sh",
-  "zsh",
-  "cmd.exe",
-  "cmd",
-]);
-
 export const mapLegacyAudioTranscription = (value: unknown): Record<string, unknown> | null => {
   const transcriber = getRecord(value);
   const command = Array.isArray(transcriber?.command) ? transcriber?.command : null;
   if (!command || command.length === 0) {
     return null;
   }
-  const rawExecutable = String(command[0] ?? "").trim();
+  if (typeof command[0] !== "string") {
+    return null;
+  }
+  if (!command.every((part) => typeof part === "string")) {
+    return null;
+  }
+  const rawExecutable = command[0].trim();
   if (!rawExecutable) {
     return null;
   }
-  const executableName = rawExecutable.split(/[\\/]/).pop() ?? rawExecutable;
-  if (!AUDIO_TRANSCRIPTION_CLI_ALLOWLIST.has(executableName)) {
+  if (!isSafeExecutableValue(rawExecutable)) {
     return null;
   }
 
-  // Convert legacy template variables to new format
-  const convertLegacyTemplateVar = (arg: string): string => {
-    return arg
-      .replace(/\$\{input\}/gi, "{{MediaPath}}")
-      .replace(/\$\{output\}/gi, "{{OutputBase}}")
-      .replace(/\$\{outputDir\}/gi, "{{OutputDir}}");
-  };
-  const args = command.slice(1).map((part) => convertLegacyTemplateVar(String(part)));
+  const args = command.slice(1);
   const timeoutSeconds =
     typeof transcriber?.timeoutSeconds === "number" ? transcriber?.timeoutSeconds : undefined;
 

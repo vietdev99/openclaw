@@ -30,8 +30,6 @@ apps/shared/MoltbotKit/.build/
 **/ModuleCache/
 bin/
 bin/clawdbot-mac
-# Exception for whisper binaries
-!extended/packages/whisper/bin/
 bin/docs-list
 apps/macos/.build-local/
 apps/macos/.swiftpm/
@@ -84,10 +82,5 @@ USER.md
 /memory/
 .agent/*.json
 !.agent/workflows/
-local/
-
-# Temp/debug files
-build.log
-electron_stderr.txt
-electron_stdout.txt
-nul
+/local/
+package-lock.json
