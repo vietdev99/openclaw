@@ -10,6 +10,7 @@ import {
   DEFAULT_ACCOUNT_ID,
   normalizeAccountId,
 } from "openclaw/plugin-sdk";
+import { buildTlonAccountFields } from "./account-fields.js";
 import { tlonChannelConfigSchema } from "./config-schema.js";
 import { monitorTlonProvider } from "./monitor/index.js";
 import { tlonOnboardingAdapter } from "./onboarding.js";
@@ -17,6 +18,7 @@ import { formatTargetHint, normalizeShip, parseTlonTarget } from "./targets.js";
 import { resolveTlonAccount, listTlonAccountIds } from "./types.js";
 import { authenticate } from "./urbit/auth.js";
 import { UrbitChannelClient } from "./urbit/channel-client.js";
+import { ssrfPolicyFromAllowPrivateNetwork } from "./urbit/context.js";
 import { buildMediaText, sendDm, sendGroupMessage } from "./urbit/send.js";
 
 const TLON_CHANNEL_ID = "tlon" as const;
@@ -46,19 +48,7 @@ function applyTlonSetupConfig(params: {
   });
   const base = namedConfig.channels?.tlon ?? {};
 
-  const payload = {
-    ...(input.ship ? { ship: input.ship } : {}),
-    ...(input.url ? { url: input.url } : {}),
-    ...(input.code ? { code: input.code } : {}),
-    ...(typeof input.allowPrivateNetwork === "boolean"
-      ? { allowPrivateNetwork: input.allowPrivateNetwork }
-      : {}),
-    ...(input.groupChannels ? { groupChannels: input.groupChannels } : {}),
-    ...(input.dmAllowlist ? { dmAllowlist: input.dmAllowlist } : {}),
-    ...(typeof input.autoDiscoverChannels === "boolean"
-      ? { autoDiscoverChannels: input.autoDiscoverChannels }
-      : {}),
-  };
+  const payload = buildTlonAccountFields(input);
 
   if (useDefault) {
     return {
@@ -123,7 +113,7 @@ const tlonOutbound: ChannelOutboundAdapter = {
       throw new Error(`Invalid Tlon target. Use ${formatTargetHint()}`);
     }
 
-    const ssrfPolicy = account.allowPrivateNetwork ? { allowPrivateNetwork: true } : undefined;
+    const ssrfPolicy = ssrfPolicyFromAllowPrivateNetwork(account.allowPrivateNetwork);
     const cookie = await authenticate(account.url, account.code, { ssrfPolicy });
     const api = new UrbitChannelClient(account.url, cookie, {
       ship: account.ship.replace(/^~/, ""),
@@ -345,7 +335,7 @@ export const tlonPlugin: ChannelPlugin = {
         return { ok: false, error: "Not configured" };
       }
       try {
-        const ssrfPolicy = account.allowPrivateNetwork ? { allowPrivateNetwork: true } : undefined;
+        const ssrfPolicy = ssrfPolicyFromAllowPrivateNetwork(account.allowPrivateNetwork);
         const cookie = await authenticate(account.url, account.code, { ssrfPolicy });
         const api = new UrbitChannelClient(account.url, cookie, {
           ship: account.ship.replace(/^~/, ""),

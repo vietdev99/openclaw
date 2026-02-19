@@ -1,44 +1,12 @@
 import type { OpenClawConfig } from "../../config/config.js";
-import type { AuthProfileStrategy } from "../../config/types.auth.js";
+import { findNormalizedProviderValue, normalizeProviderId } from "../model-selection.js";
+import { dedupeProfileIds, listProfilesForProvider } from "./profiles.js";
 import type { AuthProfileStore } from "./types.js";
-import { normalizeProviderId } from "../model-selection.js";
-import { listProfilesForProvider } from "./profiles.js";
-import { isProfileInCooldown } from "./usage.js";
-
-function resolveProfileStrategy(
-  cfg: OpenClawConfig | undefined,
-  provider: string,
-): AuthProfileStrategy {
-  // 1. Check global strategy (agents.defaults.strategy) — takes precedence
-  const globalStrategy = (cfg?.agents?.defaults as Record<string, unknown> | undefined)?.strategy as
-    | AuthProfileStrategy
-    | undefined;
-  if (globalStrategy) return globalStrategy;
-
-  // 2. Fall back to per-provider strategy (auth.profileStrategy) for backward compat
-  const strategies = cfg?.auth?.profileStrategy;
-  if (!strategies) return "failover";
-  const providerKey = normalizeProviderId(provider);
-  for (const [key, value] of Object.entries(strategies)) {
-    if (normalizeProviderId(key) === providerKey) {
-      return value;
-    }
-  }
-  return "failover";
-}
-
-function resolveProfileUnusableUntil(stats: {
-  cooldownUntil?: number;
-  disabledUntil?: number;
-}): number | null {
-  const values = [stats.cooldownUntil, stats.disabledUntil]
-    .filter((value): value is number => typeof value === "number")
-    .filter((value) => Number.isFinite(value) && value > 0);
-  if (values.length === 0) {
-    return null;
-  }
-  return Math.max(...values);
-}
+import {
+  clearExpiredCooldowns,
+  isProfileInCooldown,
+  resolveProfileUnusableUntil,
+} from "./usage.js";
 
 export function resolveAuthProfileOrder(params: {
   cfg?: OpenClawConfig;
@@ -49,30 +17,13 @@ export function resolveAuthProfileOrder(params: {
   const { cfg, store, provider, preferredProfile } = params;
   const providerKey = normalizeProviderId(provider);
   const now = Date.now();
-  const storedOrder = (() => {
-    const order = store.order;
-    if (!order) {
-      return undefined;
-    }
-    for (const [key, value] of Object.entries(order)) {
-      if (normalizeProviderId(key) === providerKey) {
-        return value;
-      }
-    }
-    return undefined;
-  })();
-  const configuredOrder = (() => {
-    const order = cfg?.auth?.order;
-    if (!order) {
-      return undefined;
-    }
-    for (const [key, value] of Object.entries(order)) {
-      if (normalizeProviderId(key) === providerKey) {
-        return value;
-      }
-    }
-    return undefined;
-  })();
+
+  // Clear any cooldowns that have expired since the last check so profiles
+  // get a fresh error count and are not immediately re-penalized on the
+  // next transient failure. See #3604.
+  clearExpiredCooldowns(store, now);
+  const storedOrder = findNormalizedProviderValue(store.order, providerKey);
+  const configuredOrder = findNormalizedProviderValue(cfg?.auth?.order, providerKey);
   const explicitOrder = storedOrder ?? configuredOrder;
   const explicitProfiles = cfg?.auth?.profiles
     ? Object.entries(cfg.auth.profiles)
@@ -96,9 +47,6 @@ export function resolveAuthProfileOrder(params: {
     }
     const profileConfig = cfg?.auth?.profiles?.[profileId];
     if (profileConfig) {
-      if (profileConfig.disabled) {
-        return false;
-      }
       if (normalizeProviderId(profileConfig.provider) !== providerKey) {
         return false;
       }
@@ -131,41 +79,14 @@ export function resolveAuthProfileOrder(params: {
     }
     return false;
   });
-  const deduped: string[] = [];
-  for (const entry of filtered) {
-    if (!deduped.includes(entry)) {
-      deduped.push(entry);
-    }
-  }
+  const deduped = dedupeProfileIds(filtered);
 
-  // Resolve the profile strategy for this provider
-  const strategy = resolveProfileStrategy(cfg, provider);
-  console.log(
-    `[DEBUG-LB] strategy=${strategy}, provider=${provider}, deduped=[${deduped.join(", ")}]`,
-  );
-
-  // Load balance mode: always use round-robin (sort by lastUsed oldest first)
-  // regardless of explicit order or lastGood
-  if (strategy === "loadbalance") {
-    // Debug: log lastUsed for each profile
-    for (const p of deduped) {
-      const stats = store.usageStats?.[p];
-      const cred = store.profiles[p];
-      console.log(
-        `[DEBUG-LB]   profile=${p}, lastUsed=${stats?.lastUsed ?? "never"}, type=${cred?.type}, projectId=${cred?.type === "oauth" ? (cred as any).projectId : "N/A"}`,
-      );
-    }
-    const sorted = orderProfilesByMode(deduped, store);
-    console.log(`[DEBUG-LB] loadbalance sorted order: [${sorted.join(", ")}]`);
-    if (preferredProfile && sorted.includes(preferredProfile)) {
-      return [preferredProfile, ...sorted.filter((e) => e !== preferredProfile)];
-    }
-    return sorted;
-  }
-
-  // Failover mode (default): respect explicit order if specified,
-  // with cooldown sorting to avoid repeatedly selecting known-bad keys.
+  // If user specified explicit order (store override or config), respect it
+  // exactly, but still apply cooldown sorting to avoid repeatedly selecting
+  // known-bad/rate-limited keys as the first candidate.
   if (explicitOrder && explicitOrder.length > 0) {
+    // ...but still respect cooldown tracking to avoid repeatedly selecting a
+    // known-bad/rate-limited key as the first candidate.
     const available: string[] = [];
     const inCooldown: Array<{ profileId: string; cooldownUntil: number }> = [];
 
@@ -189,27 +110,22 @@ export function resolveAuthProfileOrder(params: {
 
     const ordered = [...available, ...cooldownSorted];
 
+    // Still put preferredProfile first if specified
     if (preferredProfile && ordered.includes(preferredProfile)) {
       return [preferredProfile, ...ordered.filter((e) => e !== preferredProfile)];
     }
     return ordered;
   }
 
-  // No explicit order in failover mode: prioritize lastGood, then others
-  const lastGood = store.lastGood?.[providerKey];
-  if (lastGood && deduped.includes(lastGood)) {
-    const rest = deduped.filter((e) => e !== lastGood);
-    if (preferredProfile && preferredProfile !== lastGood && rest.includes(preferredProfile)) {
-      return [preferredProfile, lastGood, ...rest.filter((e) => e !== preferredProfile)];
-    }
-    return [lastGood, ...rest];
-  }
-
-  // Fallback: round-robin for failover when no lastGood
+  // Otherwise, use round-robin: sort by lastUsed (oldest first)
+  // preferredProfile goes first if specified (for explicit user choice)
+  // lastGood is NOT prioritized - that would defeat round-robin
   const sorted = orderProfilesByMode(deduped, store);
+
   if (preferredProfile && sorted.includes(preferredProfile)) {
     return [preferredProfile, ...sorted.filter((e) => e !== preferredProfile)];
   }
+
   return sorted;
 }
 

@@ -1,5 +1,6 @@
 import type { LookupFn, SsrFPolicy } from "openclaw/plugin-sdk";
-import { validateUrbitBaseUrl } from "./base-url.js";
+import { ensureUrbitChannelOpen, pokeUrbitChannel, scryUrbitPath } from "./channel-ops.js";
+import { getUrbitContext, normalizeUrbitCookie } from "./context.js";
 import { urbitFetch } from "./fetch.js";
 
 export type UrbitChannelClientOptions = {
@@ -20,26 +21,13 @@ export class UrbitChannelClient {
   private channelId: string | null = null;
 
   constructor(url: string, cookie: string, options: UrbitChannelClientOptions = {}) {
-    const validated = validateUrbitBaseUrl(url);
-    if (!validated.ok) {
-      throw new Error(validated.error);
-    }
-
-    this.baseUrl = validated.baseUrl;
-    this.cookie = cookie.split(";")[0];
-    this.ship = (
-      options.ship?.replace(/^~/, "") ?? this.resolveShipFromHostname(validated.hostname)
-    ).trim();
+    const ctx = getUrbitContext(url, options.ship);
+    this.baseUrl = ctx.baseUrl;
+    this.cookie = normalizeUrbitCookie(cookie);
+    this.ship = ctx.ship;
     this.ssrfPolicy = options.ssrfPolicy;
     this.lookupFn = options.lookupFn;
     this.fetchImpl = options.fetchImpl;
-  }
-
-  private resolveShipFromHostname(hostname: string): string {
-    if (hostname.includes(".")) {
-      return hostname.split(".")[0] ?? hostname;
-    }
-    return hostname;
   }
 
   private get channelPath(): string {
@@ -55,141 +43,62 @@ export class UrbitChannelClient {
       return;
     }
 
-    this.channelId = `${Math.floor(Date.now() / 1000)}-${Math.random().toString(36).substring(2, 8)}`;
+    const channelId = `${Math.floor(Date.now() / 1000)}-${Math.random().toString(36).substring(2, 8)}`;
+    this.channelId = channelId;
 
-    // Create the channel.
-    {
-      const { response, release } = await urbitFetch({
-        baseUrl: this.baseUrl,
-        path: this.channelPath,
-        init: {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Cookie: this.cookie,
-          },
-          body: JSON.stringify([]),
+    try {
+      await ensureUrbitChannelOpen(
+        {
+          baseUrl: this.baseUrl,
+          cookie: this.cookie,
+          ship: this.ship,
+          channelId,
+          ssrfPolicy: this.ssrfPolicy,
+          lookupFn: this.lookupFn,
+          fetchImpl: this.fetchImpl,
         },
-        ssrfPolicy: this.ssrfPolicy,
-        lookupFn: this.lookupFn,
-        fetchImpl: this.fetchImpl,
-        timeoutMs: 30_000,
-        auditContext: "tlon-urbit-channel-open",
-      });
-
-      try {
-        if (!response.ok && response.status !== 204) {
-          throw new Error(`Channel creation failed: ${response.status}`);
-        }
-      } finally {
-        await release();
-      }
-    }
-
-    // Wake the channel (matches urbit/http-api behavior).
-    {
-      const { response, release } = await urbitFetch({
-        baseUrl: this.baseUrl,
-        path: this.channelPath,
-        init: {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Cookie: this.cookie,
-          },
-          body: JSON.stringify([
-            {
-              id: Date.now(),
-              action: "poke",
-              ship: this.ship,
-              app: "hood",
-              mark: "helm-hi",
-              json: "Opening API channel",
-            },
-          ]),
+        {
+          createBody: [],
+          createAuditContext: "tlon-urbit-channel-open",
         },
-        ssrfPolicy: this.ssrfPolicy,
-        lookupFn: this.lookupFn,
-        fetchImpl: this.fetchImpl,
-        timeoutMs: 30_000,
-        auditContext: "tlon-urbit-channel-wake",
-      });
-
-      try {
-        if (!response.ok && response.status !== 204) {
-          throw new Error(`Channel activation failed: ${response.status}`);
-        }
-      } finally {
-        await release();
-      }
+      );
+    } catch (error) {
+      this.channelId = null;
+      throw error;
     }
   }
 
   async poke(params: { app: string; mark: string; json: unknown }): Promise<number> {
     await this.open();
-    const pokeId = Date.now();
-    const pokeData = {
-      id: pokeId,
-      action: "poke",
-      ship: this.ship,
-      app: params.app,
-      mark: params.mark,
-      json: params.json,
-    };
-
-    const { response, release } = await urbitFetch({
-      baseUrl: this.baseUrl,
-      path: this.channelPath,
-      init: {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Cookie: this.cookie,
-        },
-        body: JSON.stringify([pokeData]),
-      },
-      ssrfPolicy: this.ssrfPolicy,
-      lookupFn: this.lookupFn,
-      fetchImpl: this.fetchImpl,
-      timeoutMs: 30_000,
-      auditContext: "tlon-urbit-poke",
-    });
-
-    try {
-      if (!response.ok && response.status !== 204) {
-        const errorText = await response.text().catch(() => "");
-        throw new Error(`Poke failed: ${response.status}${errorText ? ` - ${errorText}` : ""}`);
-      }
-      return pokeId;
-    } finally {
-      await release();
+    const channelId = this.channelId;
+    if (!channelId) {
+      throw new Error("Channel not opened");
     }
+    return await pokeUrbitChannel(
+      {
+        baseUrl: this.baseUrl,
+        cookie: this.cookie,
+        ship: this.ship,
+        channelId,
+        ssrfPolicy: this.ssrfPolicy,
+        lookupFn: this.lookupFn,
+        fetchImpl: this.fetchImpl,
+      },
+      { ...params, auditContext: "tlon-urbit-poke" },
+    );
   }
 
   async scry(path: string): Promise<unknown> {
-    const scryPath = `/~/scry${path}`;
-    const { response, release } = await urbitFetch({
-      baseUrl: this.baseUrl,
-      path: scryPath,
-      init: {
-        method: "GET",
-        headers: { Cookie: this.cookie },
+    return await scryUrbitPath(
+      {
+        baseUrl: this.baseUrl,
+        cookie: this.cookie,
+        ssrfPolicy: this.ssrfPolicy,
+        lookupFn: this.lookupFn,
+        fetchImpl: this.fetchImpl,
       },
-      ssrfPolicy: this.ssrfPolicy,
-      lookupFn: this.lookupFn,
-      fetchImpl: this.fetchImpl,
-      timeoutMs: 30_000,
-      auditContext: "tlon-urbit-scry",
-    });
-
-    try {
-      if (!response.ok) {
-        throw new Error(`Scry failed: ${response.status} for path ${path}`);
-      }
-      return await response.json();
-    } finally {
-      await release();
-    }
+      { path, auditContext: "tlon-urbit-scry" },
+    );
   }
 
   async getOurName(): Promise<string> {

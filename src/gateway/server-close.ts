@@ -1,12 +1,12 @@
 import type { Server as HttpServer } from "node:http";
 import type { WebSocketServer } from "ws";
 import type { CanvasHostHandler, CanvasHostServer } from "../canvas-host/server.js";
-import type { HeartbeatRunner } from "../infra/heartbeat-runner.js";
-import type { PluginServicesHandle } from "../plugins/services.js";
 import { type ChannelId, listChannelPlugins } from "../channels/plugins/index.js";
 import { stopGmailWatcher } from "../hooks/gmail-watcher.js";
-import { clearAllCommandLanes } from "../process/command-queue.js";
+import { clearCommandLane } from "../process/command-queue.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
+import type { HeartbeatRunner } from "../infra/heartbeat-runner.js";
+import type { PluginServicesHandle } from "../plugins/services.js";
 
 const closeLog = createSubsystemLogger("server-close");
 
@@ -43,7 +43,7 @@ export function createGatewayCloseHandler(params: {
         : null;
 
     // Clear all pending command queues first to speed up shutdown
-    const clearedTasks = clearAllCommandLanes();
+    const clearedTasks = clearCommandLane();
     if (clearedTasks > 0) {
       closeLog.info(`cleared ${clearedTasks} pending tasks from command queues`);
     }
