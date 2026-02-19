@@ -1,7 +1,7 @@
 import type { Server as HttpServer } from "node:http";
 import { GatewayLockError } from "../../infra/gateway-lock.js";
 
-const RETRY_COUNT = 5;
+const RETRY_COUNT = 10;
 const RETRY_DELAY_MS = 500;
 
 export async function listenGatewayHttpServer(params: {

@@ -212,6 +212,13 @@ export async function requestDevicePairing(
     }
     const existing = Object.values(state.pendingById).find((p) => p.deviceId === deviceId);
     if (existing) {
+      // If the new request is silent (local) but the existing one wasn't, upgrade it to silent
+      // so it can be auto-approved immediately.
+      if (req.silent && !existing.silent) {
+        existing.silent = true;
+        existing.remoteIp = req.remoteIp; // Update IP to the local one
+        await persistState(state, baseDir);
+      }
       return { status: "pending", request: existing, created: false };
     }
     const isRepair = Boolean(state.pairedByDeviceId[deviceId]);
